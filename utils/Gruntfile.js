@@ -38,6 +38,12 @@ module.exports = function(grunt) {
         }
       }
     },
+    execute: {
+        target: {
+            src: ['qrcode-gen.js']
+        }
+    },
+
     jshint: {
       files: ['Gruntfile.js', 'src/**/*.js'],
       options: {
@@ -53,6 +59,7 @@ module.exports = function(grunt) {
     qunit: {
       files: []
     },
+
     connect: {
       server: {
         options: {
@@ -75,6 +82,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-contrib-copy');
   grunt.loadNpmTasks('grunt-contrib-uglify');
+  grunt.loadNpmTasks('grunt-execute');
 
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-contrib-qunit');
@@ -84,6 +92,7 @@ module.exports = function(grunt) {
 
   grunt.registerTask('test', ['jshint', 'qunit']);
   grunt.registerTask('server', ['connect']);
+  grunt.registerTask('qr', ['execute']);
   grunt.registerTask('build', ['clean', 'concat', 'uglify']);
 
   grunt.registerTask('default', ['build', 'connect']);
