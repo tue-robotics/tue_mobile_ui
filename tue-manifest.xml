@@ -1,0 +1,4 @@
+<deps>
+    <library name="ros-groovy-rosbridge-server" type="system"/>
+</deps>
+
