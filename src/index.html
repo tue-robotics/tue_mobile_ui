@@ -1,5 +1,5 @@
 <!DOCTYPE HTML>
-<html lang="en-US">
+<html lang="en-US" manifest="manifest.appcache">
     <head>
         <title>Amigo Mobile UI</title>
         <link href="favicon.ico" rel="icon">
@@ -11,10 +11,12 @@
         <link rel="apple-touch-icon" href="apple-touch-icon.png">
         <link rel="apple-touch-startup-image" href="apple-touch-startup-image-320x460.png">
 
+        <!-- build:css css/style.css -->
         <link rel="stylesheet" type="text/css" href="../include/css/snap.css" />
         <link rel="stylesheet" type="text/css" href="../include/css/bootstrap.min.css" />
 
         <link rel="stylesheet" type="text/css" href="css/style.css" />
+        <!-- endbuild -->
     </head>
     <body>
 
@@ -361,6 +363,7 @@
             </div>
         </div>
 
+        <!-- build:js js/app.js -->
         <script src="../include/js/jquery-2.0.3.min.js"></script>
         <script src="../include/js/bootstrap.min.js"></script>
         <script src="../include/js/jquery.hammer.js"></script>
@@ -375,6 +378,7 @@
         <script src="js/canvas-teleop.js"></script>
 
         <script src="js/style.js"></script>   
-        <script src="js/button-handler.js"></script> 
+        <script src="js/button-handler.js"></script>
+        <!-- endbuild -->
     </body>
 </html>

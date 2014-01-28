@@ -3,45 +3,76 @@ module.exports = function(grunt) {
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
 
-    clean: ["build"],
-
-    concat: {
-      options: {
-        separator: ';'
-      },
-      dist: {
-        src: [
-          'include/js/jquery-2.0.3.min.js',
-          'include/js/bootstrap.min.js',
-          'include/js/jquery.hammer.js',
-          'include/js/snap.min.js',
-          'include/js/jquery.ba-hashchange.js',
-
-          'include/js/eventemitter2.js',
-          'include/js/roslib.js',
-
-          'src/js/teleop.js',
-          'src/js/teleop-amigo.js',
-          'src/js/style.js',
-          'src/js/button-handler.js'
-        ],
-        dest: 'build/<%= pkg.name %>.js'
+    clean: {
+      build: {
+        expand: true,
+        cwd: '../',
+        src: ['build/', 'utils/.tmp/'],
+        options: {
+          force: true
+        }
       }
     },
+
+    copy: {
+      build: {
+        files: [
+          {
+            expand: true,
+            cwd: '../src/',
+            src: ['**.html', 'img/**', '*.png', 'favicon.ico'],
+            dest: '../build/'
+          }
+        ]
+      }
+    },
+
     uglify: {
-      options: {
-        banner: '/*! <%= pkg.name %> <%= grunt.template.today("yyyy-mm-dd") %> */\n'
-      },
-      dist: {
-        files: {
-          'build/<%= pkg.name %>.min.js': ['<%= concat.dist.dest %>']
+      generated: {
+        options: {
+          mangle: false // compression breaks stuff
         }
       }
     },
-    execute: {
-        target: {
-            src: ['qrcode-gen.js']
-        }
+
+    manifest: {
+      dev: {
+        options: {
+          basePath: "../src/",
+          network: ["http://*", "https://*"],
+          // preferOnline: true,
+          verbose: true,
+          timestamp: true
+        },
+        src: [
+              "**.html",
+              "**.ico",
+              "js/**.js",
+              "css/**.css",
+              
+              "img/**.png",
+              "../include/css/**.css",
+              "../include/js/**.js",
+        ],
+        dest: "../src/manifest.appcache"
+      },
+      build: {
+        options: {
+          basePath: "../build/",
+          network: ["http://*", "https://*"],
+          // preferOnline: true,
+          verbose: true,
+          timestamp: true
+        },
+        src: [
+              "**.html",
+              "**.ico",
+              "js/**.js",
+              "css/**.css",
+              "img/**.png",
+        ],
+        dest: "../build/manifest.appcache"
+      }
     },
 
     jshint: {
@@ -56,6 +87,24 @@ module.exports = function(grunt) {
         }
       }
     },
+
+    'useminPrepare': {
+      html: '../src/**.html',
+      options: {
+        dest: '../build/'
+      }
+    },
+    usemin: {
+      html: ['../build/**/*.html'],
+      css: ['../build/**/*.css']
+    },
+
+    execute: {
+      target: {
+        src: ['qrcode-gen.js']
+      }
+    },
+
     qunit: {
       files: []
     },
@@ -79,9 +128,14 @@ module.exports = function(grunt) {
   });
 
   grunt.loadNpmTasks('grunt-contrib-clean');
-  grunt.loadNpmTasks('grunt-contrib-concat');
+
+  grunt.loadNpmTasks('grunt-usemin');
   grunt.loadNpmTasks('grunt-contrib-copy');
+  grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-contrib-uglify');
+  grunt.loadNpmTasks('grunt-contrib-cssmin');
+  grunt.loadNpmTasks('grunt-manifest');
+  
   grunt.loadNpmTasks('grunt-execute');
 
   grunt.loadNpmTasks('grunt-contrib-jshint');
@@ -93,7 +147,13 @@ module.exports = function(grunt) {
   grunt.registerTask('test', ['jshint', 'qunit']);
   grunt.registerTask('server', ['connect']);
   grunt.registerTask('qr', ['execute']);
-  grunt.registerTask('build', ['clean', 'concat', 'uglify']);
+  grunt.registerTask('build', [
+    'useminPrepare',
+    'copy',
+    'concat', 'uglify', 'cssmin',
+    'usemin',
+    'manifest:build',
+  ]);
 
-  grunt.registerTask('default', ['build', 'connect']);
+  grunt.registerTask('default', ['build']);
 };
