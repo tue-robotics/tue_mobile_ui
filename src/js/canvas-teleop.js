@@ -45,14 +45,14 @@ function init() {
     .resize();
 
   // initialize hammer.js
-  hammertime = $(canvas).hammer({
+  hammertime = Hammer(canvas, {
     drag_max_touches: 1,
     prevent_default: true
   });
 
   // first touch start event
   hammertime.on("touch", function(e) {
-    e.gesture.preventDefault(); // stop scrolling
+    e.gesture.stopPropagation(); // stop scrolling
 
     var pos = e.gesture.center;
     startPos = convertPageXY(pos.pageX, pos.pageY);
