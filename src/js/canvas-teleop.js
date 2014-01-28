@@ -2,6 +2,7 @@
 * Control pad like interface for TeleOp via HTML5 Canvas
 *
 * this package:
+* - requires a ros connection
 * - initializes a TeleOp
 **/
 
@@ -26,12 +27,6 @@ var currentPos;
 var buttonReconnect, modalReconnect;
 
 function initTeleop() {
-
-  // Connecting to ROS.
-  ros = new ROSLIB.Ros({
-    url : rosUrl
-  });
-
   // Initialize the teleop.
   teleop = new TELEOP.Teleop({
     ros : ros,

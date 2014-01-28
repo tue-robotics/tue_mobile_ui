@@ -48,6 +48,8 @@ function init() {
   ros.addListener('error', function(e) {
     console.log('rosbridge connection error');
   });
+
+  console.log('ros connect loaded');
 }
 
 // when the dom is ready, start the code
