@@ -12,7 +12,8 @@ function init_text_to_speech() {
 
 function handleTextToSpeech(message) {
 	var url = "http://tts-api.com/tts.mp3?q=" + encodeURIComponent(message.data);
-	playAudio(url);
+	if (audio_active)
+		playAudio(url);
 }
 
 function playAudio(string) {
