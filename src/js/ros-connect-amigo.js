@@ -50,6 +50,9 @@ function init() {
   });
 
   console.log('ros connect loaded');
+
+  // Initialize text to speech listener (say)
+  init_text_to_speech();
 }
 
 // when the dom is ready, start the code

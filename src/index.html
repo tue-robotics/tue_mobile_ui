@@ -19,6 +19,9 @@
         <!-- endbuild -->
     </head>
     <body>
+        <audio>
+            <source src="http://www.xamuel.com/blank-mp3-files/point1sec.mp3" type="audio/mp3" />
+        </audio>
 
         <!-- Modal -->
         <div class="modal fade" id="modalConnectionLost" tabindex="-1" role="dialog" aria-labelledby="modalConnectionLostLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
@@ -39,7 +42,7 @@
         </div><!-- /.modal -->
 
         <div class="snap-drawers">
-            <div class="snap-drawer snap-drawer-left">
+            <div class="snap-drawer snap-drawer-left" id="menu">
                 <div>
                     <h4>Challenges</h4>
                     <ul>
@@ -64,6 +67,13 @@
                     </ul>
 
                 </div>
+            </div>
+
+            <div class="snap-drawer snap-drawer-right" id="toggles">
+                <h4>Toggles</h4>
+                <ul>
+                    <li><button class="red" id="toggle-audio">Audio</button></li>
+                </ul> 
             </div>
         </div>
         
@@ -379,6 +389,7 @@
 
         <script src="js/style.js"></script>   
         <script src="js/button-handler.js"></script>
+        <script src="js/text-to-speech.js"></script>
         <!-- endbuild -->
     </body>
 </html>

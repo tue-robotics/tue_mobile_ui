@@ -32,7 +32,6 @@ $( document ).ready(function() {
 /* Initialize snapper */
 var snapper = new Snap({
     element: document.getElementById('content'),
-    disable: 'right'
 });
 
 /* Prevent Safari opening links when viewing as a Mobile App */

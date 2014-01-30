@@ -133,4 +133,6 @@ table.buttons .btn {
   font-size: 12px;
 }
 
+.toggle-active { background-color: green; }
+
 #teleop-canvas {}
