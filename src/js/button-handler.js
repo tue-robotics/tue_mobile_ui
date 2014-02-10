@@ -1,6 +1,13 @@
 $( document ).ready(function() {
 	$('#main button').click(function() {
-        var req = $(this).attr('data-src').split("|");
+
+		var data = $(this).attr('data-src');
+		if (!data || data.indexOf("|") == -1) {
+			console.log('no suitable data-src');
+			return;
+		}
+
+        var req = data.split("|");
 
         // Remove whitespace due to the returns
         for (var i=0; i<req.length; i++) {

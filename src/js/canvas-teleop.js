@@ -16,6 +16,8 @@ var teleop;
 
 var offset; // position of the canvas relative to the document
 
+var cursorImg;
+
 // code wrapper
 (function () {
 "use strict";
@@ -40,9 +42,10 @@ function init() {
   // initialize canvas stuff
   canvas = $('#teleop-canvas')[0];
   ctx = canvas.getContext("2d");
+  loadAssets();
 
   $(window).resize(resizeCanvas)
-    .resize();
+    .resize(); // force resize
 
   // initialize hammer.js
   hammertime = Hammer(canvas, {
@@ -85,8 +88,18 @@ function init() {
   window.setInterval(updateVelocity, 100);
 }
 
+function loadAssets() {
+  /*
+  cursorImg = new Image();
+  cursorImg.src = 'img/cursor.svg';
+  $(cursorImg).load(function(){
+    draw();
+  });
+  */
+}
+
 function debugCorners() {
-  ctx.fillRect(0,0,10,10)
+  ctx.fillRect(0,0,10,10);
 }
 
 function resizeCanvas() {
@@ -98,11 +111,16 @@ function resizeCanvas() {
 
   window.scrollTo(0, 1);
 
-  //draw();
+  draw();
 }
 
 function convertPageXY(x, y) {
   return {x: x, y: y - 50};
+}
+
+function drawImageCentered(img, x, y, w, h)
+{
+  ctx.drawImage(img, x - w/2, y - h/2, w, h);
 }
 
 function drawController(pos, thumbPos)
@@ -159,7 +177,7 @@ function draw() {
 }
 
 function clearCanvas() {
-  ctx.fillStyle = '#4D4D4D'
+  ctx.fillStyle = '#4D4D4D';
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 }
 
@@ -182,7 +200,7 @@ var publishing = false;
 var speed, theta;
 function updateVelocity() {
     if (publishing) {
-        sendCmdVel()
+        sendCmdVel();
     }
 }
 

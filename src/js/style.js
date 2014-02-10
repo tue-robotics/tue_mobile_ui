@@ -27,6 +27,14 @@ $( document ).ready(function() {
             snapper.open('left');
         }
     });
+
+    $('#toggle-options').click(function() {
+        if( snapper.state().state=="right" ){
+            snapper.close();
+        } else {
+            snapper.open('right');
+        }
+    });
 });
 
 /* Initialize snapper */
