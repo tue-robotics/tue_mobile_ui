@@ -1,10 +1,11 @@
 <!DOCTYPE HTML>
 <html lang="en-US" manifest="manifest.appcache">
     <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <title>Amigo Mobile UI</title>
-        <link href="favicon.ico" rel="icon">
-        <meta http-equiv="x-ua-compatible" content="IE=edge" />
         <meta name="viewport" content="initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
+        <link href="favicon.ico" rel="icon">
 
         <!-- Apple Web Applications configuration -->
         <meta name="apple-mobile-web-app-capable" content="yes">
@@ -23,7 +24,7 @@
             <source src="http://www.xamuel.com/blank-mp3-files/point1sec.mp3" type="audio/mp3" />
         </audio>
 
-        <!-- Modal -->
+        <!-- lost connection modal -->
         <div class="modal fade" id="modalConnectionLost" tabindex="-1" role="dialog" aria-labelledby="modalConnectionLostLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
           <div class="modal-dialog">
             <div class="modal-content">
@@ -341,7 +342,7 @@
 
                 <div id="texttospeech" data-title="Text to Speech">
                     <table class="buttons">
-                        <tr><td><textarea class="form-control" rows="5" id="texttospeech"></textarea></td></tr>
+                        <tr><td><textarea class="form-control" rows="5"></textarea></td></tr>
                         <tr><td><button type="button" class="btn btn-default" data-src="TextToSpeech">Text to Speech</button></td></tr>
                     </table>
                 </div>

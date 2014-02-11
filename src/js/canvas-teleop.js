@@ -6,6 +6,9 @@
 * - initializes a TeleOp
 **/
 
+/* jshint newcap: false */
+/* global MY_GLOBAL */
+
 /*global $:false */
 
 // global variables
