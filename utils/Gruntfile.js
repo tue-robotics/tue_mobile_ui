@@ -114,8 +114,8 @@ module.exports = function(grunt) {
         options: {
           port: 8000,
           hostname: '*',
-          base: '.',
-          directory: '.',
+          base: '../',
+          directory: '../',
           keepalive: true,
           debug: true,
         }
