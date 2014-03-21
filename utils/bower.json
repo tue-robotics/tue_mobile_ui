@@ -17,11 +17,21 @@
     "yamm3": "~0.1.3"
   },
   "install": {
-    "path": "../include/vendors",
+    "path" : {
+      "css": "../include/css",
+      "js":  "../include/js",
+      "eot":  "../include/fonts",
+      "svg":  "../include/fonts",
+      "ttf":  "../include/fonts",
+      "woff": "../include/fonts"
+    },
     "sources" : {
       "snapjs": [
         "bower_components/snapjs/snap.js",
         "bower_components/snapjs/snap.css"
+      ],
+      "jquery-hashchange": [
+        "bower_components/jquery-hashchange/jquery.ba-hashchange.js"
       ]
     }
   }
