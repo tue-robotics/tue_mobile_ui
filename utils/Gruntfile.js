@@ -20,7 +20,13 @@ module.exports = function(grunt) {
           {
             expand: true,
             cwd: '../src/',
-            src: ['**.html', 'img/**', '*.png', 'favicon.ico'],
+            src: ['**.html', 'img/*.png', '*.png', 'favicon.ico'],
+            dest: '../build/'
+          },
+          {
+            expand: true,
+            cwd: '../include',
+            src: ['fonts/*'],
             dest: '../build/'
           }
         ]
@@ -32,46 +38,6 @@ module.exports = function(grunt) {
         options: {
           mangle: false // compression breaks stuff
         }
-      }
-    },
-
-    manifest: {
-      dev: {
-        options: {
-          basePath: "../src/",
-          network: ["http://*", "https://*"],
-          // preferOnline: true,
-          verbose: true,
-          timestamp: true
-        },
-        src: [
-              "**.html",
-              "**.ico",
-              "js/**.js",
-              "css/**.css",
-              
-              "img/**.png",
-              "../include/css/**.css",
-              "../include/js/**.js",
-        ],
-        dest: "../src/manifest.appcache"
-      },
-      build: {
-        options: {
-          basePath: "../build/",
-          network: ["http://*", "https://*"],
-          // preferOnline: true,
-          verbose: true,
-          timestamp: true
-        },
-        src: [
-              "**.html",
-              "**.ico",
-              "js/**.js",
-              "css/**.css",
-              "img/**.png",
-        ],
-        dest: "../build/manifest.appcache"
       }
     },
 
@@ -105,10 +71,6 @@ module.exports = function(grunt) {
       }
     },
 
-    qunit: {
-      files: []
-    },
-
     connect: {
       server: {
         options: {
@@ -123,36 +85,33 @@ module.exports = function(grunt) {
     },
     watch: {
       files: ['<%= jshint.files %>'],
-      tasks: ['jshint', 'qunit']
+      tasks: ['jshint']
     }
   });
 
   grunt.loadNpmTasks('grunt-contrib-clean');
-
   grunt.loadNpmTasks('grunt-usemin');
   grunt.loadNpmTasks('grunt-contrib-copy');
   grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-contrib-cssmin');
-  grunt.loadNpmTasks('grunt-manifest');
   
   grunt.loadNpmTasks('grunt-execute');
 
   grunt.loadNpmTasks('grunt-contrib-jshint');
-  grunt.loadNpmTasks('grunt-contrib-qunit');
 
   grunt.loadNpmTasks('grunt-contrib-connect');
   grunt.loadNpmTasks('grunt-contrib-watch');
 
-  grunt.registerTask('test', ['jshint', 'qunit']);
+  grunt.registerTask('test', ['jshint']);
   grunt.registerTask('server', ['connect']);
   grunt.registerTask('qr', ['execute']);
   grunt.registerTask('build', [
+    'clean',
     'useminPrepare',
     'copy',
     'concat', 'uglify', 'cssmin',
     'usemin',
-    'manifest:build',
   ]);
 
   grunt.registerTask('default', ['build']);
