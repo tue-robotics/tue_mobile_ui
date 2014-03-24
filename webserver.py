@@ -1,47 +1,53 @@
 #!/usr/bin/env python
-######
-####	Rein Appeldoorn '13
-##
-#
 
-from SimpleHTTPServer import *
-import BaseHTTPServer
-import glob
-import roslib
-import os
+import rospy
 import sys
 
-############################
-## Index.html constructor ##
-############################
+default_port = 8000
 
-#index = open('index.html','w')
+# frist try to create a twisted server
+def createTwistedServer(port):
+	from twisted.web.server import Site
+	from twisted.web.static import File
+	from twisted.internet import reactor
 
-#index.write(open('src/top.html').read())
+	print('using TwistedServer')
+	resource = File('.')
+	factory = Site(resource)
+	reactor.listenTCP(port, factory)
 
-# Load the main modules
-#for main_module in glob.glob("src/main_modules/*.html"):
-#    index.write(open(main_module).read())
+	print("Serving HTTP on 0.0.0.0 port %d ...: " % port)
+	reactor.run()
 
-#index.write(open('src/middle.html').read())
+# if that fails, create a create a SimpleHTTPRequestHandler
+def createSimpleHTTPServer(port):
+	import SimpleHTTPServer
+	import SocketServer
 
-# Load the sidebar modules
-#for sidebar_module in glob.glob("src/sidebar_modules/*.html"):
-#    index.write(open(sidebar_module).read())
+	print('using SimpleHTTPServer')
 
-#index.write(open('src/bottom.html').read())
-#index.close()
+	Handler = SimpleHTTPServer.SimpleHTTPRequestHandler
+	httpd = SocketServer.TCPServer(("", port), Handler)
 
-############################
-## The simple html server ##
-############################
+	print("Serving HTTP on 0.0.0.0 port %d ...: " % port)
+	httpd.serve_forever()
 
-os.chdir(roslib.packages.get_pkg_dir('amigo_mobile_ui'))
+if __name__ == '__main__':
+	try:
+		port = rospy.get_param('/amigo_mobile_webserver/port', default_port)
+		print('using port %d from parameter server' % port)
+	except:
+		print('no parameter server running, getting port from argv')
+		print sys.argv
+		if len(sys.argv) > 1 and sys.argv[1].isdigit():
+			port = int(sys.argv[1])
+		else:
+			port = default_port
 
-#PORT
-sys.argv[1] = '8000'
-
-HandlerClass = SimpleHTTPRequestHandler
-ServerClass = BaseHTTPServer.HTTPServer
-
-BaseHTTPServer.test(HandlerClass, ServerClass)
+	try:
+		try:
+			createTwistedServer(port)
+		except ImportError:
+			createSimpleHTTPServer(port)
+	except KeyboardInterrupt:
+		pass
