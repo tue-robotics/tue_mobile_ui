@@ -23,7 +23,7 @@ $( document ).ready(function() {
                 html += '<td';
 
                 // Last one
-                if ( i == cats[cat].length-1 ) {
+                if ( i == cats[cat].length-1 && i%3 < 2 ) {
                     var colspan = 3-(i%3);
                     console.log(colspan);
                     html += ' colspan="'+colspan+'"';
@@ -36,6 +36,7 @@ $( document ).ready(function() {
 
         }
         html += "</table>";
+        console.log(html);
         
         $('#skillserver').html(html);
                                 
