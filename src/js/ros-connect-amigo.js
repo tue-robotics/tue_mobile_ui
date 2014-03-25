@@ -106,7 +106,7 @@ function pingNodesAlive() {
   }, pingTimeout);
 
   pingClient.callService(request, function(result) {
-    console.debug('Result for service call: ', result);
+    console.log('Result for service call: ', result);
     var diff = new Date() - start;
     start = -1;
 
