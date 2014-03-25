@@ -38,6 +38,7 @@ table.buttons td.table-header {
 
 table.buttons .btn {
 	width: 100%;
+    font-size: 10pt;
 }
 
 /* Demo toolbar styles */

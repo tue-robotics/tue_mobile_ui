@@ -13,25 +13,9 @@ $( document ).ready(function() {
             html += '<tr><td colspan="3" class="table-header">'+cat+'</td></tr>';
             for ( var i = 0; i < cats[cat].length; i++ ) {
                
-                if ( i % 3 == 0 ) { 
-                    if ( i > 0 ) {
-                        html += "</tr>";
-                    }
-                    html += "<tr>";                        
-                }
-
-                html += '<td';
-
-                // Last one
-                if ( i == cats[cat].length-1 && i%3 < 2 ) {
-                    var colspan = 3-(i%3);
-                    html += ' colspan="'+colspan+'"';
-                }
-
-                html += '><button type="button" class="btn btn-default" data-src="SkillCommand|'+ cats[cat][i].name +'()">' + cats[cat][i].name + '</button></td>';
+                html += '<tr><td colspan="3"><button type="button" class="btn btn-default" data-src="SkillCommand|'+ cats[cat][i].name +'()">' + cats[cat][i].name + '</button></td></tr>';
 
             }
-            html += "</tr>";
 
         }
         html += "</table>";
