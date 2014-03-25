@@ -2,6 +2,10 @@
 
 import rospy
 import sys
+import os
+import roslib
+
+os.chdir(roslib.packages.get_pkg_dir('amigo_mobile_ui'))
 
 default_port = 8000
 
