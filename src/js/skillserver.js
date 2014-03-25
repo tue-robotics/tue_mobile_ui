@@ -25,7 +25,6 @@ $( document ).ready(function() {
                 // Last one
                 if ( i == cats[cat].length-1 && i%3 < 2 ) {
                     var colspan = 3-(i%3);
-                    console.log(colspan);
                     html += ' colspan="'+colspan+'"';
                 }
 
