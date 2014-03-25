@@ -11,8 +11,8 @@
 
 // configuration
 var rosUrl = 'ws://' + window.location.hostname + ':9090';
-var pingInterval = 5000;
-var pingTimeout = 50;
+var pingInterval = 5000;  // ms. The time between pings
+var pingTimeout = 65;     // ms. If ros doesn't respond within this period of time, close the connection
 
 // global variables
 var ros;
@@ -50,16 +50,27 @@ function initConnectionManager() {
 
   ros.addListener('connection', function(e) {
     console.log('rosbridge connection made');
-    modalReconnect.modal('hide');
+    buttonReconnect.button('loading');
   });
 
   ros.addListener('close', function(e) {
     console.log('rosbridge connection closed');
+    buttonReconnect.button('reset');
     modalReconnect.modal('show');
   });
 
   ros.addListener('error', function(e) {
     console.log('rosbridge connection error');
+  });
+
+  ros.addListener('ping.ok', function(e) {
+    console.log('rosbridge ping with %i ms', e);
+    modalReconnect.modal('hide');
+  });
+
+  ros.addListener('ping.timeout', function(e) {
+    console.log('rosbridge ping timeout of %i ms', e);
+    ros.close();
   });
 }
 
@@ -73,7 +84,14 @@ function initPingService() {
     serviceType : 'node_alive/ListNodesAlive'
   });
 
-  setInterval(pingNodesAlive, pingInterval);
+  var pingId;
+  ros.addListener('connection', function() {
+    pingNodesAlive();
+    pingId = setInterval(pingNodesAlive, pingInterval);
+  });
+  ros.addListener('close', function() {
+    clearInterval(pingId);
+  });
 }
 
 function pingNodesAlive() {
@@ -83,8 +101,7 @@ function pingNodesAlive() {
   
   setTimeout(function() {
     if (start != -1) { // check if already received a response
-      console.warn('ping timeout was exceeded (%i ms)', pingTimeout);
-      ros.close();
+      ros.emit('ping.timeout', pingTimeout);
     }
   }, pingTimeout);
 
@@ -92,6 +109,8 @@ function pingNodesAlive() {
     console.debug('Result for service call: ', result);
     var diff = new Date() - start;
     start = -1;
+
+    ros.emit('ping.ok', diff);
   });
 }
 
