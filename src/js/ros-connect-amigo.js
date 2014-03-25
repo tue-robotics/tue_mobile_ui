@@ -86,7 +86,7 @@ function initPingService() {
 
   var pingId;
   ros.addListener('connection', function() {
-    pingNodesAlive();
+    setTimeout(pingNodesAlive, pingTimeout);
     pingId = setInterval(pingNodesAlive, pingInterval);
   });
   ros.addListener('close', function() {
@@ -106,7 +106,7 @@ function pingNodesAlive() {
   }, pingTimeout);
 
   pingClient.callService(request, function(result) {
-    console.log('Result for service call: ', result);
+    //console.log('Result for service call: ', result);
     var diff = new Date() - start;
     start = -1;
 
