@@ -19,7 +19,6 @@ $( document ).ready(function() {
 
         }
         html += "</table>";
-        console.log(html);
         
         $('#skillserver').html(html);
                                 
