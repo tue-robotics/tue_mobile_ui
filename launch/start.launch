@@ -12,7 +12,7 @@
 
     <!-- Start the simple webserver to handle static files -->    
     <node pkg="amigo_mobile_ui" type="webserver.py" name="amigo_mobile_webserver" output="screen">
-		<param name="port" value="8000" />
+        <param name="port" value="8000" />
     </node>
 
 </launch>
