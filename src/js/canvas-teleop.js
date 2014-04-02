@@ -12,7 +12,7 @@
 /*global $:false, Hammer:false */
 
 // dependencies
-/*global TELEOP, ros:false */
+/*global TELEOP:false, ros:false */
 
 // global variables
 

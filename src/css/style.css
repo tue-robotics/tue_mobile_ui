@@ -150,3 +150,7 @@ table.buttons .btn {
   font-size: 22px;
   cursor: pointer;
 }
+
+.history-ping {
+  background-color: white;
+}
