@@ -7,17 +7,16 @@
 **/
 
 /* jshint newcap: false */
-/* global MY_GLOBAL */
 
-/*global $:false */
+// libraries
+/*global $:false, Hammer:false */
+
+// dependencies
+/*global TELEOP, ros:false */
 
 // global variables
-var canvas, ctx;
 
-var hammertime;
 var teleop;
-
-var offset; // position of the canvas relative to the document
 
 var cursorImg;
 
@@ -26,10 +25,14 @@ var cursorImg;
 "use strict";
 
 // private variables
+var canvas, ctx;
+
+var hammertime;
+
+var offset; // position of the canvas relative to the document
+
 var startPos;
 var currentPos;
-
-var buttonReconnect, modalReconnect;
 
 function initTeleop() {
   // Initialize the teleop.
@@ -99,10 +102,6 @@ function loadAssets() {
     draw();
   });
   */
-}
-
-function debugCorners() {
-  ctx.fillRect(0,0,10,10);
 }
 
 function resizeCanvas() {
