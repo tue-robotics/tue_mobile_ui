@@ -16,7 +16,7 @@ var draw, test;
 
 var pingHistory;
 
-var historyLength = 60*5*1000; // 5 minutes
+var historyLength = 10*60*1000; // 10 minutes
 
 // code wrapper
 (function () {
