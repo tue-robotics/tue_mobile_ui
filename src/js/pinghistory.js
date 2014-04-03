@@ -14,7 +14,9 @@ var canvas, ctx;
 
 var draw, test;
 
-var pingHistory = [];
+var pingHistory;
+
+var historyLength = 60*5*1000; // 5 minutes
 
 // code wrapper
 (function () {
@@ -64,13 +66,28 @@ test = function() {
 function init() {
     typeof(ros) == 'undefined' || ros.addListener('ping.ok', function(e) {
         pingHistory.push({t:+new Date, p:e})
+        localStorage.setItem('ping', JSON.stringify(pingHistory));
         draw();
-        console.log('draw');
     });
 
     // initialize canvas stuff
     canvas = $('.history-ping')[0];
     ctx = canvas.getContext("2d");
+
+    try {
+        var pings = JSON.parse(localStorage.getItem('ping'));
+        var now = +new Date;
+
+        pingHistory = [];
+        for (var i=0; i<pings.length; i++) {
+            if (pings[i].t > now - historyLength)
+                pingHistory.push({t:pings[i].t, p:pings[i].p});
+        }
+    } catch (e) {
+        console.error(e.message);
+        console.log('no valid ping history found, clearing localStorage');
+        localStorage.setItem('ping', JSON.stringify(pingHistory));
+    }
 
     draw();
 }
