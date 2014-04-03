@@ -80,8 +80,11 @@ function init() {
 
         pingHistory = [];
         for (var i=0; i<pings.length; i++) {
-            if (pings[i].t > now - historyLength)
-                pingHistory.push({t:pings[i].t, p:pings[i].p});
+            var t = +pings[i].t;
+            var p = +pings[i].p;
+
+            if (p && t > now - historyLength)
+                pingHistory.push({t:t, p:p});
         }
     } catch (e) {
         console.error(e.message);
