@@ -36,7 +36,11 @@ draw = function () {
     ctx.fillRect(0, 0, width, height);
 
     // obtain the max ping
-    var max = Math.max.apply(null, pingHistory.map(function(o){return o.p}));
+    var pings = pingHistory.map(function(o){return o.p});
+    var max = Math.max.apply(null, pings);
+    var min = Math.min.apply(null, pings);
+
+    var avg = 0;
 
     var now = +new Date;
     var timeSpan = now - pingHistory[0].t;
@@ -44,11 +48,18 @@ draw = function () {
     var i = pingHistory.length;
     while (i--) {
         var o = pingHistory[i];
+        avg += o.p;
+
         var bar    = Math.floor(height * o.p / max);
         var barPos = Math.floor(width  * (now - o.t) / timeSpan);
         ctx.fillStyle = "green";
         ctx.fillRect(barPos, height, 5, -bar);
     }
+
+    avg = (avg / pings.length).toFixed(1);
+
+    ctx.fillStyle = "black";
+    ctx.fillText('min/avg/max = ' + min + '/' + avg + '/' + max, 4, height - 4);
 };
 
 test = function() {
