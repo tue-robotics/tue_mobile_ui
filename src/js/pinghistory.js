@@ -86,9 +86,11 @@ function init() {
     ctx = canvas.getContext("2d");
 
     try {
-        var pings = JSON.parse(localStorage.getItem('ping'));
-        var now = +new Date;
+        var pings = JSON.parse(localStorage.getItem('ping')) || [];
 
+        // parse each item in the array as {int t:timeStamp, int p:ping}
+        // throw away items older than historyLength
+        var now = +new Date;
         pingHistory = [];
         for (var i=0; i<pings.length; i++) {
             var t = +pings[i].t;
