@@ -18,6 +18,7 @@ def createTwistedServer(port):
 
 	root = static.File('.')
 	root.indexNames=['index.html']
+	root.contentTypes['.woff'] = 'application/font-woff'
 	factory = server.Site(root)
 
 	print("Serving HTTP on 0.0.0.0 port %d ...: " % port)
