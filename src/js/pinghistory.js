@@ -6,7 +6,7 @@
 /*global $:false */
 
 // dependencies
-/*global pingHistory:false */
+/*global pingHistory:true */
 
 // globals
 
@@ -36,13 +36,13 @@ draw = function () {
     ctx.fillRect(0, 0, width, height);
 
     // obtain the max ping
-    var pings = pingHistory.map(function(o){return o.p});
+    var pings = pingHistory.map(function(o){return o.p;});
     var max = Math.max.apply(null, pings);
     var min = Math.min.apply(null, pings);
 
     var avg = 0;
 
-    var now = +new Date;
+    var now = +new Date();
     var timeSpan = now - pingHistory[0].t;
 
     var i = pingHistory.length;
@@ -68,18 +68,20 @@ test = function() {
     while (d < +new Date()) {
         var diff = Math.random()*2 + 4;
         var ping = Math.floor(Math.random()*15+30);
-        pingHistory.push({t:Math.floor(d), p:ping})
+        pingHistory.push({t:Math.floor(d), p:ping});
         d += diff;
     }
     draw();
-}
+};
 
 function init() {
-    typeof(ros) == 'undefined' || ros.addListener('ping.ok', function(e) {
-        pingHistory.push({t:+new Date, p:e})
-        localStorage.setItem('ping', JSON.stringify(pingHistory));
-        draw();
-    });
+    if (typeof(ros) != 'undefined') {
+        ros.addListener('ping.ok', function(e) {
+            pingHistory.push({t:+new Date(), p:e});
+            localStorage.setItem('ping', JSON.stringify(pingHistory));
+            draw();
+        });
+    }
 
     // initialize canvas stuff
     canvas = $('.history-ping')[0];
@@ -90,7 +92,7 @@ function init() {
 
         // parse each item in the array as {int t:timeStamp, int p:ping}
         // throw away items older than historyLength
-        var now = +new Date;
+        var now = +new Date();
         pingHistory = [];
         for (var i=0; i<pings.length; i++) {
             var t = +pings[i].t;
