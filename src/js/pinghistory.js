@@ -25,26 +25,70 @@ var historyLength = 10*60*1000; // 10 minutes
 var barWidth = 3;
 
 draw = function () {
-    if (pingHistory.length < 3) {
-        return;
-    }
 
+    // clear the canvas
     var width  = canvas.width;
     var height = canvas.height;
 
     ctx.fillStyle = "white";
     ctx.fillRect(0, 0, width, height);
 
-    // obtain the max ping
+    // not enough datapoints
+    if (pingHistory.length < 3) {
+        return;
+    }
+
+    // obtain various ping stats
     var pings = pingHistory.map(function(o){return o.p;});
     var max = Math.max.apply(null, pings);
     var min = Math.min.apply(null, pings);
-
-    var avg = 0;
+    var avg = (pings.reduce(function (last,cur){
+        return last+cur;
+    })/pings.length).toFixed(1);
 
     var now = +new Date();
-    var timeSpan = now - pingHistory[0].t;
+    var start = now - historyLength;
 
+    var pingGradient = ctx.createLinearGradient(0, height, 0, 0);
+    pingGradient.addColorStop(0.0,  "#040");
+    pingGradient.addColorStop(0.3,  "#080");
+    pingGradient.addColorStop(1.0,  "#080");
+
+    var pingGradientInterp = ctx.createLinearGradient(0, height, 0, 0);
+    pingGradientInterp.addColorStop(0.0,  "#040");
+    pingGradientInterp.addColorStop(0.3,  "#080");
+    pingGradientInterp.addColorStop(1.0,  "#0c0");
+    
+    // loop over each horizontal line
+    var pos = 0; // position in the pings array
+    var lastpos = 0;
+    for (var i = 0; i < width; i++) {
+
+        var time = start + historyLength*i/width;
+
+        while (pos+1 < pings.length && pingHistory[pos+1].t < time) {
+            pos++;
+        }
+
+        var ping;
+        if (pos == lastpos && pos+1 < pingHistory.length) {
+            ctx.fillStyle = pingGradientInterp;
+            // interpolate the value
+            var x0 = pingHistory[pos  ].t;
+            var x1 = pingHistory[pos+1].t;
+            var y0 = pingHistory[pos  ].p;
+            var y1 = pingHistory[pos+1].p;
+            ping = y0 + (y1 - y0)*(time - x0)/(x1 - x0);
+        } else {
+            ctx.fillStyle = pingGradient;
+            lastpos = pos;
+            ping = pingHistory[pos].p;
+        }
+        
+        ctx.fillRect(i, height, 1, -ping*height/max);
+    }
+
+    /*
     var i = pingHistory.length;
     while (i--) {
         var o = pingHistory[i];
@@ -52,13 +96,11 @@ draw = function () {
 
         var bar    = Math.floor(height * o.p / max);
         var barPos = Math.floor(width  * (now - o.t) / timeSpan);
-        ctx.fillStyle = "green";
-        ctx.fillRect(barPos, height, 5, -bar);
+        
     }
+    */
 
-    avg = (avg / pings.length).toFixed(1);
-
-    ctx.fillStyle = "black";
+    ctx.fillStyle = "white";
     ctx.fillText('min/avg/max = ' + min + '/' + avg + '/' + max, 4, height - 4);
 };
 
