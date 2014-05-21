@@ -38,7 +38,7 @@ function initTeleop() {
   // Initialize the teleop.
   teleop = new TELEOP.Teleop({
     ros : ros,
-    topic : '/amigo/base/references'
+    topic : '/cmd_vel'
   });
 }
 
