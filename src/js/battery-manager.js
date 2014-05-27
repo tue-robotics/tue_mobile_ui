@@ -2,6 +2,8 @@ var set_battery;
 
 $(document).ready(function() {
 
+var listener;
+
 ros.addListener('connection', function(e) {
 	init();
 });
@@ -21,8 +23,18 @@ function init() {
 		"aria-valuemin": 0,
 		"aria-valuemax": 100
 	});
-
-	set_battery(60);
+	
+	listener = new ROSLIB.Topic({
+		ros : ros,
+		name : '/amigo/battery_percentage',
+		messageType : 'std_msgs/Float32'
+	});
+	
+	listener.subscribe(function(message) {
+		var percent = message.data; // float32
+		set_battery(percent);
+		console.log('Received message on ' + listener.name + ': ' + message.data);
+	});
 }
 
 set_battery = function(percent) {
