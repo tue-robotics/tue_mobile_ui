@@ -14,16 +14,17 @@
     "jquery": "~2.1.0",
     "jquery-hashchange": "*",
     "snapjs": "*",
-    "yamm3": "~1.0.0"
+    "yamm3": "~1.0.0",
+    "threejs": "*"
   },
   "install": {
     "path": {
-      "css": "../include/css",
-      "js": "../include/js",
-      "eot": "../include/fonts",
-      "svg": "../include/fonts",
-      "ttf": "../include/fonts",
-      "woff": "../include/fonts"
+      "css": "../include-new/css",
+      "js": "../include-new/js",
+      "eot": "../include-new/fonts",
+      "svg": "../include-new/fonts",
+      "ttf": "../include-new/fonts",
+      "woff": "../include-new/fonts"
     },
     "sources": {
       "snapjs": [
@@ -32,7 +33,14 @@
       ],
       "jquery-hashchange": [
         "bower_components/jquery-hashchange/jquery.ba-hashchange.js"
-      ]
+      ],
+      "console-polyfill": {
+        "mapping": [
+          {
+            "bower_components/console-polyfill/index.js": "console-polyfill.js"
+          }
+        ]
+      }
     }
   }
 }
