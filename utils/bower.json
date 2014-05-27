@@ -14,18 +14,18 @@
     "jquery": "~2.1.0",
     "jquery-hashchange": "*",
     "snapjs": "*",
-    "yamm3": "~0.1.3"
+    "yamm3": "~1.0.0"
   },
   "install": {
-    "path" : {
-      "css": "../include/css",
-      "js":  "../include/js",
-      "eot":  "../include/fonts",
-      "svg":  "../include/fonts",
-      "ttf":  "../include/fonts",
+    "path": {
+      "css" : "../include/css",
+      "js"  : "../include/js",
+      "eot" : "../include/fonts",
+      "svg" : "../include/fonts",
+      "ttf" : "../include/fonts",
       "woff": "../include/fonts"
     },
-    "sources" : {
+    "sources": {
       "snapjs": [
         "bower_components/snapjs/snap.js",
         "bower_components/snapjs/snap.css"
