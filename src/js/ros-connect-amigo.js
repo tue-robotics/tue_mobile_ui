@@ -26,9 +26,6 @@ function init() {
   initConnectionManager();
   initPingService();
 
-  // Initialize text to speech listener (say)
-  init_text_to_speech();
-
   console.log('ros-connect-amigo initialized');
 }
 
@@ -95,10 +92,10 @@ function initPingService() {
 }
 
 function pingNodesAlive() {
-  
+
   var request = new ROSLIB.ServiceRequest({});
   var start = new Date();
-  
+
   setTimeout(function() {
     if (start != -1) { // check if already received a response
       ros.emit('ping.timeout', pingTimeout);

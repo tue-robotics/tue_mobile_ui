@@ -1,4 +1,10 @@
+$(document).ready(function() {
+
 var audio_active = false;
+
+ros.addListener('connection', function(e) {
+	init_text_to_speech();
+});
 
 function init_text_to_speech() {
 	var text_to_speech_listener = new ROSLIB.Topic({
@@ -23,12 +29,19 @@ function playAudio(string) {
 	$("audio")[0].play();
 }
 
+$("#toggle-audio").addClass("btn-warning");
+
 $("#toggle-audio").click(function() {
-	$(this).toggleClass("toggle-active");
 	if (!audio_active) {
 		audio_active = true;
 		playAudio("http://www.xamuel.com/blank-mp3-files/point1sec.mp3");
+		$(this).removeClass("btn-warning");
+		$(this).addClass("btn-success");
 	} else {
 		audio_active = false;
+		$(this).removeClass("btn-success");
+		$(this).addClass("btn-warning");
 	}
 });
+
+}); // document ready
