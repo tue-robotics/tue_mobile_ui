@@ -15,7 +15,8 @@
     "jquery-hashchange": "*",
     "snapjs": "*",
     "yamm3": "~1.0.0",
-    "requirejs": "~2.1.13"
+    "requirejs": "~2.1.13",
+    "underscore": "~1.6.0"
   },
   "install": {
     "path": {
