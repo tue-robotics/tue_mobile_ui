@@ -15,7 +15,7 @@ $(document).ready(function () {
 		text = text.toLowerCase();
 		text = text.replace('  ', ' ');
 
-		var line = $('<li class="list-group-item">Amigo heared: ' + text + '</li>');
+		var line = $('<li class="list-group-item">Amigo heard: ' + text + '</li>');
 		log.prepend(line);
 
 		var hearTopic = new ROSLIB.Topic({
