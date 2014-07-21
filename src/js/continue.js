@@ -12,6 +12,8 @@ $(document).ready(function () {
 		input.focus();
 
 		text = text.replace(/[^A-Za-z ]/g, '');
+		text = text.toLowerCase();
+		text = text.replace('  ', ' ');
 
 		var line = $('<li class="list-group-item">Amigo heared: ' + text + '</li>');
 		log.prepend(line);
