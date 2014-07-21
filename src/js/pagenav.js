@@ -6,7 +6,7 @@ $( document ).ready(function() {
         if (!hash) return;
 
         // remove all active classes in #main
-        $('#main .active').removeClass("active");
+        $('#main > .active').removeClass("active");
 
         // create active page
         var page = $(hash);
