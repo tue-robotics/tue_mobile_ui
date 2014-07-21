@@ -12,8 +12,17 @@ $(document).ready(function () {
 		input.focus();
 
 		var line = $('<div>Amigo heared: ' + text + '</div>');
-		log.append(line);
-		console.log(text);
+		log.prepend(line);
 
+		var hearTopic = new ROSLIB.Topic({
+			ros : ros,
+			name : '/pocketsphinx/output',
+			messageType : 'std_msgs/String'
+		});
+
+		var hear = new ROSLIB.Message({
+			data: text,
+		});
+		hearTopic.publish(hear);
 	});
 });
