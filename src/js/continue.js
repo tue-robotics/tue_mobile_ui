@@ -11,7 +11,9 @@ $(document).ready(function () {
 		input.val('');
 		input.focus();
 
-		var line = $('<div>Amigo heared: ' + text + '</div>');
+		text = text.replace(/[^A-Za-z ]/g, '');
+
+		var line = $('<li class="list-group-item">Amigo heared: ' + text + '</li>');
 		log.prepend(line);
 
 		var hearTopic = new ROSLIB.Topic({
