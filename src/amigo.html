@@ -55,6 +55,7 @@
                     <ul>
                         <li><a href="#soundboard">Sound Board</a></li>
                         <li><a href="#texttospeech">Text to Speech</a></li>
+                        <li><a href="#amigohear">Amigo hear</a></li>
                     </ul>
 
                     <h4>Skill Server</h4>
@@ -352,6 +353,18 @@
                     </table>
                 </div>
 
+                <div id="amigohear" data-title="Amigo hear">
+                    <div class="container">
+                    <form role="form" class="continue">
+                        <div class="form-group">
+                          <label for="disabledTextInput">Enter the text amigo should hear:</label>
+                          <input type="text" class="form-control continue" placeholder="Enter the text and press <enter> ...">
+                        </div>
+                    </form>
+                    <ul id="hear-log" class="list-group"></ul>
+                    </div>
+                </div>
+
                 <div id="skillserver" data-title="Skill Server">
                     <!-- Fill m up scotty -->
                     <p>I shouldn't be here, I should be a set of buttons :(. Did you start the skill-server? Otherwise refresh :).</p>
@@ -385,6 +398,7 @@
         <script src="js/button-handler.js"></script>
         <script src="js/text-to-speech.js"></script>
         <script src="js/battery-manager.js"></script>
+        <script src="js/continue.js"></script>
         <!-- endbuild -->
 
         <script>
