@@ -1,18 +1,31 @@
-var img, hammertime, pager, pagerTemplate;
+var img, hammertime, pager, pagerTemplate, position, pagerData;
 
 function getDataUrl(data) {
   return 'data:image/jpeg ;base64,' + data;
+}
+
+function renderPager() {
+  var data = pagerData.ids.map(function (id, pos) {
+    console.log(position, pos);
+    return {
+      id: id,
+      active: position === pos,
+    };
+  });
+  console.log(data);
+  pager.html(pagerTemplate(data));
 }
 
 function handleMeasurements(result) {
   console.log(result);
   var data = result.images[1].data;
   img.prop('src', getDataUrl(data));
-  pager.html(pagerTemplate(result));
+  pagerData = result;
+  renderPager();
 }
 
 $(document).ready(function () {
-  var position = 0;
+  position = 0;
 
   img = $('#data-image');
   pager = $('#pager-container');
@@ -32,13 +45,6 @@ $(document).ready(function () {
     handleMeasurements(result);
   });
 
-  /*
-  listener.subscribe(function(message) {
-    var data = 'data:image/png;base64,' + message.data;
-    img.prop('src', data);
-  });
-  */
-
   var final = $('#final').get(0);
 
   hammertime = Hammer(final, {
@@ -48,10 +54,14 @@ $(document).ready(function () {
     var direction = e.direction;
 
     if (direction & Hammer.DIRECTION_LEFT) {
-      console.log('left')
+      console.log('left');
+      position = position == 0 ? 0 : position - 1;
     }
     if (direction & Hammer.DIRECTION_RIGHT) {
       console.log('right');
+      position = position >= 1 ? 1 : position + 1;
     }
+
+    renderPager();
   });
 });

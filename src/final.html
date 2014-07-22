@@ -382,8 +382,12 @@
                             <script id="pager-template" type="text/x-handlebars-template">
                               <ul class="pagination pagination-lg">
                                 <li><a href="#">&laquo;</a></li>
-                                {{#each ids}}
-                                  <li class=""><a href="#">{{this}}</a></li>
+                                {{#each this}}
+                                  {{#if active}}
+                                    <li class="active"><a href="#">{{id}}</a></li>
+                                  {{else}}
+                                    <li class=""><a href="#">{{id}}</a></li>
+                                  {{/if}}
                                 {{/each}}
                                 <li><a href="#">&raquo;</a></li>
                               </ul>
