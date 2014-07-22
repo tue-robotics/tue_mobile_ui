@@ -378,21 +378,26 @@
                             <div>
                                 <img id="data-image" class="img-responsive img-rounded" />
                             </div>
-                            <div>
-                                <ul class="pagination pagination-lg">
-                                    <li><a href="#">&laquo;</a></li>
-                                    <li class="active"><a href="#">couch-1</a></li>
-                                    <li class=""><a href="#">bed-1</a></li>
-                                    <li class=""><a href="#">table-1</a></li>
-                                    <li><a href="#">&raquo;</a></li>
-                                </ul>
+
+                            <script id="pager-template" type="text/x-handlebars-template">
+                              <ul class="pagination pagination-lg">
+                                <li><a href="#">&laquo;</a></li>
+                                {{#each ids}}
+                                  <li class=""><a href="#">{{this}}</a></li>
+                                {{/each}}
+                                <li><a href="#">&raquo;</a></li>
+                              </ul>
+                            </script>
+
+                            <div id="pager-container">
                             </div>
+
                             <div class="form-group">
                                 <div class="input-group">
                                     <input type="text" class="form-control" id="segment-name" placeholder="Blob name...">
                                     <span class="input-group-btn">
                                         <button class="btn btn-primary">Submit</button>
-                                    </span> 
+                                    </span>
                                 </div>
                             </div>
                         </form>
@@ -410,6 +415,7 @@
 
         <script src="../include/js/jquery.js"></script>
         <script src="../include/js/bootstrap.js"></script>
+        <script src="../include/js/handlebars.js"></script>
         <script src="../include/js/hammer.js"></script>
         <script src="../include/js/snap.js"></script>
         <script src="../include/js/jquery.ba-hashchange.js"></script>
