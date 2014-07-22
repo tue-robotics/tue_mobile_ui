@@ -1,5 +1,7 @@
 // globals
-var hammertime, pager, position, pagerData;
+var hammertime;
+var pager, position, pagerData;
+var map;
 
 function getDataUrl(data) {
   return 'data:image/jpeg ;base64,' + data;
@@ -24,18 +26,27 @@ function handleMeasurements(result) {
   renderPager();
 }
 
+var getMeasurementsService;
+
 function GetMeasurements() {
   // handle the incoming data
-  measurements = new ROSLIB.Service({
-      ros : ros,
-      name : '/ed/get_measurements',
-      serviceType : 'ed/GetMeasurements'
-  });
+
   var req = new ROSLIB.ServiceRequest({});
 
-  measurements.callService(req, function(result) {
+  getMeasurementsService.callService(req, function(result) {
     handleMeasurements(result);
   });
+}
+
+function handleMapUpdate (msg) {
+  console.log('map update');
+  map.prop('src', getDataUrl(msg.data));
+}
+
+function handleClick (e) {
+  var x = e.offsetX;
+  var y = e.offsetY;
+  console.log('click on', x, ',', y);
 }
 
 $(document).ready(function () {
@@ -46,7 +57,27 @@ $(document).ready(function () {
   var source   = $("#pager-template").html();
   pagerTemplate = Handlebars.compile(source);
 
+  // get the last measurements
+
+  getMeasurementsService = new ROSLIB.Service({
+      ros : ros,
+      name : '/ed/get_measurements',
+      serviceType : 'ed/GetMeasurements'
+  });
   GetMeasurements();
+
+  // Get the map
+
+  var mapListener = new ROSLIB.Topic({
+    ros : ros,
+    name : '/ed/gui/map_image',
+    messageType : 'tue_serialization/Binary'
+  });
+  mapListener.subscribe(function(message) {
+    handleMapUpdate(message);
+  });
+  map = $('#map-image');
+  map.on('click', handleClick);
 
   ///ed/gui/map_image
 
