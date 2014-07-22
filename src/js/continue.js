@@ -28,6 +28,8 @@ $(document).ready(function () {
 		"chocolate cookies",
 		"strawberry cookies",
 		"baby food",
+		
+		"cleaning stuff",
 	];
 
 	$('form.continue').on('submit', function (e) {
