@@ -16,6 +16,8 @@ $(document).ready(function () {
 		"right sidetable",
 
 		"waste bin",
+		
+		"bed room",
 
 		// objects
 		"tooth paste",
