@@ -45,18 +45,13 @@ $(document).ready(function () {
   });
 
   hammertime.on('swipe', function (e) {
-    var direction = e.gesture.direction;
+    var direction = e.direction;
 
-    switch (direction) {
-      case 'left': {
-        console.log('left');
-      } break;
-      case 'right': {
-        console.log('right');
-      } break;
-      default: {
-        console.log(e);
-      } break;
+    if (direction & Hammer.DIRECTION_LEFT) {
+      console.log('left')
+    }
+    if (direction & Hammer.DIRECTION_RIGHT) {
+      console.log('right');
     }
   });
 });
