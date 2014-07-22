@@ -2,6 +2,7 @@
 var hammertime;
 var pager, position, pagerData;
 var map;
+var setClickService;
 
 function getDataUrl(data) {
   return 'data:image/jpeg ;base64,' + data;
@@ -44,9 +45,20 @@ function handleMapUpdate (msg) {
 }
 
 function handleClick (e) {
-  var x = e.offsetX;
-  var y = e.offsetY;
-  console.log('click on', x, ',', y);
+  var pos = {
+    x: e.offsetX,
+    y: e.offsetY,
+  };
+
+  var req = new ROSLIB.ServiceRequest({
+    id: '',
+    pos: pos,
+  });
+
+  setClickService.callService(req, function (result) {
+    console.log(result);
+  })
+  //  console.log('click on', x, ',', y);
 }
 
 $(document).ready(function () {
@@ -79,7 +91,12 @@ $(document).ready(function () {
   map = $('#map-image');
   map.on('click', handleClick);
 
-  ///ed/gui/map_image
+  // click service
+  setClickService = new ROSLIB.Service({
+      ros : ros,
+      name : '/ed/get_measurements',
+      serviceType : 'ed/GetMeasurements'
+  });
 
   // catch the swipe gesture
 
