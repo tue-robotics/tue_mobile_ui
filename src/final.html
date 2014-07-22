@@ -375,14 +375,15 @@
                     <div class="container">
                         <form class="form-inline" role="form">
                             <h1>This is what amigo sees</h1>
-                            <div>
-                                <img id="data-image" class="img-responsive img-rounded" />
-                            </div>
+
 
                             <script id="pager-template" type="text/x-handlebars-template">
+                              <div>
+                                <img id="data-image" class="img-responsive img-rounded" src="{{image}}" />
+                              </div>
                               <ul class="pagination pagination-lg">
                                 <li><a href="#">&laquo;</a></li>
-                                {{#each this}}
+                                {{#each ids}}
                                   {{#if active}}
                                     <li class="active"><a href="#">{{id}}</a></li>
                                   {{else}}

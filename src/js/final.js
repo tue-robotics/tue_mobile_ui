@@ -5,21 +5,19 @@ function getDataUrl(data) {
 }
 
 function renderPager() {
-  var data = pagerData.ids.map(function (id, pos) {
-    console.log(position, pos);
-    return {
-      id: id,
-      active: position === pos,
-    };
-  });
-  console.log(data);
+  var data = {
+    ids: pagerData.ids.map(function (id, pos) {
+      return {
+        id: id,
+        active: position === pos,
+      };
+    }),
+    image: getDataUrl(pagerData.images[position].data)
+  };
   pager.html(pagerTemplate(data));
 }
 
 function handleMeasurements(result) {
-  console.log(result);
-  var data = result.images[1].data;
-  img.prop('src', getDataUrl(data));
   pagerData = result;
   renderPager();
 }
@@ -33,6 +31,8 @@ $(document).ready(function () {
   var source   = $("#pager-template").html();
   pagerTemplate = Handlebars.compile(source);
 
+  // handle the incoming data
+
   measurements = new ROSLIB.Service({
       ros : ros,
       name : '/ed/get_measurements',
@@ -45,21 +45,20 @@ $(document).ready(function () {
     handleMeasurements(result);
   });
 
-  var final = $('#final').get(0);
+  // catch the swipe gesture
 
-  hammertime = Hammer(final, {
-  });
+  var final = $('#final').get(0);
+  hammertime = Hammer(final, {});
 
   hammertime.on('swipe', function (e) {
     var direction = e.direction;
 
     if (direction & Hammer.DIRECTION_LEFT) {
-      console.log('left');
       position = position == 0 ? 0 : position - 1;
     }
     if (direction & Hammer.DIRECTION_RIGHT) {
-      console.log('right');
-      position = position >= 1 ? 1 : position + 1;
+      var maxpos = pagerData.ids.length - 1;
+      position = position >= maxpos ? maxpos : position + 1;
     }
 
     renderPager();
