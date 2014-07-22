@@ -1,9 +1,11 @@
-var img, hammertime, pager, pagerTemplate, position, pagerData;
+// globals
+var hammertime, pager, position, pagerData;
 
 function getDataUrl(data) {
   return 'data:image/jpeg ;base64,' + data;
 }
 
+var pagerTemplate;
 function renderPager() {
   var data = {
     ids: pagerData.ids.map(function (id, pos) {
@@ -22,28 +24,31 @@ function handleMeasurements(result) {
   renderPager();
 }
 
-$(document).ready(function () {
-  position = 0;
-
-  img = $('#data-image');
-  pager = $('#pager-container');
-
-  var source   = $("#pager-template").html();
-  pagerTemplate = Handlebars.compile(source);
-
+function GetMeasurements() {
   // handle the incoming data
-
   measurements = new ROSLIB.Service({
       ros : ros,
       name : '/ed/get_measurements',
       serviceType : 'ed/GetMeasurements'
   });
-
   var req = new ROSLIB.ServiceRequest({});
 
   measurements.callService(req, function(result) {
     handleMeasurements(result);
   });
+}
+
+$(document).ready(function () {
+  position = 0;
+
+  pager = $('#pager-container');
+
+  var source   = $("#pager-template").html();
+  pagerTemplate = Handlebars.compile(source);
+
+  GetMeasurements();
+
+  ///ed/gui/map_image
 
   // catch the swipe gesture
 
