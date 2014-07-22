@@ -45,14 +45,13 @@ function handleMapUpdate (msg) {
 }
 
 function handleClick (e) {
-  var pos = {
-    x: e.offsetX,
-    y: e.offsetY,
-  };
+  var x = e.offsetX;
+  var y = e.offsetY;
 
   var req = new ROSLIB.ServiceRequest({
     id: '',
-    pos: pos,
+    x: x,
+    y: y,
   });
 
   setClickService.callService(req, function (result) {
@@ -94,8 +93,8 @@ $(document).ready(function () {
   // click service
   setClickService = new ROSLIB.Service({
       ros : ros,
-      name : '/ed/get_measurements',
-      serviceType : 'ed/GetMeasurements'
+      name : '/ed/set_click',
+      serviceType : 'ed/SetClick'
   });
 
   // catch the swipe gesture
