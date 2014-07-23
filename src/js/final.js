@@ -78,7 +78,7 @@ $(document).ready(function () {
 
   getMeasurementsService = new ROSLIB.Service({
       ros : ros,
-      name : '/ed/get_measurements',
+      name : '/ed/gui/get_measurements',
       serviceType : 'ed/GetMeasurements'
   });
   GetMeasurements();
