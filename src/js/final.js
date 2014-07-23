@@ -40,13 +40,19 @@ function GetMeasurements() {
 }
 
 function handleMapUpdate (msg) {
-  console.log('map update');
   map.prop('src', getDataUrl(msg.data));
 }
 
 function handleClick (e) {
-  var x = e.offsetX;
-  var y = e.offsetY;
+  // the following code is only supported in chrome
+  //var x = e.offsetX;
+  //var y = e.offsetY;
+
+  var parentOffset = $(this).parent().offset();
+  var x = e.pageX - ~~parentOffset.left; // double bitwise to cast to int :D
+  var y = e.pageY - ~~parentOffset.top;
+
+  console.log('click on ', x ,',', y);
 
   var req = new ROSLIB.ServiceRequest({
     id: '',
