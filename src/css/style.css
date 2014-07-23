@@ -1,11 +1,12 @@
 #content {
-	
+
 }
 
 #main {
 	position: absolute;
-	margin-top: 44px;
+	padding-top: 44px;
 	width: 100%;
+  height: 100%;
 }
 
 #main > div {
@@ -54,6 +55,7 @@ table.buttons .btn {
   background: #111111;
   border-bottom: 1px solid #111b32;
   position: absolute;
+  z-index: 100;
   top: 0;
   right: 0;
   left: 0;
