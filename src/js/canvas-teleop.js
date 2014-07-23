@@ -53,33 +53,39 @@ function init() {
   $(window).resize(resizeCanvas)
     .resize(); // force resize
 
-  // initialize hammer.js
-  hammertime = Hammer(canvas, {
-    drag_max_touches: 1,
-    prevent_default: true
+  var mc = Hammer(canvas, {
+    touchAction: 'none',
+  });
+  mc.get('pan').set({ direction: Hammer.DIRECTION_ALL });
+
+  mc.on('pan', function(e) {
+    var pos = e.center;
+
+    if (e.eventType & Hammer.INPUT_START) {
+      console.log('input start!!!');
+    }
+    if (e.eventType & Hammer.INPUT_MOVE) {
+      currentPos = convertPageXY(pos.x, pos.y);
+      console.log("drag", currentPos);
+      updateNavigation();
+    }
+    if (e.eventType & Hammer.INPUT_END) {
+      panStop();
+    }
+    if (e.eventType & Hammer.INPUT_CANCEL) {
+      panStop();
+    }
   });
 
-  // first touch start event
-  hammertime.on("touch", function(e) {
-    e.gesture.stopPropagation(); // stop scrolling
-
-    var pos = e.gesture.center;
-    startPos = convertPageXY(pos.pageX, pos.pageY);
-
+  mc.on('panstart', function(e) {
+    var pos = e.center;
+    startPos = convertPageXY(pos.x, pos.y);
     publishing = true;
 
     updateNavigation();
   });
 
-  // touch event's while dragging
-  hammertime.on("drag", function(e) {
-    var pos = e.gesture.center;
-    currentPos = convertPageXY(pos.pageX, pos.pageY);
-
-    updateNavigation();
-  });
-
-  hammertime.on("release", function(e) {
+  function panStop(e) {
     startPos   = false;
     currentPos = false;
 
@@ -87,7 +93,7 @@ function init() {
     teleop.sendTwist(0, 0, 0);
 
     updateNavigation();
-  });
+  }
 
   initTeleop();
 
@@ -105,7 +111,7 @@ function loadAssets() {
 }
 
 function resizeCanvas() {
- 
+
   offset = $(canvas).offset();
 
   canvas.width = $(window).width();
