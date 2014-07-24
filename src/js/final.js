@@ -1,7 +1,7 @@
 // globals
 var hammertime;
 var pager, position, pagerData;
-var map;
+var map, mapMode = 'select';
 var raiseEventService;
 var setLabelService;
 
@@ -46,6 +46,11 @@ function handleMapUpdate (msg) {
   map.prop('src', getDataUrl(msg.data));
 }
 
+function switchMode(mode) {
+  console.log('switch to', mode);
+  mapMode = mode;
+}
+
 function getPixelPosition (e) {
   // the following code is only supported in chrome
   //var x = e.offsetX;
@@ -78,7 +83,7 @@ function handleClick (e) {
   var req = new ROSLIB.ServiceRequest({
     name: 'click',
     param_names:  [      'x',      'y', 'type'],
-    param_values: [""+pos.x, ""+pos.y,  'select'],
+    param_values: [""+pos.x, ""+pos.y,  mapMode],
   });
 
   raiseEventService.callService(req, function (result) {
@@ -126,6 +131,11 @@ $(document).ready(function () {
   });
   map = $('#map-image');
   map.on('click', handleClick);
+
+  $('#map-mode').find('button').on('click', function (e) {
+    var newMode = $(this).text().trim().toLowerCase();
+    switchMode(newMode);
+  });
 
   // click service
   raiseEventService = new ROSLIB.Service({
