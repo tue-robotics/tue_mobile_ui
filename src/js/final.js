@@ -47,7 +47,7 @@ function handleMapUpdate (msg) {
   map.prop('src', getDataUrl(msg.data));
 }
 
-function handleClick (e) {
+function getPixelPosition (e) {
   // the following code is only supported in chrome
   //var x = e.offsetX;
   //var y = e.offsetY;
@@ -56,18 +56,30 @@ function handleClick (e) {
   var x = e.pageX - parentOffset.left; // double bitwise to cast to int :D
   var y = e.pageY - parentOffset.top;
 
+  // handle css scaling
   var xScale = this.width/this.naturalWidth;
   var yScale = this.height/this.naturalHeight;
 
-  x = ~~(x/xScale);
-  y = ~~(y/yScale);
+  x = x/xScale;
+  y = y/yScale;
 
-  console.log('click on ', x ,',', y);
+  return {
+    x: ~~x,
+    y: ~~y,
+  }
+}
+
+function handleClick (e) {
+
+
+  var pos = getPixelPosition.call(this, e);
+
+  console.log('click on ', pos);
 
   var req = new ROSLIB.ServiceRequest({
     name: 'click',
-    param_names:  [  'x',  'y', 'type'],
-    param_values: [""+x, ""+y,  'select'],
+    param_names:  [      'x',      'y', 'type'],
+    param_values: [""+pos.x, ""+pos.y,  'select'],
   });
 
   raiseEventService.callService(req, function (result) {
