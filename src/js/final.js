@@ -5,7 +5,7 @@ var map;
 var raiseEventService;
 
 function getDataUrl(data) {
-  return 'data:image/jpeg ;base64,' + data;
+  return 'data:image/png ;base64,' + data;
 }
 
 var pagerTemplate;
@@ -56,8 +56,8 @@ function handleClick (e) {
 
   var req = new ROSLIB.ServiceRequest({
     name: 'click_select',
-    param_names:  ['x', 'y'],
-    param_values: [ x,   y ],
+    param_names:  [  'x',  'y'],
+    param_values: [""+x, ""+y ],
   });
 
   raiseEventService.callService(req, function (result) {

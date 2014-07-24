@@ -160,3 +160,13 @@ table.buttons .btn {
 #amigohear {
   background-color: white;
 }
+
+#final {
+  background-color: white;
+  height: 100%;
+}
+
+#map-image
+{
+  width: 100%;
+}

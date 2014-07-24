@@ -358,7 +358,7 @@
                     <div class="container">
                     <form role="form" class="continue">
                         <div class="form-group">
-                          <label for="disabledTextInput">Enter the text amigo should hear:</label>
+                          <label>Enter the text amigo should hear:</label>
                           <input type="text" class="form-control continue" placeholder="Enter the text and press <enter> ...">
                         </div>
                     </form>
@@ -373,47 +373,58 @@
 
                 <div id="final" data-title="Final" data-snap-ignore="true">
                     <div class="container-fluid">
+
                         <div class="col-md-8">
-                            <div id="map-container">
-                                <img id="map-image" class="img-responsive img-rounded" />
+
+                            <div class="panel panel-default">
+                                <div class="panel-heading">World Map</div>
+                                <div class="panel-body" id="map-container">
+                                    <img id="map-image" class="img-responsive img-rounded" />
+                                </div>
                             </div>
                         </div>
 
+
                         <div class="col-md-4">
 
+                            <div class="panel panel-default">
+                                <div class="panel-heading">Entiry labeler</div>
 
-                            <form class="form-inline" role="form">
+                                    <form class="form-inline" role="form">
 
-                                <script id="pager-template" type="text/x-handlebars-template">
-                                  <div>
-                                    <img id="data-image" class="img-responsive img-rounded" src="{{image}}" />
-                                  </div>
-                                  <ul class="pagination pagination-lg">
-                                    <li><a href="#">&laquo;</a></li>
-                                    {{#each ids}}
-                                      {{#if active}}
-                                        <li class="active"><a href="#">{{id}}</a></li>
-                                      {{else}}
-                                        <li class=""><a href="#">{{id}}</a></li>
-                                      {{/if}}
-                                    {{/each}}
-                                    <li><a href="#">&raquo;</a></li>
-                                  </ul>
-                                </script>
+                                        <script id="pager-template" type="text/x-handlebars-template">
+                                          <img id="data-image" class="img-responsive img-rounded" src="{{image}}" />
+                                          <ul class="pagination pagination-lg">
+                                            <li><a href="#">&laquo;</a></li>
+                                            {{#each ids}}
+                                              {{#if active}}
+                                                <li class="active"><a href="#">{{id}}</a></li>
+                                              {{else}}
+                                                <li class=""><a href="#">{{id}}</a></li>
+                                              {{/if}}
+                                            {{/each}}
+                                            <li><a href="#">&raquo;</a></li>
+                                          </ul>
+                                        </script>
 
-                                <div id="pager-container">
-                                </div>
+                                        <div id="pager-container">
+                                        </div>
 
-                                <div class="form-group">
-                                    <div class="input-group">
-                                        <input type="text" class="form-control" id="segment-name" placeholder="Blob name...">
-                                        <span class="input-group-btn">
-                                            <button class="btn btn-primary">Submit</button>
-                                        </span>
-                                    </div>
+                                        <div class="form-group">
+                                            <div class="input-group">
+                                                <input type="text" class="form-control" id="segment-name" placeholder="Blob name...">
+                                                <span class="input-group-btn">
+                                                    <button class="btn btn-primary">Submit</button>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </form>
+
                                 </div>
                             </div>
-                        </form>
+
+                        </div> <!-- /div class="col-md-4" -->
+
                     </div>
                 </div>
             </div>
