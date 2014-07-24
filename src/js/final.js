@@ -90,7 +90,8 @@ function setLabel(label) {
   console.log('set label: ', label);
 
   var req = new ROSLIB.ServiceRequest({
-    label: label
+    id: '',
+    label: label,
   });
 
   setLabelService.callService(req, function(result) {
