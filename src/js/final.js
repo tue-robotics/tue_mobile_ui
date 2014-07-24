@@ -56,7 +56,7 @@ function getPixelPosition (e) {
   //var x = e.offsetX;
   //var y = e.offsetY;
 
-  var parentOffset = $(this).parent().offset();
+  var parentOffset = $(this).offset();
   var x = e.pageX - parentOffset.left; // double bitwise to cast to int :D
   var y = e.pageY - parentOffset.top;
 
