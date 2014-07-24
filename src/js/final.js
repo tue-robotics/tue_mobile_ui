@@ -212,14 +212,16 @@ $(document).ready(function () {
   });
 
   $('#map-explore').on('click', function (e) {
-    var req = new ROSLIB.ServiceRequest({
+    raiseEvent({
       name: 'explore',
-      param_names:  [],
-      param_values: [],
+      params: {},
     });
+  });
 
-    raiseEventService.callService(req, function (result) {
-      console.log(result);
+  $('#map-wait').on('click', function (e) {
+    raiseEvent({
+      name: 'wait',
+      params: {},
     });
   })
 
