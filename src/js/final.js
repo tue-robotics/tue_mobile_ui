@@ -86,6 +86,19 @@ function getPixelPosition (e) {
   }
 }
 
+function raiseEvent (e) {
+  var data = {
+    name: e.name,
+    param_names: _.keys(e.params),
+    param_values: _.values(e.params).map(function (v) { return ""+v; }),
+  };
+
+  var req = new ROSLIB.ServiceRequest(data);
+  raiseEventService.callService(req, function (result) {
+    console.log(result);
+  });
+}
+
 function handleClick (e) {
   var pos = getPixelPosition.call(this, e);
 
@@ -149,11 +162,53 @@ $(document).ready(function () {
   $('#map-pan').find('button').on('click', function (e) {
     var panMode = $(this).text().trim().toLowerCase();
     console.log(panMode);
+    var params;
+    switch (panMode) {
+      case 'left':
+        params = { dx: -1, dy:  0 }
+        break;
+      case 'right':
+        params = { dx:  1, dy:  0 }
+        break;
+      case 'up':
+        params = { dx:  0, dy:  1 }
+        break;
+      case 'down':
+        params = { dx:  0, dy: -1 }
+        break;
+    }
+    raiseEvent({
+      name: 'pan',
+      params: params,
+    })
+    /*
+    raiseEvent zoom,
+    factor: 2
+    pan
+    dx : 1
+    dy
+    */
   });
 
   $('#map-zoom').find('button').on('click', function (e) {
     var zoomMode = $(this).text().trim().toLowerCase();
-    console.log(zoomMode);
+    if (zoomMode == 'in') {
+      console.log('zoom in');
+      raiseEvent({
+        name: 'zoom',
+        params: {
+          factor: 1.5,
+        }
+      });
+    } else if (zoomMode == 'out') {
+      console.log('zoom out');
+      raiseEvent({
+        name: 'zoom',
+        params: {
+          factor: 1/1.5,
+        }
+      });
+    }
   });
 
   $('#map-explore').on('click', function (e) {
