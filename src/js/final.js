@@ -146,6 +146,28 @@ $(document).ready(function () {
   map = $('#map-image');
   map.on('click', handleClick);
 
+  $('#map-pan').find('button').on('click', function (e) {
+    var panMode = $(this).text().trim().toLowerCase();
+    console.log(panMode);
+  });
+
+  $('#map-zoom').find('button').on('click', function (e) {
+    var zoomMode = $(this).text().trim().toLowerCase();
+    console.log(zoomMode);
+  });
+
+  $('#map-explore').on('click', function (e) {
+    var req = new ROSLIB.ServiceRequest({
+      name: 'explore',
+      param_names:  [],
+      param_values: [],
+    });
+
+    raiseEventService.callService(req, function (result) {
+      console.log(result);
+    });
+  })
+
   $('#map-mode').find('button').on('click', function (e) {
     var newMode = $(this).text().trim().toLowerCase();
     switchMode(newMode);
