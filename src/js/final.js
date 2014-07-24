@@ -12,6 +12,7 @@ function getDataUrl(data) {
 
 var pagerTemplate;
 function renderPager() {
+  /*
   var data = {
     ids: pagerData.ids.map(function (id, pos) {
       return {
@@ -22,6 +23,7 @@ function renderPager() {
     image: getDataUrl(pagerData.images[position].data)
   };
   pager.html(pagerTemplate(data));
+  */
 }
 
 function handleMeasurements(result) {
@@ -51,15 +53,21 @@ function handleClick (e) {
   //var y = e.offsetY;
 
   var parentOffset = $(this).parent().offset();
-  var x = e.pageX - ~~parentOffset.left; // double bitwise to cast to int :D
-  var y = e.pageY - ~~parentOffset.top;
+  var x = e.pageX - parentOffset.left; // double bitwise to cast to int :D
+  var y = e.pageY - parentOffset.top;
+
+  var xScale = this.width/this.naturalWidth;
+  var yScale = this.height/this.naturalHeight;
+
+  x = ~~(x/xScale);
+  y = ~~(y/yScale);
 
   console.log('click on ', x ,',', y);
 
   var req = new ROSLIB.ServiceRequest({
-    name: 'click_select',
-    param_names:  [  'x',  'y'],
-    param_values: [""+x, ""+y ],
+    name: 'click',
+    param_names:  [  'x',  'y', 'type'],
+    param_values: [""+x, ""+y,  'select'],
   });
 
   raiseEventService.callService(req, function (result) {
@@ -107,7 +115,8 @@ $(document).ready(function () {
   map = $('#map-image');
   map.on('click', handleClick);
 
-  $('input.bootstrap-switch').bootstrapSwitch();
+  setLabelForm = $('#set-label-form');
+
 
   // click service
   raiseEventService = new ROSLIB.Service({
@@ -127,7 +136,7 @@ $(document).ready(function () {
     e.preventDefault();
     var labelEl = $(this).find('input[type="text"]');
     var label = labelEl.val();
-    labelEl.val(''); 
+    labelEl.val('');
     setLabel(label);
   });
 
