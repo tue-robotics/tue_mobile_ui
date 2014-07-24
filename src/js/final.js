@@ -1,6 +1,6 @@
 // globals
 var hammertime;
-var pager, position, pagerData;
+var pager, pagerData;
 var map, mapMode = 'select';
 var raiseEventService;
 var setLabelService;
@@ -11,6 +11,14 @@ function getDataUrl(data) {
 
 var pagerTemplate;
 function renderPager() {
+  // only render the first image
+  var data = pagerData;
+  data.id = data.id ? data.id.substr(0,4) : 'no selected object';
+  data.image = {
+    info: data.image ? data.image.info : '',
+    data: data.image ? getDataUrl(data.image.data) : '',
+  };
+
   /*
   var data = {
     ids: pagerData.ids.map(function (id, pos) {
@@ -21,18 +29,24 @@ function renderPager() {
     }),
     image: getDataUrl(pagerData.images[position].data)
   };
-  pager.html(pagerTemplate(data));
   */
+
+  //console.log('render:', data);
+  pager.html(pagerTemplate(data));
 }
 
 function handleMeasurements(result) {
-  pagerData = result;
+  console.log(result);
+  pagerData = {
+    id: result.ids[0],
+    image: result.images[0]
+  };
   renderPager();
 }
 
 var getMeasurementsService;
 
-function GetMeasurements() {
+function getMeasurements() {
   // handle the incoming data
 
   var req = new ROSLIB.ServiceRequest({});
@@ -47,7 +61,6 @@ function handleMapUpdate (msg) {
 }
 
 function switchMode(mode) {
-  console.log('switch to', mode);
   mapMode = mode;
 }
 
@@ -74,8 +87,6 @@ function getPixelPosition (e) {
 }
 
 function handleClick (e) {
-
-
   var pos = getPixelPosition.call(this, e);
 
   console.log('click on ', pos);
@@ -88,7 +99,10 @@ function handleClick (e) {
 
   raiseEventService.callService(req, function (result) {
     console.log(result);
-  })
+  });
+
+  // also refresh the measurement view
+  getMeasurements();
 }
 
 function setLabel(label) {
@@ -118,7 +132,7 @@ $(document).ready(function () {
       name : '/ed/gui/get_measurements',
       serviceType : 'ed/GetMeasurements'
   });
-  GetMeasurements();
+  getMeasurements();
 
   // Get the map
   var mapListener = new ROSLIB.Topic({

@@ -386,13 +386,13 @@
                                             <div id="map-mode" class="btn-group btn-group-sm" data-toggle="buttons">
                                                 <button class="btn btn-primary active">
                                                     <input type="radio" name="options" id="option1" checked> Select
-                                                </label>
+                                                </button>
                                                 <button class="btn btn-primary">
                                                     <input type="radio" name="options" id="option2"> Navigate
-                                                </label>
+                                                </button>
                                                 <button class="btn btn-primary">
                                                     <input type="radio" name="options" id="option3"> Delete
-                                                </label>
+                                                </button>
                                             </div>
 
                                         </div>
@@ -415,18 +415,10 @@
                                 <form id="set-label-form" role="form">
 
                                     <script id="pager-template" type="text/x-handlebars-template">
-                                      <img id="entity-image" class="img-responsive img-rounded" src="{{image}}" />
-                                      <ul class="pagination pagination-lg">
-                                        <li><a href="#">&laquo;</a></li>
-                                        {{#each ids}}
-                                          {{#if active}}
-                                            <li class="active"><a href="#">{{id}}</a></li>
-                                          {{else}}
-                                            <li class=""><a href="#">{{id}}</a></li>
-                                          {{/if}}
-                                        {{/each}}
-                                        <li><a href="#">&raquo;</a></li>
-                                      </ul>
+                                        <img id="entity-image" class="img-responsive img-rounded" src="{{image.data}}" />
+                                        <div class="caption">
+                                            <p>{{id}} {{image.info}}</p>
+                                        </div>
                                     </script>
 
                                     <div id="pager-container">
