@@ -107,6 +107,8 @@ $(document).ready(function () {
   map = $('#map-image');
   map.on('click', handleClick);
 
+  $('input.bootstrap-switch').bootstrapSwitch();
+
   // click service
   raiseEventService = new ROSLIB.Service({
       ros : ros,

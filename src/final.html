@@ -15,6 +15,7 @@
         <!-- build:css css/style.css -->
         <link rel="stylesheet" type="text/css" href="../include/css/snap.css" />
         <link rel="stylesheet" type="text/css" href="../include/css/bootstrap.css" />
+        <link rel="stylesheet" type="text/css" href="../include/css/bootstrap-switch.css" />
 
         <link rel="stylesheet" type="text/css" href="css/style.css" />
         <!-- endbuild -->
@@ -377,7 +378,9 @@
                         <div class="col-md-8">
 
                             <div class="panel panel-default">
-                                <div class="panel-heading">World Map</div>
+                                <div class="panel-heading">World Map
+                                    <div class="pull-right">Navigate: <input id="select-navigate" type="checkbox" class="bootstrap-switch" /></div>
+                                </div>
                                 <div class="panel-body" id="map-container">
                                     <img id="map-image" class="img-responsive img-rounded" />
                                 </div>
@@ -441,6 +444,7 @@
 
         <script src="../include/js/jquery.js"></script>
         <script src="../include/js/bootstrap.js"></script>
+        <script src="../include/js/bootstrap-switch.js"></script>
         <script src="../include/js/handlebars.js"></script>
         <script src="../include/js/hammer.js"></script>
         <script src="../include/js/snap.js"></script>
