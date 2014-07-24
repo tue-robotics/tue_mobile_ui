@@ -390,10 +390,10 @@
                             <div class="panel panel-default">
                                 <div class="panel-heading">Entiry labeler</div>
 
-                                    <form class="form-inline" role="form">
+                                    <form id="set-label-form" class="form-inline" role="form">
 
                                         <script id="pager-template" type="text/x-handlebars-template">
-                                          <img id="data-image" class="img-responsive img-rounded" src="{{image}}" />
+                                          <img id="entity-image" class="img-responsive img-rounded" src="{{image}}" />
                                           <ul class="pagination pagination-lg">
                                             <li><a href="#">&laquo;</a></li>
                                             {{#each ids}}
@@ -412,15 +412,17 @@
 
                                         <div class="form-group">
                                             <div class="input-group">
-                                                <input type="text" class="form-control" id="segment-name" placeholder="Blob name...">
+                                                <input type="text" class="form-control" placeholder="Blob name...">
                                                 <span class="input-group-btn">
-                                                    <button class="btn btn-primary">Submit</button>
+                                                    <input type="submit" class="btn btn-primary" value="Submit" />
                                                 </span>
                                             </div>
                                         </div>
+
                                     </form>
 
-                                </div>
+                                </div> <!-- /div class="panel -->
+
                             </div>
 
                         </div> <!-- /div class="col-md-4" -->

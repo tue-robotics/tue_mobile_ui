@@ -1,8 +1,10 @@
 // globals
 var hammertime;
 var pager, position, pagerData;
+var labelInput;
 var map;
 var raiseEventService;
+var setLabelService;
 
 function getDataUrl(data) {
   return 'data:image/png ;base64,' + data;
@@ -13,7 +15,7 @@ function renderPager() {
   var data = {
     ids: pagerData.ids.map(function (id, pos) {
       return {
-        id: id,
+        id: id.substr(0,4),
         active: position === pos,
       };
     }),
@@ -63,7 +65,18 @@ function handleClick (e) {
   raiseEventService.callService(req, function (result) {
     console.log(result);
   })
-  //  console.log('click on', x, ',', y);
+}
+
+function setLabel(label) {
+  console.log('set label: ', label);
+
+  var req = new ROSLIB.ServiceRequest({
+    label: label
+  });
+
+  setLabelService.callService(req, function(result) {
+    console.log(result);
+  });
 }
 
 $(document).ready(function () {
@@ -74,8 +87,7 @@ $(document).ready(function () {
   var source   = $("#pager-template").html();
   pagerTemplate = Handlebars.compile(source);
 
-  // get the last measurements
-
+  // get the last measurements for an object
   getMeasurementsService = new ROSLIB.Service({
       ros : ros,
       name : '/ed/gui/get_measurements',
@@ -84,7 +96,6 @@ $(document).ready(function () {
   GetMeasurements();
 
   // Get the map
-
   var mapListener = new ROSLIB.Topic({
     ros : ros,
     name : '/ed/gui/map_image',
@@ -103,9 +114,24 @@ $(document).ready(function () {
       serviceType : '/ed/RaiseEvent'
   });
 
-  // catch the swipe gesture
+  // label service
+  setLabelService = new ROSLIB.Service({
+      ros : ros,
+      name : '/ed/gui/set_label',
+      serviceType : 'ed/SetLabel'
+  });
+  labelInput = $('#segment-name');
+  $('#set-label-form').on('submit', function (e) {
+    e.preventDefault();
+    var labelEl = $(this).find('input[type="text"]');
+    var label = labelEl.val();
+    labelEl.val(''); 
+    setLabel(label);
+  });
 
-  var final = $('#final').get(0);
+  // catch the swipe gesture
+  /*
+  var final = $('#entity-image').get(0);
   hammertime = Hammer(final, {});
 
   hammertime.on('swipe', function (e) {
@@ -121,4 +147,5 @@ $(document).ready(function () {
 
     renderPager();
   });
+  */
 });
