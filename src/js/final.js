@@ -1,7 +1,6 @@
 // globals
 var hammertime;
 var pager, position, pagerData;
-var labelInput;
 var map;
 var raiseEventService;
 var setLabelService;
@@ -127,9 +126,6 @@ $(document).ready(function () {
   map = $('#map-image');
   map.on('click', handleClick);
 
-  setLabelForm = $('#set-label-form');
-
-
   // click service
   raiseEventService = new ROSLIB.Service({
       ros : ros,
@@ -143,7 +139,6 @@ $(document).ready(function () {
       name : '/ed/gui/set_label',
       serviceType : 'ed/SetLabel'
   });
-  labelInput = $('#segment-name');
   $('#set-label-form').on('submit', function (e) {
     e.preventDefault();
     var labelEl = $(this).find('input[type="text"]');
