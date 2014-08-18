@@ -31,3 +31,16 @@ Build Setup
  3. Install the Grunt tasks specific to this project
    * `cd /path/to/amigo_mobile_ui/utils/`
    * `npm install .`
+
+### Build with Grunt
+
+Before proceeding, please confirm you have installed the dependencies above.
+
+To run the build tasks:
+
+ 1. `cd /path/to/tue-mobile-ui/utils/`
+ 2. `grunt build`
+
+`grunt build` will build the app in the build directory. It will also run the linter and test cases.
+
+`grunt serve` will watch for any changes to any of the src/ files and automatically build the files. This is ideal for those developing as you should only have to run `grunt serve` once.
