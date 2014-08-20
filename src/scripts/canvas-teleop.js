@@ -103,7 +103,7 @@ function init() {
 function loadAssets() {
   /*
   cursorImg = new Image();
-  cursorImg.src = 'img/cursor.svg';
+  cursorImg.src = 'images/cursor.svg';
   $(cursorImg).load(function(){
     draw();
   });

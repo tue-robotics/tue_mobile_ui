@@ -12,11 +12,15 @@
         <link rel="apple-touch-icon-precomposed" href="apple-touch-icon-precomposed.png">
         <link rel="apple-touch-startup-image" href="startup.png">
 
-        <!-- build:css css/style.css -->
-        <link rel="stylesheet" type="text/css" href="../include/css/snap.css" />
-        <link rel="stylesheet" type="text/css" href="../include/css/bootstrap.css" />
+        <!-- build:css styles/vendor.css -->
+        <link rel="stylesheet" type="text/css" href="../utils/bower_components/snapjs/snap.css" />
+        <!-- bower:css -->
+        <link rel="stylesheet" href="../utils/bower_components/bootstrap/dist/css/bootstrap.css" />
+        <!-- endbower -->
+        <!-- endbuild -->
 
-        <link rel="stylesheet" type="text/css" href="css/style.css" />
+        <!-- build:css(.tmp) styles/main.css -->
+        <link rel="stylesheet" type="text/css" href="styles/style.css" />
         <!-- endbuild -->
     </head>
     <body>
@@ -372,33 +376,35 @@
             </div>
         </div>
 
-        <!-- build:js js/app.js -->
         <script>
           var weinre = window.location.protocol + '//' + window.location.hostname + ':8080/target/target-script-min.js#anonymous';
           location.search.indexOf('debug')>0 && document.write('<script src="' + weinre + '"><\/script>');
         </script>
-        <script src="../include/js/console-polyfill.js"></script>
+        <!-- build:js scripts/vendor.js -->
+        <!-- bower:js -->
+        <script src="../utils/bower_components/jquery/dist/jquery.js"></script>
+        <script src="../utils/bower_components/console-polyfill/index.js"></script>
+        <script src="../utils/bower_components/bootstrap/dist/js/bootstrap.js"></script>
+        <script src="../utils/bower_components/snapjs/snap.js"></script>
+        <script src="../utils/bower_components/eventemitter2/lib/eventemitter2.js"></script>
+        <script src="../utils/bower_components/roslibjs/build/roslib.js"></script>
+        <script src="../utils/bower_components/hammerjs/hammer.js"></script>
+        <script src="../utils/bower_components/handlebars/handlebars.js"></script>
+        <!-- endbower -->
+        <script src="../utils/bower_components/jquery-hashchange/jquery.hashchange.js"></script>
+        <!-- endbuild -->
 
-        <script src="../include/js/jquery.js"></script>
-        <script src="../include/js/bootstrap.js"></script>
-        <script src="../include/js/hammer.js"></script>
-        <script src="../include/js/snap.js"></script>
-        <script src="../include/js/jquery.ba-hashchange.js"></script>
+        <script src="scripts/ros-connect-amigo.js"></script>
+        <script src="scripts/pinghistory.js"></script>
+        <script src="scripts/teleop.js"></script>
+        <script src="scripts/canvas-teleop.js"></script>
 
-        <script src="../include/js/eventemitter2.js"></script>
-        <script src="../include/js/roslib.js"></script>
-
-        <script src="js/ros-connect-amigo.js"></script>
-        <script src="js/pinghistory.js"></script>
-        <script src="js/teleop.js"></script>
-        <script src="js/canvas-teleop.js"></script>
-
-        <script src="js/pagenav.js"></script>
-        <script src="js/skillserver.js"></script>
-        <script src="js/button-handler.js"></script>
-        <script src="js/text-to-speech.js"></script>
-        <script src="js/battery-manager.js"></script>
-        <script src="js/continue.js"></script>
+        <script src="scripts/pagenav.js"></script>
+        <script src="scripts/skillserver.js"></script>
+        <script src="scripts/button-handler.js"></script>
+        <script src="scripts/text-to-speech.js"></script>
+        <script src="scripts/battery-manager.js"></script>
+        <script src="scripts/continue.js"></script>
         <!-- endbuild -->
 
         <script>
