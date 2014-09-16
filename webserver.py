@@ -6,7 +6,7 @@ import os
 import roslib
 import socket
 
-os.chdir(roslib.packages.get_pkg_dir('amigo_mobile_ui'))
+os.chdir(roslib.packages.get_pkg_dir('tue_mobile_ui'))
 
 default_port = 8000
 
@@ -43,8 +43,8 @@ if __name__ == '__main__':
 	try:
 		# rospy.init_node('webserver', anonymous=True)
 		try:
-			port 	   = rospy.get_param('/amigo_mobile_webserver/port', default_port)
-			indexNames = rospy.get_param('/amigo_mobile_webserver/index_names', ['index.html'])
+			port 	   = rospy.get_param('/tue_mobile_webserver/port', default_port)
+			indexNames = rospy.get_param('/tue_mobile_webserver/index_names', ['index.html'])
 			print('using port %d from parameter server' % port)
 			print('using index names: %s from parameter server' % indexNames)
 		except socket.error:
