@@ -1,5 +1,5 @@
-tue-mobile-ui
-=============
+TU/e Mobile UI
+==============
 
 #### An app that allows you to control a robot wirelessly
 
@@ -13,9 +13,3 @@ Pre-built files can be found in the [build](build) folder and the source files c
 
 ### Build
 Checkout [utils/README.md](utils/README.md) for details on building.
-
-### License
-myprojectjs is released with a MIT license.
-
-### Authors
-See the [AUTHORS.md](AUTHORS) file for a full list of contributors.
