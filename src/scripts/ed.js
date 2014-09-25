@@ -234,6 +234,24 @@ function calculateNormals (vertices, triangles) {
     return normals;
 }
 
+var REDS = [0.8, 0  , 0.8, 0,   0.8, 0  , 0.8];
+var GREENS = [ 0.8, 0.8, 0  , 0,   0.8, 0.8, 0  ];
+var BLUES =  [ 0.8, 0.8, 0.8, 0.8, 0,   0,   0  ];
+
+// Hash function
+function djb2(str){
+  var hash = 5381;
+  for (var i = 0; i < str.length; i++) {
+    hash = ((hash << 5) + hash) + str.charCodeAt(i); /* hash * 33 + c */
+  }
+
+  if (hash < 0) {
+    hash = -hash;
+  }
+
+  return hash;
+}
+
 function handleMeshQueryResult(msg) {
   // console.log(entity_ids)
 
@@ -244,9 +262,48 @@ function handleMeshQueryResult(msg) {
     // Remove the mesh ...
     n.removeNode(id + "-mesh");
 
-    var r = 0.0;
-    var g = 0.3;
-    var b = 1.0;
+    // Generate color from hash function
+    var iColor = djb2(id) % REDS.length;
+    var r = REDS[iColor];
+    var g = GREENS[iColor];
+    var b = BLUES[iColor];
+
+    console.log(id + " " + r + " " + g + " " + b + " ");
+
+    indices = new Uint16Array(msg.meshes[i].vertices.length / 3);
+    for (var j = 0; j < indices.length; j++) {
+      indices[j] = j
+    }
+
+    var mesh = msg.meshes[i]
+
+    // Calculate normals
+    var normals = new Float32Array(msg.meshes[i].vertices.length);
+    for(var j = 0; j < mesh.vertices.length; j += 9) {
+      p1 = [mesh.vertices[j+0], mesh.vertices[j+1], mesh.vertices[j+2]];
+      p2 = [mesh.vertices[j+3], mesh.vertices[j+4], mesh.vertices[j+5]];
+      p3 = [mesh.vertices[j+6], mesh.vertices[j+7], mesh.vertices[j+8]];
+
+      v1 = SceneJS_math_subVec3(p1, p2, []);
+      v2 = SceneJS_math_subVec3(p1, p3, []);
+
+      var n = SceneJS_math_normalizeVec3(SceneJS_math_cross3Vec3(v1, v2));
+
+      normals[j + 0] = n[0];
+      normals[j + 1] = n[1];
+      normals[j + 2] = n[2];
+
+      normals[j + 3] = n[0];
+      normals[j + 4] = n[1];
+      normals[j + 5] = n[2];
+
+      normals[j + 6] = n[0];
+      normals[j + 7] = n[1];
+      normals[j + 8] = n[2];
+    }
+
+    // Why do I have to do it again?
+    var n = scene.getNode(id);
 
     // ... and replace it by the received one
     n.addNode(
@@ -260,12 +317,12 @@ function handleMeshQueryResult(msg) {
                 type: "geometry",
                 primitive: "triangles",
                 positions: new Float32Array(msg.meshes[i].vertices),
-                indices: new Uint16Array(msg.meshes[i].triangles),
-                normals: calculateNormals(msg.meshes[i].vertices, msg.meshes[i].triangles)
+                indices: indices,
+                normals: normals
               }
           ]
         }
-      )
+      );
   }
 }
 
@@ -289,7 +346,7 @@ function edUpdate(msg) {
     // console.log(e.id + " " + matrix);
 
     if (n) {
-      // TODO: update position
+      n.setElements(matrix);
     } else {
 
       scene.getNode("world").addNode(
@@ -347,7 +404,7 @@ $(document).ready(function () {
         yaw:40,
         pitch:-20,
         zoom:10,
-        zoomSensitivity:10.0,
+        zoomSensitivity:1.0,
         eye:{ x:5, y:0, z:10 },
         look:{ x:4.9, y:0, z:0 },
         up:{ x:0, y:0, z:1 },
