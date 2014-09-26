@@ -41,6 +41,8 @@ var COLORS = [ [ 0.6, 0.6, 0.6],
                [ 0.2, 0.2, 0.2]
              ];
 
+// ----------------------------------------------------------------------------------------------------
+
 // Hash function
 function djb2(str){
   var hash = 5381;
@@ -54,6 +56,8 @@ function djb2(str){
 
   return hash;
 }
+
+// ----------------------------------------------------------------------------------------------------
 
 function handleMeshQueryResult(msg) {
 
@@ -127,28 +131,36 @@ function handleMeshQueryResult(msg) {
   }
 }
 
+// ----------------------------------------------------------------------------------------------------
+
 function edUpdate(msg) {
 
   // list of entity ids of which we must query the mesh
   var q_mesh_entity_ids = [];
 
+  // Iterate over all world model entities
   for (var i = 0; i < msg.entities.length; i++) {
     var e = msg.entities[i];
-      //console.log(e.id + " " + e.pose.position.x);
 
-    var n = scene.getNode(e.id);
+    // Create 4x4 matrix from object pose (transposed compared to OpenGL)
+    matrix = SceneJS_math_newMat4FromQuaternion(
+      [ e.pose.orientation.x,
+        e.pose.orientation.y,
+        e.pose.orientation.z,
+        e.pose.orientation.w]);
 
-    // For some reason, the scenejs matrices are transposed compared to GL
-    matrix = SceneJS_math_newMat4FromQuaternion([e.pose.orientation.x, e.pose.orientation.y, e.pose.orientation.z, e.pose.orientation.w]);
     matrix[12] = e.pose.position.x;
     matrix[13] = e.pose.position.y;
     matrix[14] = e.pose.position.z;
 
-    // console.log(e.id + " " + matrix);
+    // Get the scenejs node corresponding to the entity
+    var n = scene.getNode(e.id);
 
     if (n) {
+      // If it exists, update the pose matrix
       n.parent.setElements(matrix);
     } else {
+      // If it does not exist, construct a node and add it to the world node
       scene.getNode("world").addNode(
         {
           type: "matrix",
@@ -160,6 +172,7 @@ function edUpdate(msg) {
           id: e.id,
         }).addNode(
         {
+          // Default entity visualization is a red box
           type:"material",
           color:{ r:1.0, g:0.0, b:0.0 },
           id: e.id + "-mesh"
@@ -185,7 +198,11 @@ function edUpdate(msg) {
   }
 }
 
+// ----------------------------------------------------------------------------------------------------
+
 $(document).ready(function () {
+
+  // - - - - - Construct scene - - - - - - - - - - - - - - - - - - - - -
 
   // Create scene
   scene = SceneJS.createScene({
@@ -220,6 +237,8 @@ $(document).ready(function () {
     ]
   });
 
+  // - - - - - Set object pick methods - - - - - - - - - - - - - - - - - - - - -
+
   scene.on("pick",
     function (hit) {
       var canvasX = hit.canvasPos[0];
@@ -233,10 +252,9 @@ $(document).ready(function () {
       console.log("Nothing picked");
     });
 
-  // $("#canvas-1").width($("#canvas-1").height());
+  // - - - - - Set canvas size - - - - - - - - - - - - - - - - - - - - -
 
-  // $("#canvas-1").width(800);
-  // $("#canvas-1").height(800);
+  // TODO: should be done from html
 
   // Get the canvas width and height based on which SceneJS draws the scene
   scenejs_canvas_width = $("#canvas-1").width();
@@ -245,7 +263,9 @@ $(document).ready(function () {
   $("#canvas-1").width(800);
   $("#canvas-1").height(800);
 
-    // Connecting to ROS.
+  // - - - - - Set ROS connections - - - - - - - - - - - - - - - - - - - - -
+
+  // Connecting to ROS.
   var rosUrl = 'ws://' + window.location.hostname + ':9090';
   ros = new ROSLIB.Ros({
     url : rosUrl
@@ -253,16 +273,17 @@ $(document).ready(function () {
 
   console.log("ROS: Connecting to " + rosUrl);
 
-  var mapListener = new ROSLIB.Topic({
+  // Construct entity listener
+  var entityListener = new ROSLIB.Topic({
     ros : ros,
     name : '/ed/gui/entities',
     messageType : 'ed_gui_server/EntityInfos'
   });
-  mapListener.subscribe(function(message) {
+  entityListener.subscribe(function(message) {
     edUpdate(message);
   });
 
-    // get the last measurements for an object
+  // Construct client for requesting meshes
   clientQueryMeshes = new ROSLIB.Service({
       ros : ros,
       name : '/ed/gui/query_meshes',

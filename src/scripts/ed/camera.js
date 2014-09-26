@@ -1,23 +1,9 @@
 /**
- * Orbiting camera node type
- *
- * Usage example
- * -------------
- *
- * someNode.addNode({
- *      type: "cameras/orbit",
- *      eye:{ x: y:0 },
- *      look:{ y:0 },
- *      yaw: 340,,
- *      pitch: -20,
- *      zoom: 350,
- *      zoomSensitivity:10.0,
- * });
- *
- * The camera is initially positioned at the given 'eye' and 'look', then the distance of 'eye' is zoomed out
- * away from 'look' by the amount given in 'zoom', and then 'eye' is rotated by 'yaw' and 'pitch'.
- *
+ * Taken from scenejs (cameras/orbit.js) and adapted
  */
+
+// ----------------------------------------------------------------------------------------------------
+
 SceneJS.Types.addType("ed_camera", {
 
     construct:function (params) {
@@ -79,10 +65,14 @@ SceneJS.Types.addType("ed_camera", {
             }
         }
 
+        // ----------------------------------------------------------------------------------------------------
+
         function contextMenu(event) {
             // Prevent context menu
             event.preventDefault();
         }
+
+        // ----------------------------------------------------------------------------------------------------
 
         function touchStart(event) {
             lastX = event.targetTouches[0].clientX;
@@ -90,13 +80,19 @@ SceneJS.Types.addType("ed_camera", {
             dragging = true;
         }
 
+        // ----------------------------------------------------------------------------------------------------
+
         function mouseUp() {
             dragging = false;
         }
 
+        // ----------------------------------------------------------------------------------------------------
+
         function touchEnd() {
             dragging = false;
         }
+
+        // ----------------------------------------------------------------------------------------------------
 
         function mouseMove(event) {
             var posX = event.clientX;
@@ -104,11 +100,15 @@ SceneJS.Types.addType("ed_camera", {
             actionMove(posX, posY, event.button);
         }
 
+        // ----------------------------------------------------------------------------------------------------
+
         function touchMove(event) {
             var posX = event.targetTouches[0].clientX;
             var posY = event.targetTouches[0].clientY;
             actionMove(posX, posY, event.button);
         }
+
+        // ----------------------------------------------------------------------------------------------------
 
         function actionMove(posX, posY, button) {
             if (dragging) {
@@ -134,6 +134,8 @@ SceneJS.Types.addType("ed_camera", {
             }
         }
 
+        // ----------------------------------------------------------------------------------------------------
+
         function mouseWheel(event) {
             var delta = 0;
             if (!event) event = window.event;
@@ -155,8 +157,9 @@ SceneJS.Types.addType("ed_camera", {
             }
             event.returnValue = false;
             update();
-
         }
+
+        // ----------------------------------------------------------------------------------------------------
 
         function update() {
 
@@ -168,44 +171,28 @@ SceneJS.Types.addType("ed_camera", {
                 pitch = maxPitch;
             }
 
-            // var eye = [0, 0, zoom];
-            // var look = [0, 0, 0];
-            // var up = [0, 1, 0];
-
-            // TODO: These references are to private SceneJS math methods, which are not part of API
-
-            // var eyeVec = SceneJS_math_subVec3(eye, look, []);
-            // var axis = SceneJS_math_cross3Vec3(up, eyeVec, []);
-
-            // var pitchMat = SceneJS_math_rotationMat4v(pitch * 0.0174532925, axis);
-
-            // var eye3 = SceneJS_math_transformPoint3(pitchMat, eye);
-            // eye3 = SceneJS_math_transformPoint3(yawMat, eye3);
-
             var pitchMat = SceneJS_math_rotationMat4v(pitch * 0.0174532925, [0, -1, 0]);
             var eye1 = SceneJS_math_transformPoint3(pitchMat, [zoom, 0, 0])
 
             var yawMat = SceneJS_math_rotationMat4v(yaw * 0.0174532925, [0, 0, 1]);
             var eye2 = SceneJS_math_transformPoint3(yawMat, eye1)
 
-            // var eye3 =
-
-
-            lookat.setEye(
-                {
-                    x: eye2[0] + look.x,
-                    y: eye2[1] + look.y,
-                    z: eye2[2] + look.z
-                });
+            lookat.setEye({
+                x: eye2[0] + look.x,
+                y: eye2[1] + look.y,
+                z: eye2[2] + look.z
+            });
 
             lookat.setLook(look)
         }
     },
 
+    // ----------------------------------------------------------------------------------------------------
+
     setLook: function(l) {
-
-
     },
+
+    // ----------------------------------------------------------------------------------------------------
 
     destruct:function () {
         // TODO: remove mouse handlers
