@@ -173,13 +173,17 @@ $(document).ready(function () {
       // implemented by plugin at http://scenejs.org/api/latest/plugins/node/cameras/orbit.js
       {
         type:"ed_camera",
-        yaw:40,
-        pitch:-20,
+        yaw:0,
+        pitch: 45,
         zoom:10,
-        zoomSensitivity:1.0,
-        eye:{ x:5, y:0, z:10 },
-        look:{ x:4.9, y:0, z:0 },
-        up:{ x:0, y:0, z:1 },
+        zoomSensitivity: 0.2,
+        minPitch: 1,
+        maxPitch: 89,
+        yawSensitivity: 0.2,
+        pitchSensitivity: 0.2,
+        // eye:{ x:5, y:0, z:10 },
+        // look:{ x:4.9, y:0, z:0 },
+        // up:{ x:0, y:0, z:1 },
 
         nodes:[
           {
@@ -194,6 +198,11 @@ $(document).ready(function () {
       }
     ]
   });
+
+  // $("#canvas-1").width($("#canvas-1").height());
+
+  $("#canvas-1").width(800);
+  $("#canvas-1").height(800);
 
     // Connecting to ROS.
   var rosUrl = 'ws://' + window.location.hostname + ':9090';

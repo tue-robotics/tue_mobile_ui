@@ -35,7 +35,9 @@ SceneJS.Types.addType("ed_camera", {
         var zoom = params.zoom || 10;
         var minPitch = params.minPitch;
         var maxPitch = params.maxPitch;
-        var zoomSensitivity = params.zoomSensitivity || 1.0;
+        var yawSensitivity = params.yawSensitivity || 0.1;
+        var pitchSensitivity = params.pitchSensitivity || 0.1;
+        var zoomSensitivity = params.zoomSensitivity || 0.9;
 
         var lastX;
         var lastY;
@@ -47,7 +49,7 @@ SceneJS.Types.addType("ed_camera", {
         lookat.set({
             eye:{ x:eye.x, y:eye.y, z:-zoom },
             look:{ x:look.x, y:look.y, z:look.z },
-            up:{ x:0, y:1, z:0 }
+            up:{ x:0, y:0, z:1 }
         });
 
         update();
@@ -86,20 +88,31 @@ SceneJS.Types.addType("ed_camera", {
         function mouseMove(event) {
             var posX = event.clientX;
             var posY = event.clientY;
-            actionMove(posX, posY);
+            actionMove(posX, posY, event.button);
         }
 
         function touchMove(event) {
             var posX = event.targetTouches[0].clientX;
             var posY = event.targetTouches[0].clientY;
-            actionMove(posX, posY);
+            actionMove(posX, posY, event.button);
         }
 
-        function actionMove(posX, posY) {
+        function actionMove(posX, posY, button) {
             if (dragging) {
 
-                yaw -= (posX - lastX) * 0.1;
-                pitch -= (posY - lastY) * 0.1;
+                if (button == 0) { // Left mouse button
+                    yaw -= (posX - lastX) * yawSensitivity;
+                    pitch += (posY - lastY) * pitchSensitivity;
+                } else if (button == 1) { // Middle mouse button
+                    var dx = (posX - lastX) * zoom * 0.002;
+                    var dy = (posY - lastY) * zoom * 0.002;
+
+                    var sin_yaw = Math.sin(yaw * 0.0174532925);
+                    var cos_yaw = Math.cos(yaw * 0.0174532925);
+
+                    look.x += sin_yaw * dx - cos_yaw * dy;
+                    look.y += -cos_yaw * dx - sin_yaw * dy;
+                }
 
                 update();
 
@@ -119,9 +132,9 @@ SceneJS.Types.addType("ed_camera", {
             }
             if (delta) {
                 if (delta < 0) {
-                    zoom -= zoomSensitivity;
+                    zoom *= (1 + zoomSensitivity);
                 } else {
-                    zoom += zoomSensitivity;
+                    zoom /= (1 + zoomSensitivity);
                 }
             }
             if (event.preventDefault) {
@@ -142,22 +155,37 @@ SceneJS.Types.addType("ed_camera", {
                 pitch = maxPitch;
             }
 
-            var eye = [0, 0, zoom];
-            var look = [0, 0, 0];
-            var up = [0, 1, 0];
+            // var eye = [0, 0, zoom];
+            // var look = [0, 0, 0];
+            // var up = [0, 1, 0];
 
             // TODO: These references are to private SceneJS math methods, which are not part of API
 
-            var eyeVec = SceneJS_math_subVec3(eye, look, []);
-            var axis = SceneJS_math_cross3Vec3(up, eyeVec, []);
+            // var eyeVec = SceneJS_math_subVec3(eye, look, []);
+            // var axis = SceneJS_math_cross3Vec3(up, eyeVec, []);
 
-            var pitchMat = SceneJS_math_rotationMat4v(pitch * 0.0174532925, axis);
-            var yawMat = SceneJS_math_rotationMat4v(yaw * 0.0174532925, up);
+            // var pitchMat = SceneJS_math_rotationMat4v(pitch * 0.0174532925, axis);
 
-            var eye3 = SceneJS_math_transformPoint3(pitchMat, eye);
-            eye3 = SceneJS_math_transformPoint3(yawMat, eye3);
+            // var eye3 = SceneJS_math_transformPoint3(pitchMat, eye);
+            // eye3 = SceneJS_math_transformPoint3(yawMat, eye3);
 
-            lookat.setEye({x:eye3[0], y:eye3[1], z:eye3[2] });
+            var pitchMat = SceneJS_math_rotationMat4v(pitch * 0.0174532925, [0, -1, 0]);
+            var eye1 = SceneJS_math_transformPoint3(pitchMat, [zoom, 0, 0])
+
+            var yawMat = SceneJS_math_rotationMat4v(yaw * 0.0174532925, [0, 0, 1]);
+            var eye2 = SceneJS_math_transformPoint3(yawMat, eye1)
+
+            // var eye3 =
+
+
+            lookat.setEye(
+                {
+                    x: eye2[0] + look.x,
+                    y: eye2[1] + look.y,
+                    z: eye2[2] + look.z
+                });
+
+            lookat.setLook(look)
         }
     },
 
