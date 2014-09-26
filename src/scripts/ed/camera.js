@@ -63,12 +63,25 @@ SceneJS.Types.addType("ed_camera", {
         canvas.addEventListener('touchmove', touchMove, true);
         canvas.addEventListener('touchend', touchEnd, true);
         canvas.addEventListener('mousewheel', mouseWheel, true);
+        canvas.addEventListener('contextmenu', contextMenu, true);
         canvas.addEventListener('DOMMouseScroll', mouseWheel, true);
 
         function mouseDown(event) {
             lastX = event.clientX;
             lastY = event.clientY;
             dragging = true;
+
+            if (event.button == 2) {  // Right mouse click
+               // Compensate for possible window resizes
+                var scene_x = event.clientX * scenejs_canvas_width / $("#canvas-1").width();
+                var scene_y = event.clientY * scenejs_canvas_height / $("#canvas-1").height();
+                scene.pick(scene_x, scene_y);
+            }
+        }
+
+        function contextMenu(event) {
+            // Prevent context menu
+            event.preventDefault();
         }
 
         function touchStart(event) {

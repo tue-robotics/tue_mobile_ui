@@ -10,6 +10,8 @@ SceneJS.setConfigs({
 var scene;
 var clientQueryMeshes;
 
+var scenejs_canvas_width, scenejs_canvas_height;
+
 var COLORS = [ [ 0.6, 0.6, 0.6],
                [ 0.6, 0.6, 0.4],
                [ 0.6, 0.6, 0.2],
@@ -134,7 +136,7 @@ function edUpdate(msg) {
     var e = msg.entities[i];
       //console.log(e.id + " " + e.pose.position.x);
 
-    var n = scene.getNode("world").getNode(e.id);
+    var n = scene.getNode(e.id);
 
     // For some reason, the scenejs matrices are transposed compared to GL
     matrix = SceneJS_math_newMat4FromQuaternion([e.pose.orientation.x, e.pose.orientation.y, e.pose.orientation.z, e.pose.orientation.w]);
@@ -145,37 +147,29 @@ function edUpdate(msg) {
     // console.log(e.id + " " + matrix);
 
     if (n) {
-      n.setElements(matrix);
+      n.parent.setElements(matrix);
     } else {
-
       scene.getNode("world").addNode(
         {
           type: "matrix",
+          elements: matrix
+        }).addNode(
+        {
+          type: "name",
+          name: e.id,
           id: e.id,
-          elements: matrix,
-
-          nodes: [
-            {
-            type:"material",
-            color:{ r:1.0, g:0.0, b:0.0 },
-            id: e.id + "-mesh",
-
-            nodes:[
-                {
-                  type: "prims/box",
-                  xSize: 0.1,
-                  ySize: 0.1,
-                  zSize: 0.1
-                  // primitive: "triangles",
-                  // positions:new Float32Array([0, 0, 0, 0, 0, 0.1, 0, 0.1, 0]),
-                  // indices:new Uint16Array([0, 1, 2]),
-                  // normals:new Float32Array([1, 0, 0, 1, 0, 0, 1, 0, 0])
-                }
-              ]
-            }
-          ]
-        }
-      );
+        }).addNode(
+        {
+          type:"material",
+          color:{ r:1.0, g:0.0, b:0.0 },
+          id: e.id + "-mesh"
+        }).addNode(
+        {
+          type: "prims/box",
+          xSize: 0.1,
+          ySize: 0.1,
+          zSize: 0.1
+        });
 
       q_mesh_entity_ids.push(e.id);
     }
@@ -226,7 +220,27 @@ $(document).ready(function () {
     ]
   });
 
+  scene.on("pick",
+    function (hit) {
+      var canvasX = hit.canvasPos[0];
+      var canvasY = hit.canvasPos[1];
+      console.log("Object picked: " + hit.name);
+    });
+
+      // Called when nothing picked
+  scene.on("nopick",
+    function (hit) {
+      console.log("Nothing picked");
+    });
+
   // $("#canvas-1").width($("#canvas-1").height());
+
+  // $("#canvas-1").width(800);
+  // $("#canvas-1").height(800);
+
+  // Get the canvas width and height based on which SceneJS draws the scene
+  scenejs_canvas_width = $("#canvas-1").width();
+  scenejs_canvas_height = $("#canvas-1").height();
 
   $("#canvas-1").width(800);
   $("#canvas-1").height(800);
