@@ -10,9 +10,34 @@ SceneJS.setConfigs({
 var scene;
 var clientQueryMeshes;
 
-var REDS =   [ 0.8, 0  , 0.8, 0,   0.8, 0  , 0.8];
-var GREENS = [ 0.8, 0.8, 0  , 0,   0.8, 0.8, 0  ];
-var BLUES =  [ 0.8, 0.8, 0.8, 0.8, 0,   0,   0  ];
+var COLORS = [ [ 0.6, 0.6, 0.6],
+               [ 0.6, 0.6, 0.4],
+               [ 0.6, 0.6, 0.2],
+               [ 0.6, 0.4, 0.6],
+               [ 0.6, 0.4, 0.4],
+               [ 0.6, 0.4, 0.2],
+               [ 0.6, 0.2, 0.6],
+               [ 0.6, 0.2, 0.4],
+               [ 0.6, 0.2, 0.2],
+               [ 0.4, 0.6, 0.6],
+               [ 0.4, 0.6, 0.4],
+               [ 0.4, 0.6, 0.2],
+               [ 0.4, 0.4, 0.6],
+               [ 0.4, 0.4, 0.4],
+               [ 0.4, 0.4, 0.2],
+               [ 0.4, 0.2, 0.6],
+               [ 0.4, 0.2, 0.4],
+               [ 0.4, 0.2, 0.2],
+               [ 0.2, 0.6, 0.6],
+               [ 0.2, 0.6, 0.4],
+               [ 0.2, 0.6, 0.2],
+               [ 0.2, 0.4, 0.6],
+               [ 0.2, 0.4, 0.4],
+               [ 0.2, 0.4, 0.2],
+               [ 0.2, 0.2, 0.6],
+               [ 0.2, 0.2, 0.4],
+               [ 0.2, 0.2, 0.2]
+             ];
 
 // Hash function
 function djb2(str){
@@ -34,10 +59,12 @@ function handleMeshQueryResult(msg) {
     var id = msg.entity_ids[i]
 
     // Generate color from hash function
-    var iColor = djb2(id) % REDS.length;
-    var r = REDS[iColor];
-    var g = GREENS[iColor];
-    var b = BLUES[iColor];
+    var iColor = djb2(id) % COLORS.length;
+    var r = COLORS[iColor][0];
+    var g = COLORS[iColor][1];
+    var b = COLORS[iColor][2];
+
+    console.log(id + ": color = " + [r, g, b]);
 
     indices = new Uint16Array(msg.meshes[i].vertices.length / 3);
     for (var j = 0; j < indices.length; j++) {
