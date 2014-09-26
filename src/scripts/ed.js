@@ -9,6 +9,7 @@ SceneJS.setConfigs({
 
 var scene;
 var clientQueryMeshes;
+var entity_poses = {}
 
 var scenejs_canvas_width, scenejs_canvas_height;
 
@@ -153,6 +154,8 @@ function edUpdate(msg) {
     matrix[13] = e.pose.position.y;
     matrix[14] = e.pose.position.z;
 
+    entity_poses[e.id] = matrix;
+
     // Get the scenejs node corresponding to the entity
     var n = scene.getNode(e.id);
 
@@ -203,13 +206,17 @@ function edUpdate(msg) {
 function onEntityClick(hit)
 {
   var entityId = hit.name;
-
   console.log("Entity picked: " + entityId);
 
-  nEntity = scene.getNode(entityId);
+  // nEntity = scene.getNode(entityId);
+  // console.log(entity_poses[entityId]);
+
   nSelectionBox = scene.getNode("selection-box");
 
-  // nSelectionBox.setElements(nEntity.parent.elements);
+  matrix = entity_poses[entityId];
+  matrix[14] = 2;
+
+  nSelectionBox.setElements(matrix);
 
 }
 
