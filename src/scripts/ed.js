@@ -200,6 +200,21 @@ function edUpdate(msg) {
 
 // ----------------------------------------------------------------------------------------------------
 
+function onEntityClick(hit)
+{
+  var entityId = hit.name;
+
+  console.log("Entity picked: " + entityId);
+
+  nEntity = scene.getNode(entityId);
+  nSelectionBox = scene.getNode("selection-box");
+
+  // nSelectionBox.setElements(nEntity.parent.elements);
+
+}
+
+// ----------------------------------------------------------------------------------------------------
+
 $(document).ready(function () {
 
   // - - - - - Construct scene - - - - - - - - - - - - - - - - - - - - -
@@ -237,20 +252,32 @@ $(document).ready(function () {
     ]
   });
 
+  scene.getNode("world").addNode(
+    {
+      type: "matrix",
+      id: "selection-box",
+      elements: [1, 0, 0, 0,
+                 0, 1, 0, 0,
+                 0, 0, 1, 0,
+                 0, 0, 2, 1]
+    }).addNode(
+    {
+      type:"material",
+      color:{ r:0.0, g:1.0, b:0.0 },
+    }).addNode(
+    {
+      type: "prims/box",
+      xSize: 0.01,
+      ySize: 0.01,
+      zSize: 2
+    });
+
   // - - - - - Set object pick methods - - - - - - - - - - - - - - - - - - - - -
 
-  scene.on("pick",
-    function (hit) {
-      var canvasX = hit.canvasPos[0];
-      var canvasY = hit.canvasPos[1];
-      console.log("Object picked: " + hit.name);
-    });
+  scene.on("pick", function (hit) { onEntityClick(hit) } );
 
-      // Called when nothing picked
-  scene.on("nopick",
-    function (hit) {
-      console.log("Nothing picked");
-    });
+  // Called when nothing picked
+  // scene.on("nopick", function (hit) { console.log("Nothing picked"); });
 
   // - - - - - Set canvas size - - - - - - - - - - - - - - - - - - - - -
 
