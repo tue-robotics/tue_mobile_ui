@@ -191,6 +191,135 @@ function edUpdate(msg) {
     }
   }
 
+  if (e.polygon.xs.length > 0) {
+
+    var polySize = e.polygon.xs.length;
+
+    // - - - - - Construct mesh from polygon - - - - -
+
+    // #Vertices = top polygon + bottom polygon + mid section
+    var i_bottom = polySize * 3;
+    var i_middle = i_bottom + polySize * 3;
+
+    var vertices = new Float32Array(polySize * 3 + polySize * 3 + polySize * 3 * 4);
+    var normals = new Float32Array(vertices.length);
+
+    var k = 0;
+
+    // - - - - - - - - - - - Vertices and Normals - - - - - - - - - - - - -
+
+    // Top section
+    for(var i = 0; i < polySize; i++) {
+      vertices[k]     = e.polygon.xs[i];
+      vertices[k + 1] = e.polygon.ys[i];
+      vertices[k + 2] = e.polygon.z_max;
+      normals[k]     = 0;
+      normals[k + 1] = 0;
+      normals[k + 2] = 1;
+      k += 3;
+    }
+
+    // Bottom section
+    for(var i = 0; i < polySize; i++) {
+      vertices[k]     = e.polygon.xs[i];
+      vertices[k + 1] = e.polygon.ys[i];
+      vertices[k + 2] = e.polygon.z_min;
+      normals[k]     = 0;
+      normals[k + 1] = 0;
+      normals[k + 2] = -1;
+      k += 3;
+    }
+
+    // Middle section
+    for(var i = 0; i < polySize; i++) {
+      var i2 = (i + 1) % polySize;
+
+      // Normal calculation
+      var dx = e.polygon.xs[i2] - e.polygon.xs[i];
+      var dy = e.polygon.ys[i2] - e.polygon.ys[i];
+      var normal = SceneJS_math_normalizeVec3(SceneJS_math_cross3Vec3([dx, dy, 0], [0, 0, 1]));
+
+      // Set normals (4 vertices, so 4 times)
+      for(var j = 0; j < 12; j += 3) {
+        normals[k + j]     = normal[0];
+        normals[k + j + 1] = normal[1];
+        normals[k + j + 2] = normal[2];
+      }
+
+      // Triangle 1
+      vertices[k++] = e.polygon.xs[i];
+      vertices[k++] = e.polygon.ys[i];
+      vertices[k++] = e.polygon.z_min;
+      vertices[k++] = e.polygon.xs[i];
+      vertices[k++] = e.polygon.ys[i];
+      vertices[k++] = e.polygon.z_max;
+
+      // Triangle 1
+      vertices[k++] = e.polygon.xs[i2];
+      vertices[k++] = e.polygon.ys[i2];
+      vertices[k++] = e.polygon.z_min;
+      vertices[k++] = e.polygon.xs[i2];
+      vertices[k++] = e.polygon.ys[i2];
+      vertices[k++] = e.polygon.z_max;
+    }
+
+    // - - - - - - - - - - - Triangles - - - - - - - - - - - - -
+
+    var indices = new Uint16Array((polySize - 2) * 3 + (polySize - 2) * 3 + polySize * 2 * 3);
+
+    var l = 0;
+    // Top section
+    for(var i = 0; i < polySize - 2; i++) {
+      indices[l++] = 0;
+      indices[l++] = i + 1;
+      indices[l++] = i + 2;
+    }
+
+    // Bottom section
+    for(var i = 0; i < polySize - 2; i++) {
+      indices[l++] = polySize;
+      indices[l++] = polySize + i + 1;
+      indices[l++] = polySize + i + 2;
+    }
+
+    // Middle section
+    for(var i = 0; i < 4 * polySize; i += 4) {
+      // Triangle 1
+      indices[l++] = (2 * polySize) + i;
+      indices[l++] = (2 * polySize) + i + 1;
+      indices[l++] = (2 * polySize) + i + 3;
+
+      // Triangle 2
+      indices[l++] = (2 * polySize) + i + 3;
+      indices[l++] = (2 * polySize) + i + 2;
+      indices[l++] = (2 * polySize) + i;
+    }
+
+    // Remove the mesh ...
+    var n = scene.getNode(e.id);
+
+    n.removeNode(e.id + "-mesh");
+
+    // ... and replace it by the received one
+    n.addNode(
+        {
+          type:"material",
+          color:{ r:0.0, g:0.6, b:0.0 },
+          id: e.id + "-mesh",
+
+          nodes:[
+              {
+                type: "geometry",
+                primitive: "triangles",
+                positions: vertices,
+                indices: indices,
+                normals: normals
+              }
+          ]
+        }
+      );
+  }
+
   if (q_mesh_entity_ids.length > 0) {
     var req = new ROSLIB.ServiceRequest({
       entity_ids: q_mesh_entity_ids
