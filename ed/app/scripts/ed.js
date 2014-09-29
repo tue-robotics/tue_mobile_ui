@@ -4,7 +4,7 @@
 
 // Point SceneJS to the bundled plugins
 SceneJS.setConfigs({
-  pluginPath:"../utils/bower_components/scenejs/plugins"
+  pluginPath:"scenejs_plugins"
 });
 
 var scene;
