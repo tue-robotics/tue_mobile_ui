@@ -9,6 +9,7 @@ SceneJS.setConfigs({
 
 var scene;
 var clientQueryMeshes;
+var clientInteract;
 var entity_poses = {}
 
 var scenejs_canvas_width, scenejs_canvas_height;
@@ -338,16 +339,17 @@ function onEntityClick(hit)
   var entityId = hit.name;
   console.log("Entity picked: " + entityId);
 
-  // nEntity = scene.getNode(entityId);
-  // console.log(entity_poses[entityId]);
-
+  // Set entity box
   nSelectionBox = scene.getNode("selection-box");
-
   matrix = entity_poses[entityId];
   matrix[14] = 2;
-
   nSelectionBox.setElements(matrix);
 
+  // Send interaction request (for now hard-coded to 'navigate_to')
+  var req = new ROSLIB.ServiceRequest({
+    command_yaml: "{ action: navigate_to, entity: " + entityId + " }"
+  });
+  clientInteract.callService(req, function(result) { console.log("Result from Interact server: " + result) });
 }
 
 // ----------------------------------------------------------------------------------------------------
@@ -449,9 +451,16 @@ $(document).ready(function () {
 
   // Construct client for requesting meshes
   clientQueryMeshes = new ROSLIB.Service({
-      ros : ros,
-      name : '/ed/gui/query_meshes',
-      serviceType : 'ed_gui_server/QueryMeshes'
+    ros : ros,
+    name : '/ed/gui/query_meshes',
+    serviceType : 'ed_gui_server/QueryMeshes'
+  });
+
+  // Construct client for interacting
+  clientInteract = new ROSLIB.Service({
+    ros: ros,
+    name: '/ed/gui/interact',
+    serviceType: 'ed_gui_server/Interact'
   });
 
 });
