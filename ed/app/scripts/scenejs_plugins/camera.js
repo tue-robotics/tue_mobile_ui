@@ -2,7 +2,7 @@
  * Taken from scenejs (cameras/orbit.js) and adapted
  */
 
-/* global SceneJS, scene */
+/* global scene */
 /* global scenejs_canvas_width, scenejs_canvas_height */
 
 /* jshint latedef:false */

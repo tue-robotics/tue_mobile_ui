@@ -12,8 +12,6 @@
  *  });
  */
 
-/* global SceneJS */
-
 'use strict';
 
 (function () {

@@ -1,7 +1,9 @@
 {
   "globals": {
     "module": true,
-    "EventEmitter2" : true
+    "EventEmitter2": true,
+    "SceneJS": true,
+    "ROSLIB": true
   },
   "node": true,
   "browser": true,
@@ -13,7 +15,7 @@
   "immed": true,
   "indent": 2,
   "latedef": true,
-  "newcap": true,
+  "newcap": false,
   "noarg": true,
   "quotmark": "single",
   "undef": true,

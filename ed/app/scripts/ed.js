@@ -1,16 +1,20 @@
-// (function() {
+// Demo of the 'cameras/orbit' node type, which orbits the eye about a point of interest
 
-// Demo of the "cameras/orbit" node type, which orbits the eye about a point of interest
+/* global SceneJS_math_subVec3,
+     SceneJS_math_cross3Vec3, SceneJS_math_newMat4FromQuaternion,
+     SceneJS_math_normalizeVec3 */
+
+'use strict';
 
 // Point SceneJS to the bundled plugins
 SceneJS.setConfigs({
-  pluginPath:"scenejs_plugins"
+  pluginPath:'scenejs_plugins'
 });
 
 var scene;
 var clientQueryMeshes;
 var clientInteract;
-var entity_poses = {}
+var entity_poses = {};
 
 var scenejs_canvas_width, scenejs_canvas_height;
 
@@ -46,6 +50,7 @@ var COLORS = [ [ 0.6, 0.6, 0.6],
 // ----------------------------------------------------------------------------------------------------
 
 // Hash function
+/* jshint bitwise: false */
 function djb2(str){
   var hash = 5381;
   for (var i = 0; i < str.length; i++) {
@@ -64,7 +69,7 @@ function djb2(str){
 function handleMeshQueryResult(msg) {
 
   for (var i = 0; i < msg.entity_ids.length; i++) {
-    var id = msg.entity_ids[i]
+    var id = msg.entity_ids[i];
 
     // Generate color from hash function
     var iColor = djb2(id) % COLORS.length;
@@ -72,24 +77,24 @@ function handleMeshQueryResult(msg) {
     var g = COLORS[iColor][1];
     var b = COLORS[iColor][2];
 
-    console.log(id + ": color = " + [r, g, b]);
+    console.log(id + ': color = ' + [r, g, b]);
 
     indices = new Uint16Array(msg.meshes[i].vertices.length / 3);
     for (var j = 0; j < indices.length; j++) {
-      indices[j] = j
+      indices[j] = j;
     }
 
-    var mesh = msg.meshes[i]
+    var mesh = msg.meshes[i];
 
     // Calculate normals
     var normals = new Float32Array(msg.meshes[i].vertices.length);
     for(var j = 0; j < mesh.vertices.length; j += 9) {
-      p1 = [mesh.vertices[j+0], mesh.vertices[j+1], mesh.vertices[j+2]];
-      p2 = [mesh.vertices[j+3], mesh.vertices[j+4], mesh.vertices[j+5]];
-      p3 = [mesh.vertices[j+6], mesh.vertices[j+7], mesh.vertices[j+8]];
+      var p1 = [mesh.vertices[j+0], mesh.vertices[j+1], mesh.vertices[j+2]];
+      var p2 = [mesh.vertices[j+3], mesh.vertices[j+4], mesh.vertices[j+5]];
+      var p3 = [mesh.vertices[j+6], mesh.vertices[j+7], mesh.vertices[j+8]];
 
-      v1 = SceneJS_math_subVec3(p1, p2, []);
-      v2 = SceneJS_math_subVec3(p1, p3, []);
+      var v1 = SceneJS_math_subVec3(p1, p2, []);
+      var v2 = SceneJS_math_subVec3(p1, p3, []);
 
       var n = SceneJS_math_normalizeVec3(SceneJS_math_cross3Vec3(v1, v2));
 
@@ -107,29 +112,28 @@ function handleMeshQueryResult(msg) {
     }
 
     // Get the entity scene node
-    var n = scene.getNode(id);
+    var node = scene.getNode(id);
 
     // Remove the mesh ...
-    n.removeNode(id + "-mesh");
+    node.removeNode(id + '-mesh');
 
     // ... and replace it by the received one
-    n.addNode(
-        {
-          type:"material",
-          color:{ r: r, g: g, b: b },
-          id: id + "-mesh",
+    node.addNode({
+        type:'material',
+        color:{ r: r, g: g, b: b },
+        id: id + '-mesh',
 
-          nodes:[
-              {
-                type: "geometry",
-                primitive: "triangles",
-                positions: new Float32Array(msg.meshes[i].vertices),
-                indices: indices,
-                normals: normals
-              }
-          ]
-        }
-      );
+        nodes:[
+          {
+            type: 'geometry',
+            primitive: 'triangles',
+            positions: new Float32Array(msg.meshes[i].vertices),
+            indices: indices,
+            normals: normals
+          }
+        ]
+      }
+    );
   }
 }
 
@@ -145,7 +149,7 @@ function edUpdate(msg) {
     var e = msg.entities[i_entity];
 
     // Create 4x4 matrix from object pose (transposed compared to OpenGL)
-    matrix = SceneJS_math_newMat4FromQuaternion(
+    var matrix = SceneJS_math_newMat4FromQuaternion(
       [ e.pose.orientation.x,
         e.pose.orientation.y,
         e.pose.orientation.z,
@@ -165,24 +169,24 @@ function edUpdate(msg) {
       n.parent.setElements(matrix);
     } else {
       // If it does not exist, construct a node and add it to the world node
-      scene.getNode("world").addNode(
+      scene.getNode('world').addNode(
         {
-          type: "matrix",
+          type: 'matrix',
           elements: matrix
         }).addNode(
         {
-          type: "name",
+          type: 'name',
           name: e.id,
           id: e.id,
         }).addNode(
         {
           // Default entity visualization is a red box
-          type:"material",
+          type:'material',
           color:{ r:1.0, g:0.0, b:0.0 },
-          id: e.id + "-mesh"
+          id: e.id + '-mesh'
         }).addNode(
         {
-          type: "prims/box",
+          type: 'prims/box',
           xSize: 0.1,
           ySize: 0.1,
           zSize: 0.1
@@ -298,26 +302,26 @@ function edUpdate(msg) {
       // Remove the mesh ...
       var n = scene.getNode(e.id);
 
-      n.removeNode(e.id + "-mesh");
+      n.removeNode(e.id + '-mesh');
 
       // ... and replace it by the received one
       n.addNode(
-          {
-            type:"material",
-            color:{ r:0.0, g:0.6, b:0.0 },
-            id: e.id + "-mesh",
+        {
+          type:'material',
+          color:{ r:0.0, g:0.6, b:0.0 },
+          id: e.id + '-mesh',
 
-            nodes:[
-                {
-                  type: "geometry",
-                  primitive: "triangles",
-                  positions: vertices,
-                  indices: indices,
-                  normals: normals
-                }
-            ]
-          }
-        );
+          nodes:[
+            {
+              type: 'geometry',
+              primitive: 'triangles',
+              positions: vertices,
+              indices: indices,
+              normals: normals
+            }
+          ]
+        }
+      );
     }
 
   }
@@ -337,19 +341,21 @@ function edUpdate(msg) {
 function onEntityClick(hit)
 {
   var entityId = hit.name;
-  console.log("Entity picked: " + entityId);
+  console.log('Entity picked: ' + entityId);
 
   // Set entity box
-  nSelectionBox = scene.getNode("selection-box");
-  matrix = entity_poses[entityId];
+  var  nSelectionBox = scene.getNode('selection-box');
+  var matrix = entity_poses[entityId];
   matrix[14] = 2;
   nSelectionBox.setElements(matrix);
 
   // Send interaction request (for now hard-coded to 'navigate_to')
   var req = new ROSLIB.ServiceRequest({
-    command_yaml: "{ action: navigate_to, entity: " + entityId + " }"
+    command_yaml: '{ action: navigate_to, entity: ' + entityId + ' }'
   });
-  clientInteract.callService(req, function(result) { console.log("Result from Interact server: " + result) });
+  clientInteract.callService(req, function(result) {
+    console.log('Result from Interact server: ' + result);
+  });
 }
 
 // ----------------------------------------------------------------------------------------------------
@@ -364,7 +370,7 @@ $(document).ready(function () {
       // Mouse-orbited camera,
       // implemented by plugin at http://scenejs.org/api/latest/plugins/node/cameras/orbit.js
       {
-        type:"ed_camera",
+        type:'ed_camera',
         yaw:0,
         pitch: 45,
         zoom:10,
@@ -379,33 +385,33 @@ $(document).ready(function () {
 
         nodes:[
           {
-            type:"matrix",
+            type:'matrix',
             elements: [1, 0, 0, 0,
                        0, 1, 0, 0,
                        0, 0, 1, 0,
                        0, 0, 0, 1],
-            id: "world"
+            id: 'world'
           }
         ]
       }
     ]
   });
 
-  scene.getNode("world").addNode(
+  scene.getNode('world').addNode(
     {
-      type: "matrix",
-      id: "selection-box",
+      type: 'matrix',
+      id: 'selection-box',
       elements: [1, 0, 0, 0,
                  0, 1, 0, 0,
                  0, 0, 1, 0,
                  0, 0, 2, 1]
     }).addNode(
     {
-      type:"material",
+      type:'material',
       color:{ r:0.0, g:1.0, b:0.0 },
     }).addNode(
     {
-      type: "prims/box",
+      type: 'prims/box',
       xSize: 0.01,
       ySize: 0.01,
       zSize: 2
@@ -413,31 +419,33 @@ $(document).ready(function () {
 
   // - - - - - Set object pick methods - - - - - - - - - - - - - - - - - - - - -
 
-  scene.on("pick", function (hit) { onEntityClick(hit) } );
+  scene.on('pick', function (hit) {
+    onEntityClick(hit);
+  });
 
   // Called when nothing picked
-  // scene.on("nopick", function (hit) { console.log("Nothing picked"); });
+  // scene.on('nopick', function (hit) { console.log('Nothing picked'); });
 
   // - - - - - Set canvas size - - - - - - - - - - - - - - - - - - - - -
 
   // TODO: should be done from html
 
   // Get the canvas width and height based on which SceneJS draws the scene
-  scenejs_canvas_width = $("#canvas-1").width();
-  scenejs_canvas_height = $("#canvas-1").height();
+  scenejs_canvas_width = $('#canvas-1').width();
+  scenejs_canvas_height = $('#canvas-1').height();
 
-  $("#canvas-1").width(800);
-  $("#canvas-1").height(800);
+  $('#canvas-1').width(800);
+  $('#canvas-1').height(800);
 
   // - - - - - Set ROS connections - - - - - - - - - - - - - - - - - - - - -
 
   // Connecting to ROS.
   var rosUrl = 'ws://' + window.location.hostname + ':9090';
-  ros = new ROSLIB.Ros({
+  var ros = new ROSLIB.Ros({
     url : rosUrl
   });
 
-  console.log("ROS: Connecting to " + rosUrl);
+  console.log('ROS: Connecting to ' + rosUrl);
 
   // Construct entity listener
   var entityListener = new ROSLIB.Topic({
