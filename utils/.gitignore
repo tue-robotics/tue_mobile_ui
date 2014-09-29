@@ -1,7 +1,6 @@
 # Dependency directories
 node_modules/
-app/bower_components/
-test/bower_components/
+bower_components/
 
 # Build caches
 .tmp
