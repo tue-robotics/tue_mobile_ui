@@ -27,7 +27,7 @@ SceneJS.Types.addType("ed_camera", {
 
         var lastX;
         var lastY;
-        var dragging = false;
+        var drag_button = -1;
 
         var eye = params.eye || { x:0, y:0, z:0 };
         var look = params.look || { x:0, y:0, z:0};
@@ -55,7 +55,8 @@ SceneJS.Types.addType("ed_camera", {
         function mouseDown(event) {
             lastX = event.clientX;
             lastY = event.clientY;
-            dragging = true;
+
+            drag_button = event.button;
 
             if (event.button == 2) {  // Right mouse click
                // Compensate for possible window resizes
@@ -77,19 +78,19 @@ SceneJS.Types.addType("ed_camera", {
         function touchStart(event) {
             lastX = event.targetTouches[0].clientX;
             lastY = event.targetTouches[0].clientY;
-            dragging = true;
+            drag_button = 1;
         }
 
         // ----------------------------------------------------------------------------------------------------
 
         function mouseUp() {
-            dragging = false;
+            drag_button = -1;
         }
 
         // ----------------------------------------------------------------------------------------------------
 
         function touchEnd() {
-            dragging = false;
+            drag_button = -1;
         }
 
         // ----------------------------------------------------------------------------------------------------
@@ -97,7 +98,7 @@ SceneJS.Types.addType("ed_camera", {
         function mouseMove(event) {
             var posX = event.clientX;
             var posY = event.clientY;
-            actionMove(posX, posY, event.button);
+            actionMove(posX, posY, drag_button);
         }
 
         // ----------------------------------------------------------------------------------------------------
@@ -111,8 +112,7 @@ SceneJS.Types.addType("ed_camera", {
         // ----------------------------------------------------------------------------------------------------
 
         function actionMove(posX, posY, button) {
-            if (dragging) {
-
+            if (drag_button >= 0) {
                 if (button == 0) { // Left mouse button
                     yaw -= (posX - lastX) * yawSensitivity;
                     pitch += (posY - lastY) * pitchSensitivity;
