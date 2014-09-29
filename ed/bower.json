@@ -2,6 +2,8 @@
   "name": "ed",
   "private": true,
   "dependencies": {
-    "jquery": "~1.11.1"
+    "jquery": "~1.11.1",
+    "roslibjs": "develop",
+    "scenejs": "https://github.com/xeolabs/scenejs/releases/download/v3.2/scenejs.zip"
   }
 }
