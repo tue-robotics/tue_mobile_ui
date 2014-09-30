@@ -79,7 +79,7 @@ function handleMeshQueryResult(msg) {
 
     console.log(id + ': color = ' + [r, g, b]);
 
-    indices = new Uint16Array(msg.meshes[i].vertices.length / 3);
+    var indices = new Uint16Array(msg.meshes[i].vertices.length / 3);
     for (var j = 0; j < indices.length; j++) {
       indices[j] = j;
     }
