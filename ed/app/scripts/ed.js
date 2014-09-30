@@ -351,10 +351,10 @@ function onEntityClick(hit)
 
   // Send interaction request (for now hard-coded to 'navigate_to')
   var req = new ROSLIB.ServiceRequest({
-    command_yaml: '{ action: navigate_to, entity: ' + entityId + ' }'
+    command_yaml: '{ action: store, entity: ' + entityId + ' }'
   });
   clientInteract.callService(req, function(result) {
-    console.log('Result from Interact server: ' + result);
+    console.log('Result from server: ' + result.result_json);
   });
 }
 
