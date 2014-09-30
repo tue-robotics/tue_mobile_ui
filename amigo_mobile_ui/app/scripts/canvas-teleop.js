@@ -6,13 +6,7 @@
 * - initializes a TeleOp
 **/
 
-/* jshint newcap: false */
-
-// libraries
-/*global $:false, Hammer:false */
-
-// dependencies
-/*global TELEOP:false, ros:false */
+/* global ros, TELEOP */
 
 // global variables
 
@@ -22,12 +16,10 @@ var cursorImg;
 
 // code wrapper
 (function () {
-"use strict";
+'use strict';
 
 // private variables
 var canvas, ctx;
-
-var hammertime;
 
 var offset; // position of the canvas relative to the document
 
@@ -47,7 +39,7 @@ function init() {
 
   // initialize canvas stuff
   canvas = $('#teleop-canvas')[0];
-  ctx = canvas.getContext("2d");
+  ctx = canvas.getContext('2d');
   loadAssets();
 
   $(window).resize(resizeCanvas)
@@ -59,6 +51,7 @@ function init() {
   mc.get('pan').set({ direction: Hammer.DIRECTION_ALL });
 
   mc.on('pan', function(e) {
+    /*jshint bitwise:false */
     var pos = e.center;
 
     if (e.eventType & Hammer.INPUT_START) {
@@ -66,7 +59,7 @@ function init() {
     }
     if (e.eventType & Hammer.INPUT_MOVE) {
       currentPos = convertPageXY(pos.x, pos.y);
-      console.log("drag", currentPos);
+      console.log('drag', currentPos);
       updateNavigation();
     }
     if (e.eventType & Hammer.INPUT_END) {
@@ -85,7 +78,7 @@ function init() {
     updateNavigation();
   });
 
-  function panStop(e) {
+  function panStop() {
     startPos   = false;
     currentPos = false;
 
@@ -178,8 +171,8 @@ function drawController(pos, thumbPos)
 }
 
 function draw() {
-  //drawCircle(startPos.x  , startPos.y  , 50, "rgba(0,0,255,.5)");
-  //drawCircle(currentPos.x, currentPos.y, 50, "#00FF00A");
+  //drawCircle(startPos.x  , startPos.y  , 50, 'rgba(0,0,255,.5)');
+  //drawCircle(currentPos.x, currentPos.y, 50, '#00FF00A');
 
   drawController(startPos, currentPos);
 }

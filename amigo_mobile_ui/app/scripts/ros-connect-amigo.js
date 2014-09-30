@@ -19,7 +19,7 @@ var ros;
 
 // code wrapper
 (function () {
-"use strict";
+'use strict';
 
 // initialize the connection to rosbridge
 function init() {
@@ -36,7 +36,7 @@ function initConnectionManager() {
   buttonReconnect = $('#reconnect');
   modalReconnect  = $('#modalConnectionLost');
 
-  buttonReconnect.click(function(e) {
+  buttonReconnect.click(function() {
     ros.connect(rosUrl);
   });
 
@@ -45,18 +45,18 @@ function initConnectionManager() {
     url : rosUrl
   });
 
-  ros.addListener('connection', function(e) {
+  ros.addListener('connection', function() {
     console.log('rosbridge connection made');
     buttonReconnect.button('loading');
   });
 
-  ros.addListener('close', function(e) {
+  ros.addListener('close', function() {
     console.log('rosbridge connection closed');
     buttonReconnect.button('reset');
     modalReconnect.modal('show');
   });
 
-  ros.addListener('error', function(e) {
+  ros.addListener('error', function() {
     console.log('rosbridge connection error');
   });
 
@@ -97,7 +97,7 @@ function pingNodesAlive() {
   var start = new Date();
 
   setTimeout(function() {
-    if (start != -1) { // check if already received a response
+    if (start !== -1) { // check if already received a response
       ros.emit('ping.timeout', pingTimeout);
     }
   }, pingTimeout);

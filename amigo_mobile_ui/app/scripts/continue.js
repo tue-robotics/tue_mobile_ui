@@ -1,3 +1,7 @@
+'use strict';
+
+/* global ros */
+
 var input;
 var log;
 $(document).ready(function () {
@@ -7,29 +11,29 @@ $(document).ready(function () {
 
 	var replaceList = [
 		// locations
-		"hallway table",
-		"kitchen counter",
-		"kitchen table",
-		"couch table",
-		"dinner table",
-		"left sidetable",
-		"right sidetable",
+		'hallway table',
+		'kitchen counter',
+		'kitchen table',
+		'couch table',
+		'dinner table',
+		'left sidetable',
+		'right sidetable',
 
-		"waste bin",
-		
-		"bed room",
+		'waste bin',
+
+		'bed room',
 
 		// objects
-		"tooth paste",
-		"chocolate milk",
-		"energy drink",
-		"grape juice",
-		"orange juice",
-		"chocolate cookies",
-		"strawberry cookies",
-		"baby food",
-		
-		"cleaning stuff",
+		'tooth paste',
+		'chocolate milk',
+		'energy drink',
+		'grape juice',
+		'orange juice',
+		'chocolate cookies',
+		'strawberry cookies',
+		'baby food',
+
+		'cleaning stuff',
 	];
 
 	$('form.continue').on('submit', function (e) {

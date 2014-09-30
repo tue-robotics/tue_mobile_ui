@@ -1,5 +1,8 @@
+'use strict';
+
+/* global ros */
+
 // globals
-var hammertime;
 var pager, pagerData;
 var map, mapMode = 'select';
 var raiseEventService;
@@ -18,18 +21,6 @@ function renderPager() {
     info: data.image ? data.image.info : '',
     data: data.image ? getDataUrl(data.image.data) : '',
   };
-
-  /*
-  var data = {
-    ids: pagerData.ids.map(function (id, pos) {
-      return {
-        id: id.substr(0,4),
-        active: position === pos,
-      };
-    }),
-    image: getDataUrl(pagerData.images[position].data)
-  };
-  */
 
   //console.log('render:', data);
   pager.html(pagerTemplate(data));
@@ -65,6 +56,8 @@ function switchMode(mode) {
 }
 
 function getPixelPosition (e) {
+  /*jshint bitwise:false */
+
   // the following code is only supported in chrome
   //var x = e.offsetX;
   //var y = e.offsetY;
@@ -83,14 +76,14 @@ function getPixelPosition (e) {
   return {
     x: ~~x,
     y: ~~y,
-  }
+  };
 }
 
 function raiseEvent (e) {
   var data = {
     name: e.name,
     param_names: _.keys(e.params),
-    param_values: _.values(e.params).map(function (v) { return ""+v; }),
+    param_values: _.values(e.params).map(function (v) { return ''+v; }),
   };
 
   var req = new ROSLIB.ServiceRequest(data);
@@ -107,7 +100,7 @@ function handleClick (e) {
   var req = new ROSLIB.ServiceRequest({
     name: 'click',
     param_names:  [      'x',      'y', 'type'],
-    param_values: [""+pos.x, ""+pos.y,  mapMode],
+    param_values: [''+pos.x, ''+pos.y,  mapMode],
   });
 
   raiseEventService.callService(req, function (result) {
@@ -132,11 +125,9 @@ function setLabel(label) {
 }
 
 $(document).ready(function () {
-  position = 0;
-
   pager = $('#pager-container');
 
-  var source   = $("#pager-template").html();
+  var source   = $('#pager-template').html();
   pagerTemplate = Handlebars.compile(source);
 
   // get the last measurements for an object
@@ -159,40 +150,33 @@ $(document).ready(function () {
   map = $('#map-image');
   map.on('click', handleClick);
 
-  $('#map-pan').find('button').on('click', function (e) {
+  $('#map-pan').find('button').on('click', function () {
     var panMode = $(this).text().trim().toLowerCase();
     console.log(panMode);
     var params;
     switch (panMode) {
       case 'left':
-        params = { dx: -1, dy:  0 }
+        params = { dx: -1, dy:  0 };
         break;
       case 'right':
-        params = { dx:  1, dy:  0 }
+        params = { dx:  1, dy:  0 };
         break;
       case 'up':
-        params = { dx:  0, dy:  1 }
+        params = { dx:  0, dy:  1 };
         break;
       case 'down':
-        params = { dx:  0, dy: -1 }
+        params = { dx:  0, dy: -1 };
         break;
     }
     raiseEvent({
       name: 'pan',
       params: params,
-    })
-    /*
-    raiseEvent zoom,
-    factor: 2
-    pan
-    dx : 1
-    dy
-    */
+    });
   });
 
-  $('#map-zoom').find('button').on('click', function (e) {
+  $('#map-zoom').find('button').on('click', function () {
     var zoomMode = $(this).text().trim().toLowerCase();
-    if (zoomMode == 'in') {
+    if (zoomMode === 'in') {
       console.log('zoom in');
       raiseEvent({
         name: 'zoom',
@@ -200,7 +184,7 @@ $(document).ready(function () {
           factor: 1.5,
         }
       });
-    } else if (zoomMode == 'out') {
+    } else if (zoomMode === 'out') {
       console.log('zoom out');
       raiseEvent({
         name: 'zoom',
@@ -211,21 +195,21 @@ $(document).ready(function () {
     }
   });
 
-  $('#map-explore').on('click', function (e) {
+  $('#map-explore').on('click', function () {
     raiseEvent({
       name: 'explore',
       params: {},
     });
   });
 
-  $('#map-wait').on('click', function (e) {
+  $('#map-wait').on('click', function () {
     raiseEvent({
       name: 'wait',
       params: {},
     });
-  })
+  });
 
-  $('#map-mode').find('button').on('click', function (e) {
+  $('#map-mode').find('button').on('click', function () {
     var newMode = $(this).text().trim().toLowerCase();
     switchMode(newMode);
   });
@@ -250,24 +234,4 @@ $(document).ready(function () {
     labelEl.val('');
     setLabel(label);
   });
-
-  // catch the swipe gesture
-  /*
-  var final = $('#entity-image').get(0);
-  hammertime = Hammer(final, {});
-
-  hammertime.on('swipe', function (e) {
-    var direction = e.direction;
-
-    if (direction & Hammer.DIRECTION_LEFT) {
-      position = position == 0 ? 0 : position - 1;
-    }
-    if (direction & Hammer.DIRECTION_RIGHT) {
-      var maxpos = pagerData.ids.length - 1;
-      position = position >= maxpos ? maxpos : position + 1;
-    }
-
-    renderPager();
-  });
-  */
 });

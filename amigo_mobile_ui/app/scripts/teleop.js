@@ -1,20 +1,11 @@
+'use strict';
+
 var TELEOP = {};
 
 TELEOP.Teleop = function(options) {
-  var that = this;
   options = options || {};
   var ros = options.ros;
   var topic = options.topic || '/cmd_vel';
-  // permanent throttle
-  var throttle = options.throttle || 1.0;
-
-  // used to externally throttle the speed (e.g., from a slider)
-  this.scale = 1.0;
-
-  // linear x and y movement and angular z movement
-  var x = 0;
-  var y = 0;
-  var z = 0;
 
   var cmdVel = new ROSLIB.Topic({
     ros : ros,
@@ -39,9 +30,6 @@ TELEOP.Teleop = function(options) {
       }
     });
     cmdVel.publish(twist);
-
-    // check for changes
-    //that.emit('change', twist);
   };
 };
 TELEOP.Teleop.prototype.__proto__ = EventEmitter2.prototype;
