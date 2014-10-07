@@ -12,11 +12,12 @@ SceneJS.setConfigs({
 });
 
 var scene;
+var selectedEntity = null;
 var clientQueryMeshes;
+var clientGetEntityInfo;
 var clientInteract;
+var clientActionServer;
 var entity_poses = {};
-
-var scenejs_canvas_width, scenejs_canvas_height;
 
 var COLORS = [ [ 0.6, 0.6, 0.6],
                [ 0.6, 0.6, 0.4],
@@ -340,21 +341,22 @@ function edUpdate(msg) {
 
 function onEntityClick(hit)
 {
-  var entityId = hit.name;
-  console.log('Entity picked: ' + entityId);
+  selectedEntity = scene.getNode(hit.nodeId);
 
   // Set entity box
   var  nSelectionBox = scene.getNode('selection-box');
-  var matrix = entity_poses[entityId];
+  var matrix = entity_poses[selectedEntity.id];
   matrix[14] = 2;
   nSelectionBox.setElements(matrix);
 
-  // Send interaction request (for now hard-coded to 'navigate_to')
+  // Send Entity Info request
   var req = new ROSLIB.ServiceRequest({
-    command_yaml: '{ action: store, entity: ' + entityId + ' }'
+    id: selectedEntity.id
   });
-  clientInteract.callService(req, function(result) {
-    console.log('Result from server: ' + result.result_json);
+
+  clientGetEntityInfo.callService(req, function(result) {
+    selectedEntity.data = result;
+    updateEntityView();
   });
 }
 
@@ -366,6 +368,8 @@ $(document).ready(function () {
 
   // Create scene
   scene = SceneJS.createScene({
+    id: "viewer",
+    canvasId: "viewer-canvas",
     nodes:[
       // Mouse-orbited camera,
       // implemented by plugin at http://scenejs.org/api/latest/plugins/node/cameras/orbit.js
@@ -423,19 +427,11 @@ $(document).ready(function () {
     onEntityClick(hit);
   });
 
-  // Called when nothing picked
-  // scene.on('nopick', function (hit) { console.log('Nothing picked'); });
-
-  // - - - - - Set canvas size - - - - - - - - - - - - - - - - - - - - -
-
-  // TODO: should be done from html
-
-  // Get the canvas width and height based on which SceneJS draws the scene
-  scenejs_canvas_width = $('#canvas-1').width();
-  scenejs_canvas_height = $('#canvas-1').height();
-
-  $('#canvas-1').width(800);
-  $('#canvas-1').height(800);
+  // // Called when nothing picked
+  //  scene.on('nopick', function (hit) { 
+  //   console.log(hit);
+  //   console.log('Nothing picked'); 
+  // });
 
   // - - - - - Set ROS connections - - - - - - - - - - - - - - - - - - - - -
 
@@ -464,11 +460,25 @@ $(document).ready(function () {
     serviceType : 'ed_gui_server/QueryMeshes'
   });
 
+  // Construct client for querying entity info
+  clientGetEntityInfo = new ROSLIB.Service({
+    ros: ros,
+    name: '/ed/gui/get_entity_info',
+    serviceType: 'ed_gui_server/GetEntityInfo'
+  });
+
   // Construct client for interacting
   clientInteract = new ROSLIB.Service({
     ros: ros,
     name: '/ed/gui/interact',
     serviceType: 'ed_gui_server/Interact'
+  });
+
+  // Construct client for interacting
+  clientActionServer = new ROSLIB.Service({
+    ros: ros,
+    name: '/action_server/add_action',
+    serviceType: 'action_server/AddAction'
   });
 
 });

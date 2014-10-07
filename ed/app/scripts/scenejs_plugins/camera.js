@@ -66,10 +66,7 @@ SceneJS.Types.addType('ed_camera', {
       drag_button = event.button;
 
       if (event.button === 2) {  // Right mouse click
-         // Compensate for possible window resizes
-        var scene_x = event.clientX * scenejs_canvas_width / $('#canvas-1').width();
-        var scene_y = event.clientY * scenejs_canvas_height / $('#canvas-1').height();
-        scene.pick(scene_x, scene_y);
+        scene.pick(event.clientX, event.clientY );
       }
     }
 
