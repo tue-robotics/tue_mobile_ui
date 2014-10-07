@@ -292,6 +292,16 @@ module.exports = function (grunt) {
           dest: '<%= config.dist %>/.htaccess'
         }]
       },
+      fonts: {
+        expand: true,
+        dot: true,
+        flatten: true,
+        cwd: '<%= config.app %>',
+        dest: '<%= config.dist %>/fonts',
+        src: [
+          'bower_components/bootstrap/dist/fonts/*.*'
+        ]
+      },
       styles: {
         expand: true,
         dot: true,
@@ -366,6 +376,7 @@ module.exports = function (grunt) {
     'cssmin',
     'uglify',
     'copy:dist',
+    'copy:fonts',
     'rev',
     'usemin',
     'htmlmin'
