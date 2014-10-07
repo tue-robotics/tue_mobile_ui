@@ -12,7 +12,8 @@
     "roslibjs": "develop",
     "hammerjs": "~2.0.4",
     "jquery-hashchange": "georgekosmidis/jquery-hashchange",
-    "handlebars": "~1.3.0"
+    "handlebars": "~1.3.0",
+    "snapjs": "~1.9.3"
   },
   "devDependencies": {}
 }
