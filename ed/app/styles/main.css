@@ -47,8 +47,13 @@
 }
 
 /*
- * Viewer 
+ * main 
  */
+
+.main {
+  bottom: 0;
+  position: fixed;
+}
 
 #viewer {
   padding-left: 0px;
