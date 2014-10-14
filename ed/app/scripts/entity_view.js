@@ -44,6 +44,10 @@ $(document).ready(function () {
 		});
 		clientActionServer.callService(req, function(result) {
 			console.log('#entity-info-affordances-go - Result from server: ' + result.action_uuid + ", " + result.error_msg);
+			if (result.error_msg != "")
+			{
+				$("#entity-info-affordances-alert").html('<div class="alert alert-error"><button type="button" class="close" data-dismiss="alert">×</button><strong>Oh snap!</strong> ' + result.error_msg + '</div>');
+			}
 		});
 	});
 
