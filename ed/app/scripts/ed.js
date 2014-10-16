@@ -73,14 +73,6 @@ function handleMeshQueryResult(msg) {
   for (var i = 0; i < msg.entity_ids.length; i++) {
     var id = msg.entity_ids[i];
 
-    // Generate color from hash function
-    var iColor = djb2(id) % COLORS.length;
-    var r = COLORS[iColor][0];
-    var g = COLORS[iColor][1];
-    var b = COLORS[iColor][2];
-
-    console.log(id + ': color = ' + [r, g, b]);
-
     var indices = new Uint16Array(msg.meshes[i].vertices.length / 3);
     for (var j = 0; j < indices.length; j++) {
       indices[j] = j;
@@ -114,26 +106,19 @@ function handleMeshQueryResult(msg) {
     }
 
     // Get the entity scene node
-    var node = scene.getNode(id);
+    var node = scene.getNode(id + '-material');
 
     // Remove the mesh ...
     node.removeNode(id + '-mesh');
 
     // ... and replace it by the received one
     node.addNode({
-        type:'material',
-        color:{ r: r, g: g, b: b },
-        id: id + '-mesh',
-
-        nodes:[
-          {
-            type: 'geometry',
-            primitive: 'triangles',
-            positions: new Float32Array(msg.meshes[i].vertices),
-            indices: indices,
-            normals: normals
-          }
-        ]
+        type: 'geometry',
+        primitive: 'triangles',
+        positions: new Float32Array(msg.meshes[i].vertices),
+        indices: indices,
+        normals: normals,
+        id: id + '-mesh'
       }
     );
   }
@@ -171,6 +156,20 @@ function edUpdate(msg) {
       n.parent.setElements(matrix);
     } else {
       // If it does not exist, construct a node and add it to the world node
+
+      // Determine color
+      if (e.color.a == 0) {
+        // Generate color from hash function
+        var iColor = djb2(e.id) % COLORS.length;
+        var r = COLORS[iColor][0];
+        var g = COLORS[iColor][1];
+        var b = COLORS[iColor][2];
+      } else {
+        r = e.color.r / 255;
+        g = e.color.g / 255;
+        b = e.color.b / 255;
+      }
+
       scene.getNode('world').addNode(
         {
           type: 'matrix',
@@ -184,11 +183,12 @@ function edUpdate(msg) {
         {
           // Default entity visualization is a red box
           type:'material',
-          color:{ r:1.0, g:0.0, b:0.0 },
-          id: e.id + '-mesh'
+          color:{ r: r, g: g, b: b },
+          id: e.id + '-material'
         }).addNode(
         {
           type: 'prims/box',
+          id: e.id + '-mesh',
           xSize: 0.1,
           ySize: 0.1,
           zSize: 0.1
@@ -302,26 +302,19 @@ function edUpdate(msg) {
       }
 
       // Remove the mesh ...
-      var n = scene.getNode(e.id);
+      var n = scene.getNode(e.id + '-material');
 
       n.removeNode(e.id + '-mesh');
 
       // ... and replace it by the received one
       n.addNode(
         {
-          type:'material',
-          color:{ r:0.0, g:0.6, b:0.0 },
-          id: e.id + '-mesh',
-
-          nodes:[
-            {
-              type: 'geometry',
-              primitive: 'triangles',
-              positions: vertices,
-              indices: indices,
-              normals: normals
-            }
-          ]
+          type: 'geometry',
+          primitive: 'triangles',
+          positions: vertices,
+          indices: indices,
+          normals: normals,
+          id: e.id + '-mesh'
         }
       );
     }
@@ -429,9 +422,9 @@ $(document).ready(function () {
   });
 
   // // Called when nothing picked
-  //  scene.on('nopick', function (hit) { 
+  //  scene.on('nopick', function (hit) {
   //   console.log(hit);
-  //   console.log('Nothing picked'); 
+  //   console.log('Nothing picked');
   // });
 
   // - - - - - Set ROS connections - - - - - - - - - - - - - - - - - - - - -
