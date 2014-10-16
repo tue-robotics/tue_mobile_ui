@@ -51,19 +51,23 @@ SceneJS.Types.addType('ed_camera', {
 
     var mc = new Hammer.Manager(canvas);
 
-    // create a pinch and rotate recognizer
-    // these require 2 pointers
-    var pinch = new Hammer.Pinch();
-    var pan = new Hammer.Pan();
+    var tap       = new Hammer.Tap();
+    var pinch     = new Hammer.Pinch();
+    var pan       = new Hammer.Pan();
     var doublepan = new Hammer.Pan({
       event: 'doublepan',
       pointers: 2,
     });
 
+    pan.recognizeWith(tap);
     doublepan.recognizeWith(pinch);
 
     // add to the Manager
-    mc.add([pinch, pan, doublepan]);
+    mc.add([tap, pinch, pan, doublepan]);
+
+    mc.on("tap", function(e) {
+      console.log(e);
+    });
 
     var zoomStart;
     mc.on("pinchstart", function(ev) {
