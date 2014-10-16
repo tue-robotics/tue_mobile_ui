@@ -431,6 +431,7 @@ $(document).ready(function () {
 
   // Connecting to ROS.
   var rosUrl = 'ws://' + window.location.hostname + ':9090';
+  //rosUrl = 'ws://192.168.2.91:9090';
   var ros = new ROSLIB.Ros({
     url : rosUrl
   });
