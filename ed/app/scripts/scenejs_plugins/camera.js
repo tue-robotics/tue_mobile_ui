@@ -83,7 +83,7 @@ SceneJS.Types.addType('ed_camera', {
       var x = e.deltaX;
       var y = e.deltaY;
 
-      actionMove2(x - lastX, y - lastY, 0);
+      actionMove2(x - lastX, y - lastY);
 
       lastX = x;
       lastY = y;
@@ -111,19 +111,28 @@ SceneJS.Types.addType('ed_camera', {
     .mousedown(function(e) {
       switch (e.which) {
         case 2: // middle
-          console.log(e);
+          lastX = e.pageX;
+          lastY = e.pageY;
           break;
         case 3: //right
-          console.log(e);
-          e.preventDefault();
           break;
         default:
           break;
       }
     })
     .mousemove(function (e) {
-      if (e.button === 2) {
-        console.log('move', e.which);
+      switch (e.which) {
+        case 2: // middle
+          var x = e.pageX;
+          var y = e.pageY;
+          actionMove2(x - lastX, y - lastY);
+          lastX = x;
+          lastY = y;
+          break;
+        case 3: //right
+          break;
+        default:
+          break;
       }
     })
     .mousewheel(function (e) {
@@ -209,20 +218,9 @@ SceneJS.Types.addType('ed_camera', {
       }
     }
 
-    function actionMove2(dx, dy, button) {
-      if (button === 0) { // Left mouse button
-          yaw -= dx * yawSensitivity;
-          pitch += dy * pitchSensitivity;
-      } else if (button === 1) { // Middle mouse button
-        var dx = (posX - lastX) * zoom * 0.002;
-        var dy = (posY - lastY) * zoom * 0.002;
-
-        var sin_yaw = Math.sin(yaw * 0.0174532925);
-        var cos_yaw = Math.cos(yaw * 0.0174532925);
-
-        look.x += sin_yaw * dx - cos_yaw * dy;
-        look.y += -cos_yaw * dx - sin_yaw * dy;
-      }
+    function actionMove2(dx, dy) {
+      yaw -= dx * yawSensitivity;
+      pitch += dy * pitchSensitivity;
 
       update();
     }
