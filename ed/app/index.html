@@ -36,78 +36,298 @@
             <canvas id="viewer-canvas">
             </canvas>
         </div>
-        <div class="col-sm-3 col-md-3 sidebar" id="entity-view">
-
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <h3 class="panel-title">ID: <span id="entity-info-id">378210dsadas321</span></h3>
-                </div>
-                <div class="panel-body">
-                    <div class="thumbnail" id="entity-info-thumbnail">
-                        <img src="http://assets.thecreatorsproject.com/blog_article_images/images/000/029/233/Screen_Shot_2012-05-30_at_2_21_24_PM_detail_em.jpg?1338404764" alt="...">
-                        <button type="button" class="btn btn-default" id="entity-info-store-measurement"><span class="glyphicon glyphicon-save"></span></span> Store Measurement</button>
+        <div id="sidebar" class="col-sm-3 col-md-3 sidebar">
+            <ul id="myTab" class="nav nav-tabs">
+               <li class="active"><a href="#entity-view" data-toggle="tab">Entity View</a></li>
+               <li><a href="#robot-poses" data-toggle="tab">Poses</a></li>
+               <li><a href="#robot-teleop" data-toggle="tab">Teleop</a></li>
+            </ul>
+            <div class="tab-content">
+                <div class="tab-pane fade" id="robot-teleop">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h3 class="panel-title">Robot Teleop</h3>
+                        </div>
+                        <div id="teleop" class="panel-body">
+                            <canvas id="teleop-canvas" height="150" width="150">
+                                Canvas not supported unfortunately.
+                            </canvas>
+                        </div>
                     </div>
-                    <table class="table" id="entity-info-table">
-                        <thead>
-                            <tr>
-                            <th>#name</th>
-                            <th>#value</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                            <td>id</td>
-                            <td>378210dsadas321</td>
-                            </tr>
-                            <tr>
-                            <td>type</td>
-                            <td>None</td>
-                            </tr>
-                            <tr>
-                            <td>Position</td>
-                            <td>0.2, 0.321, 3.2</td>
-                            </tr>
-                        </tbody>
-                    </table>
+                </div>
+                <div class="tab-pane fade" id="robot-poses">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h3 class="panel-title">Robot Poses</h3>
+                        </div>
+                        <div class="panel-body">
+                            <table class="buttons">
+                                <tr><td colspan="3" class="table-header">Torso</td></tr>
+                                <tr>
+                                    <td><button type="button" class="btn btn-default" data-src="
+                                        sensor_msgs/JointState|
+                                        torso|
+                                        torso_joint|
+                                        0.4
+                                        ">High</button></td>
+                                    <td><button type="button" class="btn btn-default" data-src="
+                                        sensor_msgs/JointState|
+                                        torso|
+                                        torso_joint|
+                                        0.35
+                                        ">Middle</button></td>
+                                    <td><button type="button" class="btn btn-default" data-src="
+                                        sensor_msgs/JointState|
+                                        torso|
+                                        torso_joint|
+                                        0.1
+                                        ">Low</button></td>
+                                </tr>
+                                <tr><td colspan="3" class="table-header">Arm-left</td></tr>
+                                <tr>
+                                    <td><button type="button" class="btn btn-default" data-src="
+                                        sensor_msgs/JointState|
+                                        left_arm|
+                                        shoulder_yaw_joint_left,shoulder_pitch_joint_left,shoulder_roll_joint_left,elbow_pitch_joint_left,elbow_roll_joint_left,wrist_pitch_joint_left,wrist_yaw_joint_left|
+                                        -1.5700,-0.4208,-0.1500,0.9000,1.8300,-0.0792,-0.5500
+                                        ">Photo</button></td>
+                                    <td><button type="button" class="btn btn-default" data-src="
+                                        sensor_msgs/JointState|
+                                        left_arm|
+                                        shoulder_yaw_joint_left,shoulder_pitch_joint_left,shoulder_roll_joint_left,elbow_pitch_joint_left,elbow_roll_joint_left,wrist_pitch_joint_left,wrist_yaw_joint_left|
+                                        -0.1,0.4,0.0,1.2,0.0,0.0,0.0
+                                        ">Give</button></td>
+                                    <td><button type="button" class="btn btn-default" data-src="
+                                        sensor_msgs/JointState|
+                                        left_arm|
+                                        shoulder_yaw_joint_left,shoulder_pitch_joint_left,shoulder_roll_joint_left,elbow_pitch_joint_left,elbow_roll_joint_left,wrist_pitch_joint_left,wrist_yaw_joint_left|
+                                        -0.1,-0.6,0.0,1.8,-0.1,0.4,0.0
+                                        ">Carrying</button></td>
+                                </tr><tr>
+                                    <td><button type="button" class="btn btn-default" data-src="
+                                        sensor_msgs/JointState|
+                                        left_arm|
+                                        shoulder_yaw_joint_left,shoulder_pitch_joint_left,shoulder_roll_joint_left,elbow_pitch_joint_left,elbow_roll_joint_left,wrist_pitch_joint_left,wrist_yaw_joint_left|
+                                        -1.2240,0.9271,-1.0283,2.2860,-0.2499,-0.1762,-0.0300
+                                        ">Salut</button></td>
+                                    <td><button type="button" class="btn btn-default" data-src="
+                                        sensor_msgs/JointState|
+                                        left_arm|
+                                        shoulder_yaw_joint_left,shoulder_pitch_joint_left,shoulder_roll_joint_left,elbow_pitch_joint_left,elbow_roll_joint_left,wrist_pitch_joint_left,wrist_yaw_joint_left|
+                                        -0.1,-0.2,0.2,0.8,0.0,0.0 ,0.0
+                                        ">Reset</button></td>
+                                    <td><button type="button" class="btn btn-default" data-src="
+                                        sensor_msgs/JointState|
+                                        left_arm|
+                                        shoulder_yaw_joint_left,shoulder_pitch_joint_left,shoulder_roll_joint_left,elbow_pitch_joint_left,elbow_roll_joint_left,wrist_pitch_joint_left,wrist_yaw_joint_left|
+                                        0.0000,0.0000,0.0000,0.0000,0.0000,0.0000,0.0000
+                                        ">Null</button></td>
+                                </tr>
+                                <tr><td colspan="3" class="table-header">Arm-right</td></tr>
+                                <tr>
+                                    <td><button type="button" class="btn btn-default" data-src="
+                                        sensor_msgs/JointState|
+                                        right_arm|
+                                        shoulder_yaw_joint_right,shoulder_pitch_joint_right,shoulder_roll_joint_right,elbow_pitch_joint_right,elbow_roll_joint_right,wrist_pitch_joint_right,wrist_yaw_joint_right|
+                                        -1.4600,-0.4208,0.1500,0.9000,-1.8300,-0.0792,0.5500
+                                        ">Photo</button></td>
+                                    <td><button type="button" class="btn btn-default" data-src="
+                                        sensor_msgs/JointState|
+                                        right_arm|
+                                        shoulder_yaw_joint_right,shoulder_pitch_joint_right,shoulder_roll_joint_right,elbow_pitch_joint_right,elbow_roll_joint_right,wrist_pitch_joint_right,wrist_yaw_joint_right|
+                                        -0.1,-0.6,0.0,1.8,-0.1,0.4,0.0
+                                        ">Give</button></td>
+                                    <td><button type="button" class="btn btn-default" data-src="
+                                        sensor_msgs/JointState|
+                                        right_arm|
+                                        shoulder_yaw_joint_right,shoulder_pitch_joint_right,shoulder_roll_joint_right,elbow_pitch_joint_right,elbow_roll_joint_right,wrist_pitch_joint_right,wrist_yaw_joint_right|
+                                        -0.1,-0.6,0.0,1.8,-0.1,0.4,0.0
+                                        ">Carrying</button></td>
+                                </tr><tr>
+                                    <td><button type="button" class="btn btn-default" data-src="
+                                        sensor_msgs/JointState|
+                                        right_arm|
+                                        shoulder_yaw_joint_right,shoulder_pitch_joint_right,shoulder_roll_joint_right,elbow_pitch_joint_right,elbow_roll_joint_right,wrist_pitch_joint_right,wrist_yaw_joint_right|
+                                        -1.2240,0.9271,-1.0283,2.2860,-0.2499,-0.1762,-0.0300
+                                        ">Salut</button></td>
+                                    <td><button type="button" class="btn btn-default" data-src="
+                                        sensor_msgs/JointState|
+                                        right_arm|
+                                        shoulder_yaw_joint_right,shoulder_pitch_joint_right,shoulder_roll_joint_right,elbow_pitch_joint_right,elbow_roll_joint_right,wrist_pitch_joint_right,wrist_yaw_joint_right|
+                                        -0.1,-0.2,0.2,0.8,0.0,0.0 ,0.0
+                                        ">Reset</button></td>
+                                    <td><button type="button" class="btn btn-default" data-src="
+                                        sensor_msgs/JointState|
+                                        right_arm|
+                                        shoulder_yaw_joint_right,shoulder_pitch_joint_right,shoulder_roll_joint_right,elbow_pitch_joint_right,elbow_roll_joint_right,wrist_pitch_joint_right,wrist_yaw_joint_right|
+                                         0,0.6,0.7,1.9,0.2,0.2,0
+                                        ">Mic</button></td>
+                                </tr>
+                                <tr><td colspan="3" class="table-header">Grippers</td></tr>
+                                <tr>
+                                    <td><button type="button" class="btn btn-default" data-src="
+                                        amigo_msgs/AmigoGripperCommand|
+                                        left_gripper|
+                                        -1
+                                        ">L-Open</button></td>
+                                    <td><button type="button" class="btn btn-default" data-src="
+                                        amigo_msgs/AmigoGripperCommand|
+                                        left_gripper|
+                                        1
+                                        ">L-Close</button></td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td><button type="button" class="btn btn-default" data-src="
+                                        amigo_msgs/AmigoGripperCommand|
+                                        right_gripper|
+                                        -1
+                                        ">R-Open</button></td>
+                                    <td><button type="button" class="btn btn-default" data-src="
+                                        amigo_msgs/AmigoGripperCommand|
+                                        right_gripper|
+                                        1
+                                        ">R-Close</button></td>
+                                    <td></td>
+                                </tr>
+                                <tr><td colspan="3" class="table-header">Head</td></tr>
+                                <tr>
+                                    <td><button type="button" class="btn btn-default" data-src="
+                                        sensor_msgs/JointState|
+                                        neck|
+                                        neck_pan_joint,neck_tilt_joint|
+                                        0.5,-0.5
+                                        ">Up-L</button></td>
+                                    <td><button type="button" class="btn btn-default" data-src="
+                                        sensor_msgs/JointState|
+                                        neck|
+                                        neck_pan_joint,neck_tilt_joint|
+                                        0,-0.5
+                                        ">Up-C</button></td>
+                                    <td><button type="button" class="btn btn-default" data-src="
+                                        sensor_msgs/JointState|
+                                        neck|
+                                        neck_pan_joint,neck_tilt_joint|
+                                        -0.5,-0.5
+                                        ">Up-R</button></td>
+                                </tr>
+                                <tr>
+                                    <td><button type="button" class="btn btn-default" data-src="
+                                        sensor_msgs/JointState|
+                                        neck|
+                                        neck_pan_joint,neck_tilt_joint|
+                                        0.5,0
+                                        ">Middle-L</button></td>
+                                    <td><button type="button" class="btn btn-default" data-src="
+                                        sensor_msgs/JointState|
+                                        neck|
+                                        neck_pan_joint,neck_tilt_joint|
+                                        0.0,0.0
+                                        ">Middle-C</button></td>
+                                    <td><button type="button" class="btn btn-default" data-src="
+                                        sensor_msgs/JointState|
+                                        neck|
+                                        neck_pan_joint,neck_tilt_joint|
+                                        -0.5,0
+                                        ">Middle-R</button></td>
+                                </tr>
+                                <tr>
+                                    <td><button type="button" class="btn btn-default" data-src="
+                                        sensor_msgs/JointState|
+                                        neck|
+                                        neck_pan_joint,neck_tilt_joint|
+                                        0.5,0.5
+                                        ">Down-L</button></td>
+                                    <td><button type="button" class="btn btn-default" data-src="
+                                        sensor_msgs/JointState|
+                                        neck|
+                                        neck_pan_joint,neck_tilt_joint|
+                                        0,0.5
+                                        ">Down-C</button></td>
+                                    <td><button type="button" class="btn btn-default" data-src="
+                                        sensor_msgs/JointState|
+                                        neck|
+                                        neck_pan_joint,neck_tilt_joint|
+                                        -0.5,0.5
+                                        ">Down-R</button></td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane fade in active" id="entity-view">
+
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h3 class="panel-title">ID: <span id="entity-info-id">378210dsadas321</span></h3>
+                        </div>
+                        <div class="panel-body">
+                            <div class="thumbnail" id="entity-info-thumbnail">
+                                <img src="http://assets.thecreatorsproject.com/blog_article_images/images/000/029/233/Screen_Shot_2012-05-30_at_2_21_24_PM_detail_em.jpg?1338404764" alt="...">
+                                <button type="button" class="btn btn-default" id="entity-info-store-measurement"><span class="glyphicon glyphicon-save"></span></span> Store Measurement</button>
+                            </div>
+                            <table class="table" id="entity-info-table">
+                                <thead>
+                                    <tr>
+                                    <th>#name</th>
+                                    <th>#value</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                    <td>id</td>
+                                    <td>378210dsadas321</td>
+                                    </tr>
+                                    <tr>
+                                    <td>type</td>
+                                    <td>None</td>
+                                    </tr>
+                                    <tr>
+                                    <td>Position</td>
+                                    <td>0.2, 0.321, 3.2</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+        <!--             <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h3 class="panel-title">Labeling</h3>
+                        </div>
+                        <div class="panel-body">
+                            <div class="input-group">
+                                <select class="form-control" id="entity-info-labels">
+                                    <option value="coke">coke</option>
+                                    <option value="fanta">fanta</option>
+                                    <option value="table">table</option>
+                                    <option value="ice-tea">ice-tea</option>
+                                </select>
+                                <span class="input-group-btn">
+                                    <button class="btn btn-primary" type="button" id="entity-info-labels-go">Go!</button>
+                                </span>
+                            </div>
+                        </div>
+                    </div> -->
+
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h3 class="panel-title">Affordances</h3>
+                        </div>
+                        <div class="panel-body">
+                            <div id="entity-info-affordances-alert">
+                            </div>
+                            <div class="input-group">
+                                <select class="form-control" id="entity-info-affordances">
+                                </select>
+                                <span class="input-group-btn">
+                                    <button class="btn btn-primary" type="button" id="entity-info-affordances-go">Go!</button>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-
-<!--             <div class="panel panel-default">
-                <div class="panel-heading">
-                    <h3 class="panel-title">Labeling</h3>
-                </div>
-                <div class="panel-body">
-                    <div class="input-group">
-                        <select class="form-control" id="entity-info-labels">
-                            <option value="coke">coke</option>
-                            <option value="fanta">fanta</option>
-                            <option value="table">table</option>
-                            <option value="ice-tea">ice-tea</option>
-                        </select>
-                        <span class="input-group-btn">
-                            <button class="btn btn-primary" type="button" id="entity-info-labels-go">Go!</button>
-                        </span>
-                    </div>
-                </div>
-            </div> -->
-
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <h3 class="panel-title">Affordances</h3>
-                </div>
-                <div class="panel-body">
-                    <div id="entity-info-affordances-alert">
-                    </div>
-                    <div class="input-group">
-                        <select class="form-control" id="entity-info-affordances">
-                        </select>
-                        <span class="input-group-btn">
-                            <button class="btn btn-primary" type="button" id="entity-info-affordances-go">Go!</button>
-                        </span>
-                    </div>
-                </div>
-            </div>
-
         </div>
       </div>
     </div>
@@ -127,6 +347,8 @@
     <script src="scripts/scenejs_plugins/camera.js"></script>
     <script src="scripts/ed.js"></script>
     <script src="scripts/entity_view.js"></script>
+    <script src="scripts/button-handler.js"></script>
+    <script src="scripts/teleop-canvas.js"></script>
     <!-- endbuild -->
 </body>
 </html>

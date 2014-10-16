@@ -12,6 +12,7 @@ SceneJS.setConfigs({
 });
 
 var scene;
+var ros;
 var selectedEntity = null;
 var clientQueryMeshes;
 var clientGetEntityInfo;
@@ -446,10 +447,24 @@ $(document).ready(function () {
 
   // - - - - - Set ROS connections - - - - - - - - - - - - - - - - - - - - -
 
-  // Connecting to ROS.
-  var rosUrl = 'ws://' + window.location.hostname + ':9090';
-  //rosUrl = 'ws://192.168.2.91:9090';
-  var ros = new ROSLIB.Ros({
+  var search_key_value_pairs = window.location.search.substr(1).split('&').map(function(s)
+    {
+      return s.split('=');
+    });
+
+  search_key_value_pairs = search_key_value_pairs.reduce(function (prev, cur) {
+    prev[cur[0]] = cur[1];
+    return prev;
+  }, {});
+
+  var ros_host = window.location.hostname;
+
+  if (search_key_value_pairs["ws"])
+    ros_host = search_key_value_pairs["ws"]
+
+  // Connecting to ROS
+  var rosUrl = 'ws://' + ros_host + ':9090';
+  ros = new ROSLIB.Ros({
     url : rosUrl
   });
 
