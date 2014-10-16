@@ -55,9 +55,15 @@ SceneJS.Types.addType('ed_camera', {
     // these require 2 pointers
     var pinch = new Hammer.Pinch();
     var pan = new Hammer.Pan();
+    var doublepan = new Hammer.Pan({
+      event: 'doublepan',
+      pointers: 2,
+    });
+
+    doublepan.recognizeWith(pinch);
 
     // add to the Manager
-    mc.add([pinch, pan]);
+    mc.add([pinch, pan, doublepan]);
 
     var zoomStart;
     mc.on("pinchstart", function(ev) {
@@ -82,6 +88,22 @@ SceneJS.Types.addType('ed_camera', {
       lastX = x;
       lastY = y;
     });
+
+    mc.on('doublepanstart', function (e) {
+      lastX = 0;
+      lastY = 0;
+    });
+
+    mc.on('doublepan', function (e) {
+      var x = e.deltaX;
+      var y = e.deltaY;
+
+      actionPan(x - lastX, y - lastY, 0);
+
+      lastX = x;
+      lastY = y;
+    });
+
 
     // canvas.addEventListener('mousedown', mouseDown, true);
     // canvas.addEventListener('mousemove', mouseMove, true);
@@ -188,6 +210,17 @@ SceneJS.Types.addType('ed_camera', {
       }
 
       update();
+    }
+
+    function actionPan(deltaX, deltaY) {
+      var dx = (deltaX) * zoom * 0.002;
+      var dy = (deltaY) * zoom * 0.002;
+
+      var sin_yaw = Math.sin(yaw * 0.0174532925);
+      var cos_yaw = Math.cos(yaw * 0.0174532925);
+
+      look.x += sin_yaw * dx - cos_yaw * dy;
+      look.y += -cos_yaw * dx - sin_yaw * dy;
     }
 
     function actionScale(scale) {
