@@ -12,6 +12,7 @@ SceneJS.setConfigs({
 });
 
 var scene;
+var ros;
 var selectedEntity = null;
 var clientQueryMeshes;
 var clientGetEntityInfo;
@@ -131,9 +132,14 @@ function edUpdate(msg) {
   // list of entity ids of which we must query the mesh
   var q_mesh_entity_ids = [];
 
+  // Set of entities received
+  var entity_id_set = {}
+
   // Iterate over all world model entities
   for (var i_entity = 0; i_entity < msg.entities.length; i_entity++) {
     var e = msg.entities[i_entity];
+
+    entity_id_set[e.id] = true;
 
     // Create 4x4 matrix from object pose (transposed compared to OpenGL)
     var matrix = SceneJS_math_newMat4FromQuaternion(
@@ -318,8 +324,20 @@ function edUpdate(msg) {
         }
       );
     }
-
   }
+
+  // Remove obsolete entities
+  var entity_poses_new = {};
+  for(var id in entity_poses) {
+    // If the visualized entity was not given in this update, remove it
+    if (! (id in entity_id_set)) {
+      // TODO: Can we do the following in a nicer way?
+      scene.getNode(id).parent.removeNode(id);
+    } else {
+      entity_poses_new[id] = entity_poses[id]
+    }
+  }
+  entity_poses = entity_poses_new;
 
   if (q_mesh_entity_ids.length > 0) {
     var req = new ROSLIB.ServiceRequest({
@@ -429,9 +447,24 @@ $(document).ready(function () {
 
   // - - - - - Set ROS connections - - - - - - - - - - - - - - - - - - - - -
 
-  // Connecting to ROS.
-  var rosUrl = 'ws://' + window.location.hostname + ':9090';
-  var ros = new ROSLIB.Ros({
+  var search_key_value_pairs = window.location.search.substr(1).split('&').map(function(s)
+    {
+      return s.split('=');
+    });
+
+  search_key_value_pairs = search_key_value_pairs.reduce(function (prev, cur) {
+    prev[cur[0]] = cur[1];
+    return prev;
+  }, {});
+
+  var ros_host = window.location.hostname;
+
+  if (search_key_value_pairs["ws"])
+    ros_host = search_key_value_pairs["ws"]
+
+  // Connecting to ROS
+  var rosUrl = 'ws://' + ros_host + ':9090';
+  ros = new ROSLIB.Ros({
     url : rosUrl
   });
 
