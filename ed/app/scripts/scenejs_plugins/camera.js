@@ -54,17 +54,18 @@ SceneJS.Types.addType('ed_camera', {
     // create a pinch and rotate recognizer
     // these require 2 pointers
     var pinch = new Hammer.Pinch();
-    var rotate = new Hammer.Rotate();
     var pan = new Hammer.Pan();
 
-    // we want to detect both the same time
-    pinch.recognizeWith(rotate);
-
     // add to the Manager
-    mc.add([pinch, rotate, pan]);
+    mc.add([pinch, pan]);
 
-    mc.on("pinch rotate", function(ev) {
-      console.log(ev.type);
+    var zoomStart;
+    mc.on("pinchstart", function(ev) {
+      zoomStart = zoom;
+    });
+
+    mc.on("pinch", function(ev) {
+      actionScale(zoomStart/ev.scale);
     });
 
     mc.on('panstart', function (e) {
@@ -172,7 +173,6 @@ SceneJS.Types.addType('ed_camera', {
     }
 
     function actionMove2(dx, dy, button) {
-      console.log(dx, dy);
       if (button === 0) { // Left mouse button
           yaw -= dx * yawSensitivity;
           pitch += dy * pitchSensitivity;
@@ -187,6 +187,11 @@ SceneJS.Types.addType('ed_camera', {
         look.y += -cos_yaw * dx - sin_yaw * dy;
       }
 
+      update();
+    }
+
+    function actionScale(scale) {
+      zoom = scale;
       update();
     }
 
