@@ -131,9 +131,14 @@ function edUpdate(msg) {
   // list of entity ids of which we must query the mesh
   var q_mesh_entity_ids = [];
 
+  // Set of entities received
+  var entity_id_set = {}
+
   // Iterate over all world model entities
   for (var i_entity = 0; i_entity < msg.entities.length; i_entity++) {
     var e = msg.entities[i_entity];
+
+    entity_id_set[e.id] = true;
 
     // Create 4x4 matrix from object pose (transposed compared to OpenGL)
     var matrix = SceneJS_math_newMat4FromQuaternion(
@@ -318,8 +323,20 @@ function edUpdate(msg) {
         }
       );
     }
-
   }
+
+  // Remove obsolete entities
+  var new_entity_poses = {};
+  for(id in entity_poses) {
+    // If the visualized entity was not given in this update, remove it
+    if (! (id in entity_id_set)) {
+      // TODO: Can we do the following in a nicer way?
+      scene.getNode(id).parent.removeNode(id);
+    } else {
+      entity_poses_new[id] = entity_poses[id]
+    }
+  }
+  entity_poses = new_entity_poses;
 
   if (q_mesh_entity_ids.length > 0) {
     var req = new ROSLIB.ServiceRequest({
