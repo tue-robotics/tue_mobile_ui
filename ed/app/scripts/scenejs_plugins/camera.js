@@ -104,6 +104,32 @@ SceneJS.Types.addType('ed_camera', {
       lastY = y;
     });
 
+    $(canvas)
+    .contextmenu(function () {
+      return false;
+    })
+    .mousedown(function(e) {
+      switch (e.which) {
+        case 2: // middle
+          console.log(e);
+          break;
+        case 3: //right
+          console.log(e);
+          e.preventDefault();
+          break;
+        default:
+          break;
+      }
+    })
+    .mousemove(function (e) {
+      if (e.button === 2) {
+        console.log('move', e.which);
+      }
+    })
+    .mousewheel(function (e) {
+      mouseWheel(e.deltaY);
+    });
+
 
     // canvas.addEventListener('mousedown', mouseDown, true);
     // canvas.addEventListener('mousemove', mouseMove, true);
@@ -114,17 +140,6 @@ SceneJS.Types.addType('ed_camera', {
     // canvas.addEventListener('mousewheel', mouseWheel, true);
     // canvas.addEventListener('contextmenu', contextMenu, true);
     // canvas.addEventListener('DOMMouseScroll', mouseWheel, true);
-
-    function mouseDown(event) {
-      lastX = event.clientX;
-      lastY = event.clientY;
-
-      drag_button = event.button;
-
-      if (event.button === 2) {  // Right mouse click
-        scene.pick(event.clientX, event.clientY );
-      }
-    }
 
     // ----------------------------------------------------------------------------------------------------
 
@@ -230,19 +245,7 @@ SceneJS.Types.addType('ed_camera', {
 
     // ----------------------------------------------------------------------------------------------------
 
-    function mouseWheel(event) {
-      var delta = 0;
-      if (!event) {
-        event = window.event;
-      }
-      if (event.wheelDelta) {
-        delta = event.wheelDelta / 120;
-        if (window.opera) {
-          delta = -delta;
-        }
-      } else if (event.detail) {
-        delta = -event.detail / 3;
-      }
+    function mouseWheel(delta) {
       if (delta) {
         if (delta < 0) {
           zoom *= (1 + zoomSensitivity);
@@ -250,10 +253,7 @@ SceneJS.Types.addType('ed_camera', {
           zoom /= (1 + zoomSensitivity);
         }
       }
-      if (event.preventDefault) {
-        event.preventDefault();
-      }
-      event.returnValue = false;
+
       update();
     }
 
