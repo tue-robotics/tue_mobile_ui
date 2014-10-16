@@ -23,17 +23,17 @@ function updateEntityView(result)
 
 // Bind actions to the affordance buttons etc ,, we should do this with templating engine though
 $(document).ready(function () {
-	$("#entity-info-labels-go").click(function()
-	{
-		console.log("Dummy");
-		return;
-		var req = new ROSLIB.ServiceRequest({
-			command_yaml: '{ action: store, entity: ' + entityId + ' }'
-		});
-		clientInteract.callService(req, function(result) {
-			console.log('Result from server: ' + result.result_json);
-		});
-	});
+	// $("#entity-info-labels-go").click(function()
+	// {
+	// 	console.log("Dummy");
+	// 	return;
+	// 	var req = new ROSLIB.ServiceRequest({
+	// 		command_yaml: '{ action: store, entity: ' + entityId + ' }'
+	// 	});
+	// 	clientInteract.callService(req, function(result) {
+	// 		console.log('Result from server: ' + result.result_json);
+	// 	});
+	// });
 
 	$("#entity-info-affordances-go").click(function()
 	{	
@@ -51,14 +51,21 @@ $(document).ready(function () {
 		});
 	});
 
-	$("#entity-info-store-measurement").click(function()
-	{
-		var req = new ROSLIB.ServiceRequest({
-			command_yaml: '{ action: store, entity: ' + selectedEntity.id + ' }'
-		});
-		clientInteract.callService(req, function(result) {
-			console.log('Result from server: ' + result.result_json);
+	$("#reset-world-model").click(function()
+	{	
+		clientEdReset.callService(req, function(result) {
+			console.log('Reset called :)');
 		});
 	});
+
+	// $("#entity-info-store-measurement").click(function()
+	// {
+	// 	var req = new ROSLIB.ServiceRequest({
+	// 		command_yaml: '{ action: store, entity: ' + selectedEntity.id + ' }'
+	// 	});
+	// 	clientInteract.callService(req, function(result) {
+	// 		console.log('Result from server: ' + result.result_json);
+	// 	});
+	// });
 	
 });

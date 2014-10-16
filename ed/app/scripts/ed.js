@@ -17,6 +17,7 @@ var clientQueryMeshes;
 var clientGetEntityInfo;
 var clientInteract;
 var clientActionServer;
+var clientEdReset;
 var entity_poses = {};
 
 var COLORS = [ [ 0.6, 0.6, 0.6],
@@ -479,6 +480,13 @@ $(document).ready(function () {
     ros: ros,
     name: '/action_server/add_action',
     serviceType: 'action_server/AddAction'
+  });
+
+  // Construct client for interacting
+  clientEdReset = new ROSLIB.Service({
+    ros: ros,
+    name: '/ed/reset',
+    serviceType: 'std_srvs/Empty'
   });
 
 });
