@@ -66,7 +66,9 @@ SceneJS.Types.addType('ed_camera', {
     mc.add([tap, pinch, pan, doublepan]);
 
     mc.on("tap", function(e) {
-      console.log(e);
+      var x = e.center.x;
+      var y = e.center.y;
+      scene.pick(x, y);
     });
 
     var zoomStart;
