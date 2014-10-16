@@ -326,8 +326,8 @@ function edUpdate(msg) {
   }
 
   // Remove obsolete entities
-  var new_entity_poses = {};
-  for(id in entity_poses) {
+  var entity_poses_new = {};
+  for(var id in entity_poses) {
     // If the visualized entity was not given in this update, remove it
     if (! (id in entity_id_set)) {
       // TODO: Can we do the following in a nicer way?
@@ -336,7 +336,7 @@ function edUpdate(msg) {
       entity_poses_new[id] = entity_poses[id]
     }
   }
-  entity_poses = new_entity_poses;
+  entity_poses = entity_poses_new;
 
   if (q_mesh_entity_ids.length > 0) {
     var req = new ROSLIB.ServiceRequest({
