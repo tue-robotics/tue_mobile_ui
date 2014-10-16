@@ -53,6 +53,7 @@ $(document).ready(function () {
 
 	$("#reset-world-model").click(function()
 	{	
+		var req = new ROSLIB.ServiceRequest({});
 		clientEdReset.callService(req, function(result) {
 			console.log('Reset called :)');
 		});
