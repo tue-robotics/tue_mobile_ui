@@ -32,8 +32,8 @@ SceneJS.Types.addType('ed_camera', {
     var pitchSensitivity = params.pitchSensitivity || 0.1;
     var zoomSensitivity = params.zoomSensitivity || 0.9;
 
-    var lastX;
-    var lastY;
+    var lastX = 0;
+    var lastY = 0;
     var drag_button = -1;
 
     var eye = params.eye || { x:0, y:0, z:0 };
@@ -49,15 +49,48 @@ SceneJS.Types.addType('ed_camera', {
 
     var canvas = this.getScene().getCanvas();
 
-    canvas.addEventListener('mousedown', mouseDown, true);
-    canvas.addEventListener('mousemove', mouseMove, true);
-    canvas.addEventListener('mouseup', mouseUp, true);
-    canvas.addEventListener('touchstart', touchStart, true);
-    canvas.addEventListener('touchmove', touchMove, true);
-    canvas.addEventListener('touchend', touchEnd, true);
-    canvas.addEventListener('mousewheel', mouseWheel, true);
-    canvas.addEventListener('contextmenu', contextMenu, true);
-    canvas.addEventListener('DOMMouseScroll', mouseWheel, true);
+    var mc = new Hammer.Manager(canvas);
+
+    // create a pinch and rotate recognizer
+    // these require 2 pointers
+    var pinch = new Hammer.Pinch();
+    var rotate = new Hammer.Rotate();
+    var pan = new Hammer.Pan();
+
+    // we want to detect both the same time
+    pinch.recognizeWith(rotate);
+
+    // add to the Manager
+    mc.add([pinch, rotate, pan]);
+
+    mc.on("pinch rotate", function(ev) {
+      console.log(ev.type);
+    });
+
+    mc.on('panstart', function (e) {
+      lastX = 0;
+      lastY = 0;
+    });
+
+    mc.on('pan', function (e) {
+      var x = e.deltaX;
+      var y = e.deltaY;
+
+      actionMove2(x - lastX, y - lastY, 0);
+
+      lastX = x;
+      lastY = y;
+    });
+
+    // canvas.addEventListener('mousedown', mouseDown, true);
+    // canvas.addEventListener('mousemove', mouseMove, true);
+    // canvas.addEventListener('mouseup', mouseUp, true);
+    // canvas.addEventListener('touchstart', touchStart, true);
+    // canvas.addEventListener('touchmove', touchMove, true);
+    // canvas.addEventListener('touchend', touchEnd, true);
+    // canvas.addEventListener('mousewheel', mouseWheel, true);
+    // canvas.addEventListener('contextmenu', contextMenu, true);
+    // canvas.addEventListener('DOMMouseScroll', mouseWheel, true);
 
     function mouseDown(event) {
       lastX = event.clientX;
@@ -136,6 +169,25 @@ SceneJS.Types.addType('ed_camera', {
         lastX = posX;
         lastY = posY;
       }
+    }
+
+    function actionMove2(dx, dy, button) {
+      console.log(dx, dy);
+      if (button === 0) { // Left mouse button
+          yaw -= dx * yawSensitivity;
+          pitch += dy * pitchSensitivity;
+      } else if (button === 1) { // Middle mouse button
+        var dx = (posX - lastX) * zoom * 0.002;
+        var dy = (posY - lastY) * zoom * 0.002;
+
+        var sin_yaw = Math.sin(yaw * 0.0174532925);
+        var cos_yaw = Math.cos(yaw * 0.0174532925);
+
+        look.x += sin_yaw * dx - cos_yaw * dy;
+        look.y += -cos_yaw * dx - sin_yaw * dy;
+      }
+
+      update();
     }
 
     // ----------------------------------------------------------------------------------------------------
