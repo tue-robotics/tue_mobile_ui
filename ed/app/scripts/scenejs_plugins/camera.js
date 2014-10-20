@@ -131,7 +131,8 @@ SceneJS.Types.addType('ed_camera', {
         case 2: // middle
           var x = e.pageX;
           var y = e.pageY;
-          actionMove2(x - lastX, y - lastY);
+          actionPan(x - lastX, y - lastY);
+          update();
           lastX = x;
           lastY = y;
           break;
