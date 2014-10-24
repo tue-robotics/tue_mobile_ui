@@ -1,7 +1,0 @@
-# Dependency directories
-node_modules/
-bower_components/
-
-# Build caches
-.tmp
-.sass-cache
