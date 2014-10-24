@@ -1,7 +1,12 @@
-TU/e Mobile UI
-==============
+# TU/e Mobile UI
 
-#### An app that allows you to control a robot wirelessly
+### A collection of web applications to control robots from the TU/e
+
+## [Amigo Mobile UI](amigo_mobile_ui)
+With this app you can easily teleoperate the robot. It offers touch-based driving, various poses and various interfaces that are needed for robotcup.
+
+## [ED](ed)
+This contains the GUI for the world model (ED). It can be used to edit entities in the word model of give high level tasks to the robot.
 
 ### Use
 To launch the webserver, run one of the robot specific launch files in the [launch](launch) folder. This will launch all the nesecary nodes.
@@ -9,7 +14,7 @@ To launch the webserver, run one of the robot specific launch files in the [laun
 $ roslaunch tue_mobile_ui amigo.launch
 ```
 
-Pre-built files can be found in the [build](build) folder and the source files can be found in the [src](src) folder.
+Pre-built files can be found in each `dist` folder and the source files can be found in the `app` folder.
 
-### Develop
-Checkout [utils/README.md](utils/README.md) for details on development.
+### Contributing
+See the [documentation for contributors](CONTRIBUTING.md).
