@@ -1,5 +1,0 @@
-<deps>
-    <library name="ros-groovy-mjpeg-server" type="system"/>
-    <library name="python-twisted-web" type="system"/>
-    <library name="python-twisted-web2" type="system"/>
-</deps>
