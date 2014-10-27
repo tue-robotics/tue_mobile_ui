@@ -36,23 +36,41 @@ $(document).ready(function () {
 	// });
 
 	$("#entity-info-affordances-go").click(function()
-	{	
+	{
 		var affordance = $('#entity-info-affordances').find(":selected").text();
 		var req = new ROSLIB.ServiceRequest({
 			action: affordance,
 			parameters: '{ entity: ' + selectedEntity.id + ' }'
 		});
-		clientActionServer.callService(req, function(result) {
+    var target = selectedEntity.id;
+    if (/\d/.test(target))
+      target = "Object"
+
+    var yes_sirs = ["Yes sir!","Roger that!","Copy sir!","Your wish is my command!","If you say so!","I'm on my way!","Hmmmkay!","I love it when you give me commands!","For you always sir!"];
+    handleSpeech(yes_sirs[Math.floor(Math.random() * yes_sirs.length)])
+
+    switch (affordance) {
+      case 'navigate-to':
+        handleSpeech("I will " + affordance + " the " +  target + " !")
+        break;
+      case 'pick-up':
+        handleSpeech("I will " + affordance + " the " +  target + " !")
+        break;
+      case 'place':
+        handleSpeech("I will " + affordance + " the object on the" + target  + " !")
+        break;
+    }
+    clientActionServer.callService(req, function(result) {
 			console.log('#entity-info-affordances-go - Result from server: ' + result.action_uuid + ", " + result.error_msg);
 			if (result.error_msg != "")
 			{
-				$("#entity-info-affordances-alert").html('<div class="alert alert-error"><button type="button" class="close" data-dismiss="alert">×</button><strong>Oh snap!</strong> ' + result.error_msg + '</div>');
+				$("#entity-info-affordances-alert").html('<div class="alert alert-error"><button type="button" class="close" data-dismiss="alert">ÃÂÃÂÃÂÃÂ</button><strong>Oh snap!</strong> ' + result.error_msg + '</div>');
 			}
 		});
 	});
 
 	$("#reset-world-model").click(function()
-	{	
+	{
 		var req = new ROSLIB.ServiceRequest({});
 		clientEdReset.callService(req, function(result) {
 			console.log('Reset called :)');
@@ -68,5 +86,5 @@ $(document).ready(function () {
 	// 		console.log('Result from server: ' + result.result_json);
 	// 	});
 	// });
-	
+
 });
