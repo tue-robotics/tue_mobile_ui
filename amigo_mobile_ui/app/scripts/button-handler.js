@@ -90,9 +90,6 @@ $( document ).ready(function() {
       case 'Sound':
         handleSpeech(req[1]);
         break;
-      case 'TextToSpeech':
-        handleSpeech($('#texttospeech textarea').val());
-        break;
       case 'SkillCommand':
         handleActionlib(req[1]);
         break;

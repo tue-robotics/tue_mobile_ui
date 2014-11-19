@@ -351,21 +351,26 @@
                 </div>
 
                 <div id="texttospeech" data-title="Text to Speech">
-                    <table class="buttons">
-                        <tr><td><textarea class="form-control" rows="5"></textarea></td></tr>
-                        <tr><td><button type="button" class="btn btn-default" data-src="TextToSpeech">Text to Speech</button></td></tr>
-                    </table>
+                    <div class="container">
+                        <form role="form" data-action="tts">
+                            <div class="form-group">
+                              <label for="disabledTextInput">Enter the text amigo should say:</label>
+                              <input type="text" class="form-control" placeholder="Enter the text and press <enter> ..." data-action="tts">
+                            </div>
+                        </form>
+                        <ul id="speech-log" class="list-group"></ul>
+                    </div>
                 </div>
 
                 <div id="amigohear" data-title="Amigo hear">
                     <div class="container">
-                    <form role="form" class="continue">
-                        <div class="form-group">
-                          <label for="disabledTextInput">Enter the text amigo should hear:</label>
-                          <input type="text" class="form-control continue" placeholder="Enter the text and press <enter> ...">
-                        </div>
-                    </form>
-                    <ul id="hear-log" class="list-group"></ul>
+                        <form role="form" class="continue">
+                            <div class="form-group">
+                              <label for="disabledTextInput">Enter the text amigo should hear:</label>
+                              <input type="text" class="form-control continue" placeholder="Enter the text and press <enter> ...">
+                            </div>
+                        </form>
+                        <ul id="hear-log" class="list-group"></ul>
                     </div>
                 </div>
 
