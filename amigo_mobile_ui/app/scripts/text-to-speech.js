@@ -6,8 +6,9 @@ $(document).ready(function () {
 
 var audio_active = false;
 
-var form = $('#texttospeech form[data-action="tts"]');
+var form  = $('#texttospeech form[data-action="tts"]');
 var input = $('#texttospeech input[data-action="tts"]');
+var log   = $('#speech-log');
 
 var ttsTopic = new ROSLIB.Topic({
   ros : ros,
@@ -24,12 +25,41 @@ form.on('submit', function (e) {
   say(text);
 });
 
+log.on('click [data-action="say"]', function (e) {
+  var text = $(e.target).text();
+  say(text);
+});
+
 // send a message to the TTS so it will say it
 function say (text) {
   var message = new ROSLIB.Message({
     data : text
   });
   ttsTopic.publish(message);
+
+  // insert the latest text at the top
+  log.prepend($(
+    '<a href="javascript:void(0)" class="list-group-item" data-action="say">' + text + '</a>'
+  ));
+
+  // remove all lines for the dom
+  var lines = log.find('a').detach();
+
+  // filter unique lines
+  var unique = [];
+  lines = lines.filter(function (index, element) {
+    var text = $(element).text();
+
+    if (unique.indexOf(text) === -1) {
+      unique.push(text);
+      return true;
+    } else {
+      return false;
+    }
+  });
+
+  // insert them back in
+  log.append(lines);
 }
 
 // incoming TTS messages will also be spoken locally
