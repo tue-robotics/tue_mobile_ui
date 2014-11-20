@@ -6,7 +6,7 @@ var input;
 var log;
 $(document).ready(function () {
 
-	input = $('input.continue').focus();
+	input = $('#amigohear input.continue').focus();
 	log   = $('#hear-log');
 
 	var replaceList = [
