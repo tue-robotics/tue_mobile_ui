@@ -47,7 +47,12 @@ SceneJS.Types.addType('ed_camera', {
 
     update();
 
+    // ------------------------------
+    // ---     HAMMER SETUP       ---
+    // ------------------------------
+
     var canvas = this.getScene().getCanvas();
+    $(canvas).contextmenu(function () { return false; }) // disable context menu
 
     var mc = new Hammer.Manager(canvas);
 
@@ -65,6 +70,10 @@ SceneJS.Types.addType('ed_camera', {
     // add to the Manager
     mc.add([tap, pinch, pan, doublepan]);
 
+    // ------------------------------
+    // ---    EVENT BINDING       ---
+    // ------------------------------
+
     mc.on("tap", function(e) {
       var x = e.center.x;
       var y = e.center.y;
@@ -77,7 +86,7 @@ SceneJS.Types.addType('ed_camera', {
     });
 
     mc.on("pinch", function(ev) {
-      actionScale(zoomStart/ev.scale);
+      actionScale(zoomStart / ev.scale);
     });
 
     mc.on('panstart', function (e) {
@@ -89,7 +98,7 @@ SceneJS.Types.addType('ed_camera', {
       var x = e.deltaX;
       var y = e.deltaY;
 
-      actionMove2(x - lastX, y - lastY);
+      actionMove(x - lastX, y - lastY);
 
       lastX = x;
       lastY = y;
@@ -110,11 +119,9 @@ SceneJS.Types.addType('ed_camera', {
       lastY = y;
     });
 
-    $(canvas)
-    .contextmenu(function () {
-      return false;
-    })
-    .mousedown(function(e) {
+    
+    $(canvas).mousedown(function(e) 
+    {
       switch (e.which) {
         case 2: // middle
           lastX = e.pageX;
@@ -126,9 +133,33 @@ SceneJS.Types.addType('ed_camera', {
           break;
       }
     })
-    .mousemove(function (e) {
-      switch (e.which) {
-        case 2: // middle
+
+    $(canvas).mousemove(function (e) {
+      var which = "none";
+
+      if (e.buttons) {
+        switch (e.buttons) {
+          case 4: // middle
+            which = "middle";
+            break;
+          case 2: //right
+            which = "right";
+            break;
+        }
+      }
+      if (e.which) {
+        switch (e.which) {
+          case 2: // middle
+            which = "middle";
+            break;
+          case 3: //right
+            which = "right";
+            break;
+        }
+      }
+
+      switch (which) {
+        case "middle": // middle
           var x = e.pageX;
           var y = e.pageY;
           actionPan(x - lastX, y - lastY);
@@ -136,16 +167,14 @@ SceneJS.Types.addType('ed_camera', {
           lastX = x;
           lastY = y;
           break;
-        case 3: //right
-          break;
-        default:
+        case "right": //right
           break;
       }
     })
-    .mousewheel(function (e) {
+
+    $(canvas).mousewheel(function (e) {
       mouseWheel(e.deltaY);
     });
-
 
     // canvas.addEventListener('mousedown', mouseDown, true);
     // canvas.addEventListener('mousemove', mouseMove, true);
@@ -157,81 +186,19 @@ SceneJS.Types.addType('ed_camera', {
     // canvas.addEventListener('contextmenu', contextMenu, true);
     // canvas.addEventListener('DOMMouseScroll', mouseWheel, true);
 
-    // ----------------------------------------------------------------------------------------------------
+    // ------------------------------
+    // ---        BEHAVIOR        ---
+    // ------------------------------
 
-    function contextMenu(event) {
-      // Prevent context menu
-      event.preventDefault();
-    }
-
-    // ----------------------------------------------------------------------------------------------------
-
-    function touchStart(event) {
-      lastX = event.targetTouches[0].clientX;
-      lastY = event.targetTouches[0].clientY;
-      drag_button = 1;
-    }
-
-    // ----------------------------------------------------------------------------------------------------
-
-    function mouseUp() {
-      drag_button = -1;
-    }
-
-    // ----------------------------------------------------------------------------------------------------
-
-    function touchEnd() {
-      drag_button = -1;
-    }
-
-    // ----------------------------------------------------------------------------------------------------
-
-    function mouseMove(event) {
-      var posX = event.clientX;
-      var posY = event.clientY;
-      actionMove(posX, posY, drag_button);
-    }
-
-    // ----------------------------------------------------------------------------------------------------
-
-    function touchMove(event) {
-      var posX = event.targetTouches[0].clientX;
-      var posY = event.targetTouches[0].clientY;
-      actionMove(posX, posY, event.button);
-    }
-
-    // ----------------------------------------------------------------------------------------------------
-
-    function actionMove(posX, posY, button) {
-      if (drag_button >= 0) {
-        if (button === 0) { // Left mouse button
-          yaw -= (posX - lastX) * yawSensitivity;
-          pitch += (posY - lastY) * pitchSensitivity;
-        } else if (button === 1) { // Middle mouse button
-          var dx = (posX - lastX) * zoom * 0.002;
-          var dy = (posY - lastY) * zoom * 0.002;
-
-          var sin_yaw = Math.sin(yaw * 0.0174532925);
-          var cos_yaw = Math.cos(yaw * 0.0174532925);
-
-          look.x += sin_yaw * dx - cos_yaw * dy;
-          look.y += -cos_yaw * dx - sin_yaw * dy;
-        }
-
-        update();
-
-        lastX = posX;
-        lastY = posY;
-      }
-    }
-
-    function actionMove2(dx, dy) {
+    // Move
+    function actionMove(dx, dy) {
       yaw -= dx * yawSensitivity;
       pitch += dy * pitchSensitivity;
 
       update();
     }
 
+    // Pan
     function actionPan(deltaX, deltaY) {
       var dx = (deltaX) * zoom * 0.002;
       var dy = (deltaY) * zoom * 0.002;
@@ -243,13 +210,13 @@ SceneJS.Types.addType('ed_camera', {
       look.y += -cos_yaw * dx - sin_yaw * dy;
     }
 
+    // Zoom via pinch
     function actionScale(scale) {
       zoom = scale;
       update();
     }
 
-    // ----------------------------------------------------------------------------------------------------
-
+    // Zoom via mousewheel
     function mouseWheel(delta) {
       if (delta) {
         if (delta < 0) {
@@ -262,7 +229,9 @@ SceneJS.Types.addType('ed_camera', {
       update();
     }
 
-    // ----------------------------------------------------------------------------------------------------
+    // ------------------------------
+    // ---      NODE UPDATE       ---
+    // ------------------------------
 
     function update() {
 
