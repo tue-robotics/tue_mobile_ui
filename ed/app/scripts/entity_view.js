@@ -77,14 +77,15 @@ $(document).ready(function () {
 		});
 	});
 
-	// $("#entity-info-store-measurement").click(function()
-	// {
-	// 	var req = new ROSLIB.ServiceRequest({
-	// 		command_yaml: '{ action: store, entity: ' + selectedEntity.id + ' }'
-	// 	});
-	// 	clientInteract.callService(req, function(result) {
-	// 		console.log('Result from server: ' + result.result_json);
-	// 	});
-	// });
+	$("#entity-info-store-measurement").click(function()
+	{
+    var type = prompt("Please enter measurement type", "");
+		var req = new ROSLIB.ServiceRequest({
+			command_yaml: '{ action: store, id: ' + selectedEntity.id + ', type: ' + type + ' }'
+		});
+		clientInteract.callService(req, function(result) {
+			console.log('Result from server: ' + result.result_json);
+		});
+	});
 
 });
