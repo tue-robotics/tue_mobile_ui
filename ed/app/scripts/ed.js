@@ -504,14 +504,14 @@ $(document).ready(function () {
   // Construct client for interacting
   clientActionServer = new ROSLIB.Service({
     ros: ros,
-    name: '/action_server/add_action',
+    name: '/amigo/action_server/add_action',
     serviceType: 'action_server/AddAction'
   });
 
   // Construct client for interacting
   clientEdReset = new ROSLIB.Service({
     ros: ros,
-    name: '/ed/reset',
+    name: '/amigo/ed/reset',
     serviceType: 'std_srvs/Empty'
   });
 
