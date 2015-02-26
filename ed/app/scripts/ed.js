@@ -473,7 +473,7 @@ $(document).ready(function () {
   // Construct entity listener
   var entityListener = new ROSLIB.Topic({
     ros : ros,
-    name : '/ed/gui/entities',
+    name : '/amigo/ed/gui/entities',
     messageType : 'ed_gui_server/EntityInfos'
   });
   entityListener.subscribe(function(message) {
@@ -483,21 +483,21 @@ $(document).ready(function () {
   // Construct client for requesting meshes
   clientQueryMeshes = new ROSLIB.Service({
     ros : ros,
-    name : '/ed/gui/query_meshes',
+    name : '/amigo/ed/gui/query_meshes',
     serviceType : 'ed_gui_server/QueryMeshes'
   });
 
   // Construct client for querying entity info
   clientGetEntityInfo = new ROSLIB.Service({
     ros: ros,
-    name: '/ed/gui/get_entity_info',
+    name: '/amigo/ed/gui/get_entity_info',
     serviceType: 'ed_gui_server/GetEntityInfo'
   });
 
   // Construct client for interacting
   clientInteract = new ROSLIB.Service({
     ros: ros,
-    name: '/ed/gui/interact',
+    name: '/amigo/ed/gui/interact',
     serviceType: 'ed_gui_server/Interact'
   });
 
