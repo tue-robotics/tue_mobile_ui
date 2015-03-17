@@ -12,7 +12,7 @@ var log   = $('#speech-log');
 
 var ttsTopic = new ROSLIB.Topic({
   ros : ros,
-  name : '/text_to_speech/input',
+  name : 'text_to_speech/input',
   messageType : 'std_msgs/String'
 });
 

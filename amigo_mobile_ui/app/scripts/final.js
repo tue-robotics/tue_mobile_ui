@@ -133,7 +133,7 @@ $(document).ready(function () {
   // get the last measurements for an object
   getMeasurementsService = new ROSLIB.Service({
       ros : ros,
-      name : '/ed/gui/get_measurements',
+      name : 'ed/gui/get_measurements',
       serviceType : 'ed/GetMeasurements'
   });
   getMeasurements();
@@ -141,7 +141,7 @@ $(document).ready(function () {
   // Get the map
   var mapListener = new ROSLIB.Topic({
     ros : ros,
-    name : '/ed/gui/map_image',
+    name : 'ed/gui/map_image',
     messageType : 'tue_serialization/Binary'
   });
   mapListener.subscribe(function(message) {
@@ -217,14 +217,14 @@ $(document).ready(function () {
   // click service
   raiseEventService = new ROSLIB.Service({
       ros : ros,
-      name : '/ed/gui/raise_event',
-      serviceType : '/ed/RaiseEvent'
+      name : 'ed/gui/raise_event',
+      serviceType : 'ed/RaiseEvent'
   });
 
   // label service
   setLabelService = new ROSLIB.Service({
       ros : ros,
-      name : '/ed/gui/set_label',
+      name : 'ed/gui/set_label',
       serviceType : 'ed/SetLabel'
   });
   $('#set-label-form').on('submit', function (e) {

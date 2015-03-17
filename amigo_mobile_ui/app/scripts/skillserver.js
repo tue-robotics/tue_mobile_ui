@@ -6,7 +6,7 @@ function getSkillServerApi(callback) {
 
   var client = new ROSLIB.Service({
     ros : ros,
-    name : '/amigo/skill_server/get_api',
+    name : 'skill_server/get_api',
     serviceType : 'robot_skill_server/GetAPI'
   });
 

@@ -55,7 +55,7 @@ $(document).ready(function () {
 
 		var hearTopic = new ROSLIB.Topic({
 			ros : ros,
-			name : '/pocketsphinx/output',
+			name : 'pocketsphinx/output',
 			messageType : 'std_msgs/String'
 		});
 

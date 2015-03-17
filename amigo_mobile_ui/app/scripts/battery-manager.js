@@ -30,7 +30,7 @@ function init() {
 
   listener = new ROSLIB.Topic({
     ros : ros,
-    name : '/amigo/battery_percentage',
+    name : 'battery_percentage',
     messageType : 'std_msgs/Float32'
   });
 
