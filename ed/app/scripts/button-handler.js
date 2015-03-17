@@ -1,5 +1,9 @@
 /* global ros */
 
+(function () {
+
+'use strict';
+
 function handleJointState(device,name_arguments,position_arguments) {
 
   /* parse argument array */
@@ -11,7 +15,11 @@ function handleJointState(device,name_arguments,position_arguments) {
   /* Joint names */
   name_arguments = name_arguments.split(',');
 
-  var topic = new ROSLIB.Topic({ros : ros,name : '/amigo/' + device + '/references', messageType : 'sensor_msgs/JointState'});
+  var topic = new ROSLIB.Topic({
+    ros: ros,
+    name: device + '/references',
+    messageType : 'sensor_msgs/JointState'
+  });
 
   var message = new ROSLIB.Message({
     position : position_arguments,
@@ -22,7 +30,11 @@ function handleJointState(device,name_arguments,position_arguments) {
 }
 
 function handleAmigoGripperCommand(device,argument) {
-  var topic = new ROSLIB.Topic({ros : ros,name : '/amigo/' + device + '/references', messageType : 'amigo_msgs/AmigoGripperCommand'});
+  var topic = new ROSLIB.Topic({
+    ros: ros,
+    name : device + '/references',
+    messageType: 'amigo_msgs/AmigoGripperCommand'
+  });
 
   var message = new ROSLIB.Message({
     direction : parseInt(argument, 10),
@@ -33,7 +45,11 @@ function handleAmigoGripperCommand(device,argument) {
 }
 
 function handleSpeech(speech) {
-  var topic = new ROSLIB.Topic({ros : ros,name : '/text_to_speech/input', messageType : 'std_msgs/String'});
+  var topic = new ROSLIB.Topic({
+    ros: ros,
+    name: 'text_to_speech/input',
+    messageType: 'std_msgs/String'
+  });
 
   var message = new ROSLIB.Message({
     data : speech
@@ -45,8 +61,8 @@ function handleSpeech(speech) {
 function handleActionlib(skill_command) {
   var actionlib = new ROSLIB.ActionClient({
     ros : ros,
-    serverName : '/amigo/execute_command',
-    actionName : 'amigo_skill_server/ExecuteAction'
+    serverName: 'execute_command',
+    actionName: 'amigo_skill_server/ExecuteAction'
   });
 
   var goal = new ROSLIB.Goal({
@@ -95,3 +111,5 @@ $( document ).ready(function() {
     }
   });
 });
+
+})();

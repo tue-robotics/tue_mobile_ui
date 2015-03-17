@@ -30,7 +30,7 @@ function initTeleop() {
   // Initialize the teleop.
   teleop = new TELEOP.Teleop({
     ros : ros,
-    topic : '/cmd_vel'
+    topic : 'base/references'
   });
 }
 

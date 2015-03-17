@@ -473,7 +473,7 @@ $(document).ready(function () {
   // Construct entity listener
   var entityListener = new ROSLIB.Topic({
     ros : ros,
-    name : '/amigo/ed/gui/entities',
+    name : 'ed/gui/entities',
     messageType : 'ed_gui_server/EntityInfos'
   });
   entityListener.subscribe(function(message) {

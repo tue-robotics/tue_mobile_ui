@@ -5,7 +5,7 @@ var TELEOP = {};
 TELEOP.Teleop = function(options) {
   options = options || {};
   var ros = options.ros;
-  var topic = options.topic || '/cmd_vel';
+  var topic = options.topic || 'cmd_vel';
 
   var cmdVel = new ROSLIB.Topic({
     ros : ros,
