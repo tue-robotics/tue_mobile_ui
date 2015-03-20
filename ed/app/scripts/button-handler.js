@@ -1,5 +1,7 @@
 /* global ros */
 
+var handleSpeech;
+
 (function () {
 
 'use strict';
@@ -44,7 +46,7 @@ function handleAmigoGripperCommand(device,argument) {
   topic.publish(message);
 }
 
-function handleSpeech(speech) {
+handleSpeech = function (speech) {
   var topic = new ROSLIB.Topic({
     ros: ros,
     name: 'text_to_speech/input',
