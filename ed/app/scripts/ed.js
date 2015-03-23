@@ -139,6 +139,9 @@ function edUpdate(msg) {
   for (var i_entity = 0; i_entity < msg.entities.length; i_entity++) {
     var e = msg.entities[i_entity];
 
+    if (!e.has_pose)
+        continue
+
     entity_id_set[e.id] = true;
 
     // Create 4x4 matrix from object pose (transposed compared to OpenGL)
