@@ -486,35 +486,35 @@ $(document).ready(function () {
   // Construct client for requesting meshes
   clientQueryMeshes = new ROSLIB.Service({
     ros : ros,
-    name : '/amigo/ed/gui/query_meshes',
+    name : 'ed/gui/query_meshes',
     serviceType : 'ed_gui_server/QueryMeshes'
   });
 
   // Construct client for querying entity info
   clientGetEntityInfo = new ROSLIB.Service({
     ros: ros,
-    name: '/amigo/ed/gui/get_entity_info',
+    name: 'ed/gui/get_entity_info',
     serviceType: 'ed_gui_server/GetEntityInfo'
   });
 
   // Construct client for interacting
   clientInteract = new ROSLIB.Service({
     ros: ros,
-    name: '/amigo/ed/gui/interact',
+    name: 'ed/gui/interact',
     serviceType: 'ed_gui_server/Interact'
   });
 
   // Construct client for interacting
   clientActionServer = new ROSLIB.Service({
     ros: ros,
-    name: '/amigo/action_server/add_action',
+    name: 'action_server/add_action',
     serviceType: 'action_server/AddAction'
   });
 
   // Construct client for interacting
   clientEdReset = new ROSLIB.Service({
     ros: ros,
-    name: '/amigo/ed/reset',
+    name: 'ed/reset',
     serviceType: 'std_srvs/Empty'
   });
 
