@@ -77,7 +77,7 @@ function initPingService() {
   // initialize the ping service to node_alive
   pingClient = new ROSLIB.Service({
     ros : ros,
-    name : '/amigo/get_alive_nodes',
+    name : 'get_alive_nodes',
     serviceType : 'node_alive/ListNodesAlive'
   });
 
