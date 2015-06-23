@@ -16,8 +16,8 @@ Build Setup
  3. Install other dependencies
    * `sudo apt-get install libgif-dev`
  4. Install the Grunt tasks specific to this project
-   * `roscd tue_mobile_ui/utils`
-   * `npm install .`
+   * `roscd tue_mobile_ui/(FOLDER)`
+   * `npm install`
    * `bower install`
 
 ### Build with Grunt
@@ -26,7 +26,7 @@ Before proceeding, please confirm you have installed the dependencies above.
 
 To run the build tasks:
 
- 1. `roscd tue_mobile_ui/utils/`
+ 1. `roscd tue_mobile_ui/(FOLDER)/`
  2. `grunt build`
 
 `grunt build` will build the app in the build directory. It will also run the linter and test cases.
