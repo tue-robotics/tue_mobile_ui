@@ -19,6 +19,8 @@
 
 </div>
 
-<div class="row entity-selector">
-  <div class="col-xs-1">Asdf</div>
+<div class="row entity-selector" ng-controller="EntityselectorCtrl">
+  <div ng-repeat="entity in entities" class="col-xs-1">
+    {{entity.name}} - <img class="img-responsive" src="{{entity.src}}" />
+  </div>
 </div>
