@@ -21,6 +21,9 @@ angular.module('challengeOpenApp')
 
     // Robot constructor
     function Robot() {
+      // parent constructor
+      EventEmitter2.apply(this, arguments);
+
       this.ros = new ROSLIB.Ros();
 
       this.ros.on('connection', this.onConnection.bind(this));
