@@ -49,7 +49,7 @@ angular.module('challengeOpenApp')
     // status getter + setter
     Object.defineProperty(Robot.prototype, 'status', {
       get: function() {
-        return _status;
+        return this._status;
       },
       set: function(status) {
         this._status = status;
