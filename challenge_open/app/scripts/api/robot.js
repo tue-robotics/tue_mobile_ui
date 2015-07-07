@@ -9,7 +9,7 @@ var RECONNECT_TIMEOUT = 5000; // ms
 // Robot constructor
 function Robot () {
   // parent constructor
-  EventEmitter2.apply(this, arguments);
+  EventEmitter2.apply(this);
 
   this.ros = new ROSLIB.Ros();
 
