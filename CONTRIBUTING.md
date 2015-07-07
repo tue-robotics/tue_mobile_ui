@@ -8,14 +8,13 @@ Build Setup
 ### Install Grunt, Bower and their Dependencies
 
  1. Install Node.js and its package manager, NPM
-   * `sudo apt-get install python-software-properties`
-   * `sudo add-apt-repository ppa:chris-lea/node.js`
-   * `sudo apt-get update && sudo apt-get install nodejs phantomjs`
+   * `wget -qO- https://deb.nodesource.com/setup | bash -`
+   * `sudo apt-get install nodejs`
  2. Install Grunt and Bower
    * `sudo -H npm install -g grunt-cli bower`
  3. Install other dependencies
    * `sudo apt-get install libgif-dev`
- 4. Install the Grunt tasks specific to this project
+ 4. For each gui, install their dependencies
    * `roscd tue_mobile_ui/(FOLDER)`
    * `npm install`
    * `bower install`
