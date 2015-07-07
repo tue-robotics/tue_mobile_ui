@@ -1,6 +1,5 @@
 <div class="row entity-labeler">
   <div class="col-xs-9 rgbd-image">
-    <!-- <img src="images/depthimg.jpg" /> -->
   </div>
   <div class="col-xs-3 model-view">
     <div class="model-view-image">
@@ -27,23 +26,6 @@
   </div>
 </div>
 
-<div class="row model-db">
-  <button type="button" class="btn btn-default btn-lg"><img src="images/coca-cola.jpg" /></button>
-  <button type="button" class="btn btn-default btn-lg"><img src="images/coca-cola.jpg" /></button>
-  <button type="button" class="btn btn-default btn-lg"><img src="images/coca-cola.jpg" /></button>
-  <button type="button" class="btn btn-default btn-lg"><img src="images/coca-cola.jpg" /></button>
-  <button type="button" class="btn btn-default btn-lg"><img src="images/coca-cola.jpg" /></button>
-  <button type="button" class="btn btn-default btn-lg"><img src="images/coca-cola.jpg" /></button>
-  <button type="button" class="btn btn-default btn-lg"><img src="images/coca-cola.jpg" /></button>
-  <button type="button" class="btn btn-default btn-lg"><img src="images/coca-cola.jpg" /></button>
-  <button type="button" class="btn btn-default btn-lg"><img src="images/coca-cola.jpg" /></button>
-  <button type="button" class="btn btn-default btn-lg"><img src="images/coca-cola.jpg" /></button>
-  <button type="button" class="btn btn-default btn-lg"><img src="images/coca-cola.jpg" /></button>
-  <button type="button" class="btn btn-default btn-lg"><img src="images/coca-cola.jpg" /></button>
-  <button type="button" class="btn btn-default btn-lg"><img src="images/coca-cola.jpg" /></button>
-  <button type="button" class="btn btn-default btn-lg"><img src="images/coca-cola.jpg" /></button>
-  <button type="button" class="btn btn-default btn-lg"><img src="images/coca-cola.jpg" /></button>
-  <button type="button" class="btn btn-default btn-lg"><img src="images/coca-cola.jpg" /></button>
-  <button type="button" class="btn btn-default btn-lg"><img src="images/coca-cola.jpg" /></button>
-  <button type="button" class="btn btn-default btn-lg"><img src="images/coca-cola.jpg" /></button>
+<div class="row model-db" ng-controller="ModellistCtrl">
+  <button ng-repeat="model in models" type="button" class="btn btn-default btn-lg"><img class="img-responsive" src="images/coca-cola.jpg" /></button>
 </div>
