@@ -8,8 +8,8 @@
  * Controller of the challengeOpenApp
  */
 angular.module('challengeOpenApp')
-  .controller('MainCtrl', function ($scope) {
-    $scope.awesomeThings = [
+  .controller('MainCtrl', function () {
+    this.awesomeThings = [
       'HTML5 Boilerplate',
       'AngularJS',
       'Karma'
