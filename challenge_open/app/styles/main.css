@@ -1,4 +1,6 @@
 html, body {
+	margin: 0;
+	padding: 0;
     height: 100%;
 }
 
@@ -11,17 +13,45 @@ body {
 }
 
 .entity-labeler {
-  background-color: #eeeeee;
   height: 80%;
 }
 
-.entity-selector {
-  height: 20%;
-  background-color: #eee;
-  border-top: 1px solid grey;
+.rgbd-image {
+  
 }
 
+.model-view {
+  padding: 0;
+  background: #fff;
+  height: 100%;
+  -webkit-overflow-scrolling: touch;
+  overflow-y: scroll;
+  overflow-x: hidden;
+}
 
-.entity-image {
-  height: 100px;
+.model-view-image {
+  height: 30%;
+}
+
+.model-view-image img {
+  margin-left: auto;
+  margin-right: auto;
+  height: 100%;
+}
+
+.model-db {
+  white-space: nowrap;
+  overflow-y: hidden;
+  overflow-x: scroll;
+  -webkit-overflow-scrolling: touch;
+  height: 20%;
+}
+
+.model-db button {
+  display: inline;
+  height: 100%;
+}
+
+.model-db button img {
+  height: 100%;
 }
