@@ -1,0 +1,27 @@
+html, body {
+    height: 100%;
+}
+
+body {
+  padding-top: 50px; /* fixed navbar */
+}
+
+.main-view {
+  height: 100%;
+}
+
+.entity-labeler {
+  background-color: #eeeeee;
+  height: 80%;
+}
+
+.entity-selector {
+  height: 20%;
+  background-color: #eee;
+  border-top: 1px solid grey;
+}
+
+
+.entity-image {
+  height: 100px;
+}
