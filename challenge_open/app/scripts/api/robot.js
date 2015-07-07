@@ -6,16 +6,6 @@ var rosbridge_url = 'ws://' + hostname + ':9090';
 
 var RECONNECT_TIMEOUT = 5000; // ms
 
-function Ed () {
-  this.get_entities = function () {
-    return [
-      { name: 'Coke', src: 'images/coca-cola.jpg' },
-      { name: 'Fanta', src: 'images/coca-cola.jpg' },
-      { name: 'd7f7', src: 'images/coca-cola.jpg' },
-    ];
-  }
-}
-
 // Robot constructor
 function Robot () {
   // parent constructor
@@ -37,7 +27,7 @@ function Robot () {
 
   this.connect();
 
-  this.ed = new Ed();
+  this.ed = new Ed(this);
 }
 
 // inherit from EventEmitter2
