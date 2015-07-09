@@ -1,16 +1,39 @@
 (function () {
 
-var entities_topic = '/amigo/ed/gui/entities'
+var entities_topic_name = 'ed/gui/entities';
 
 function Ed (robot) {
   EventEmitter2.apply(this);
 
-  this.ros = robot.ros;
+  var ros = robot.ros;
+
+  this.entities = [];
+  this.entities_topic = ros.Topic({
+    name: entities_topic_name,
+    messageType: 'ed_gui_server/EntityInfos',
+    throttle_rate: 5000,
+  });
+  // this.entities_topic.subscribe(this.onEntities.bind(this));
 
   this.models = [];
 }
 
 Ed.prototype = Object.create(EventEmitter2.prototype);
+
+Object.defineProperty(Ed.prototype, 'entities', {
+  get: function() {
+    return this._entities;
+  },
+  set: function(entities) {
+    this._entities = entities;
+    this.emit('entities', entities);
+  }
+});
+
+Ed.prototype.onEntities = function(msg) {
+  console.log(msg);
+  this.entities = msg.entities;
+};
 
 Object.defineProperty(Ed.prototype, 'models', {
   get: function() {
