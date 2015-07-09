@@ -1,4 +1,7 @@
 (function () {
+'use strict';
+
+/* global EventEmitter2 */
 
 var entities_topic_name = 'ed/gui/entities';
 

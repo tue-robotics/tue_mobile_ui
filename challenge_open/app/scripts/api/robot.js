@@ -1,4 +1,7 @@
 (function () {
+'use strict';
+
+/* global EventEmitter2, ROSLIB, Ed */
 
 // Private variables
 var hostname = 'localhost';
@@ -52,17 +55,17 @@ Robot.prototype.connect = function () {
 };
 
 // ros status event handling
-Robot.prototype.onConnection = function(e) {
+Robot.prototype.onConnection = function() {
   console.log('connection');
   this.status = 'connected';
 };
 
-Robot.prototype.onClose = function(e) {
+Robot.prototype.onClose = function() {
   console.log('connection closed');
   this.status = 'closed';
 };
 
-Robot.prototype.onError = function(e) {
+Robot.prototype.onError = function() {
   // console.log('connection error');
   this.status = 'error';
 };

@@ -10,5 +10,5 @@ angular.module('challengeOpenApp')
       $scope.$apply(function () {
         $scope.connection = status;
       });
-    })
+    });
   });

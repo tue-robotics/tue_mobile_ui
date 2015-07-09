@@ -9,5 +9,5 @@ angular.module('challengeOpenApp')
       $scope.$apply(function() {
         $scope.models = models;
       });
-    })
+    });
   });
