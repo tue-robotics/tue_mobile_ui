@@ -1,7 +1,7 @@
 (function () {
 'use strict';
 
-/* global EventEmitter2, ROSLIB, Ed */
+/* global EventEmitter2, ROSLIB, Hardware, Ed */
 
 // Private variables
 var hostname = 'localhost';
@@ -31,6 +31,7 @@ function Robot () {
   this.connect();
 
   this.ed = new Ed(this);
+  this.hardware = new Hardware(this);
 }
 
 // inherit from EventEmitter2
