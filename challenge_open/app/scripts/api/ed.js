@@ -5,6 +5,8 @@
 
 var entities_topic_name = 'ed/gui/entities';
 
+var snapshot_service_name = 'ed/gui/get_snapshots';
+
 function Ed (robot) {
   EventEmitter2.apply(this);
 
@@ -18,10 +20,19 @@ function Ed (robot) {
   });
   // this.entities_topic.subscribe(this.onEntities.bind(this));
 
+  this.snapshots = {};
+  this.snapshot_revision = 0;
+  this.snapshot_service = ros.Service({
+    name: snapshot_service_name,
+    serviceType: 'ed_sensor_integration/GetSnapshots',
+  });
+
   this.models = [];
 }
 
 Ed.prototype = Object.create(EventEmitter2.prototype);
+
+
 
 Object.defineProperty(Ed.prototype, 'entities', {
   get: function() {
@@ -37,6 +48,25 @@ Ed.prototype.onEntities = function(msg) {
   console.log(msg);
   this.entities = msg.entities;
 };
+
+
+
+Ed.prototype.update_snapshots = function() {
+
+  var request = {
+    revision: this.snapshot_revision,
+  };
+
+  this.snapshot_service.callService(request, function (response) {
+    this.snapshot_revision = response.new_revision;
+    response.image_ids.forEach(function (id, i) {
+      var image = response.images[i];
+      this.snapshots[id] = image;
+    }.bind(this));
+  }.bind(this));
+};
+
+
 
 Object.defineProperty(Ed.prototype, 'models', {
   get: function() {
