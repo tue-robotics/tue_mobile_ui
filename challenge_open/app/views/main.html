@@ -1,39 +1,25 @@
-<div class="container-fluid entity-editor" ng-controller="SnapshotlistCtrl">
-  <div class="row entity-labeler" ng-controller="SnapshotlabelerCtrl">
-    <div class="col-xs-9 rgbd-image" ng-style="{ 'background-image': 'url('+snapshots[selected].src+')' }">
+<div class="container-fluid snapshot-model-editor" ng-controller="SnapshotlistCtrl">
+  <div class="row top-row">
+    <div class="col-xs-10 snapshot" ng-style="{ 'background-image': 'url('+snapshots[selected].src+')' }">
     </div>
-    <div class="col-xs-3 model-view">
-      <div class="model-view-image">
-        <img class="img-responsive entity-image" src="images/yeoman.png" />
-      </div>
-      <div class="model-view-table">
-        <table class="table">
-          <tbody>
-            <tr>
-              <th scope="row">UUID: </th>
-              <td>Banana</td>
-            </tr>
-            <tr>
-              <th scope="row">Name: </th>
-              <td>Otto</td>
-            </tr>
-            <tr>
-              <th scope="row">Name: </th>
-              <td>Otto</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+    <div class="col-xs-2 models" ng-controller="ModellistCtrl">
+      <button ng-repeat="(id, model) in models" type="button" class="btn btn-lg" ng-class="{ 'btn-primary': selected == id, 'btn-default': selected != id }">
+        {{snapshot.short_id}}
+        <img class="img-responsive" src="{{model.src}}" />
+      </button>
     </div>
   </div>
 
-  <div class="row model-db scrollable">
-    <button ng-repeat="(id, snapshot) in snapshots"
-        type="button" class="btn btn-lg"
-        ng-class="{ 'btn-primary': selected == id, 'btn-default': selected != id }"
-        ng-click="select(id)">
-      {{snapshot.short_id}}
-      <img class="img-responsive" src="{{snapshot.src}}" />
-    </button>
+  <div class="row bottom-row">
+    <div class="col-xs-10 snapshots">
+      <button ng-repeat="(id, snapshot) in snapshots"
+          type="button" class="btn btn-lg"
+          ng-class="{ 'btn-primary': selected == id, 'btn-default': selected != id }"
+          ng-click="select(id)">
+        <img class="img-responsive" src="{{snapshot.src}}" />
+      </button>
+    </div>
+    <div class="col-xs-2 logo">
+    </div>
   </div>
 </div>

@@ -13,41 +13,47 @@ body {
   height: 100%;
 }
 
-.entity-labeler {
+.top-row {
   height: 80%;
 }
 
-.rgbd-image {
+.bottom-row {
+  height: 100%;
+}
+
+.logo {
+  background: url(../images/tue.png) no-repeat center;
+  background-size: 80%;
+  height: 20%;
+  padding: 0;
+  margin: 0;
+}
+
+.snapshot {
   height: 100%;
   /*background: url(../images/depthimg.jpg) no-repeat center center;*/
   background-size: cover;
 }
 
-.model-view {
+.models {
   padding: 0;
   background: #fff;
   height: 100%;
   -webkit-overflow-scrolling: touch;
   overflow-y: scroll;
   overflow-x: hidden;
-  background-color: #f5f5f5;
 }
 
-.model-view-image {
-  height: 30%;
+.models button {
+  display: inline;
+  width: 100%;
 }
 
-.model-view-image img {
-  float: none;
-  margin: 0 auto;
-  height: 100%;
-  -webkit-border-radius: 50% !important;
-  -moz-border-radius: 50% !important;
-  border-radius: 50% !important;
+.models button img {
+  width: 100%;
 }
 
-.model-db {
-  background-color: #f5f5f5;
+.snapshots {
   white-space: nowrap;
   overflow-y: hidden;
   overflow-x: auto;
@@ -55,16 +61,16 @@ body {
   -webkit-overflow-scrolling:touch;
 }
 
-.model-db button {
+.snapshots button {
   display: inline;
   height: 100%;
 }
 
-.model-db button img {
+.snapshots button img {
   height: 100%;
 }
 
-.entity-editor {
+.snapshot-model-editor {
   width: 100%;
   height: 100%;
 }
