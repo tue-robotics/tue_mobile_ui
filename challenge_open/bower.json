@@ -9,7 +9,6 @@
     "console-polyfill": "~0.2.1",
     "roslibjs": "~0.15.0",
     "lodash": "~3.10.0",
-    "angular-hammer": "~1.2.4",
     "ngDraggable": "~0.1.8"
   },
   "devDependencies": {
