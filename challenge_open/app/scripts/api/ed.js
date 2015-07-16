@@ -12,6 +12,7 @@ function Ed (robot) {
 
   var ros = robot.ros;
 
+  // World model entities
   this.entities = [];
   this.entities_topic = ros.Topic({
     name: entities_topic_name,
@@ -20,19 +21,23 @@ function Ed (robot) {
   });
   // this.entities_topic.subscribe(this.onEntities.bind(this));
 
+  // World model snapshots
   this.snapshots = {};
-  this.snapshot_revision = 0;
+  this.snapshot_reision = 0;
   this.snapshot_service = ros.Service({
     name: snapshot_service_name,
     serviceType: 'ed_sensor_integration/GetSnapshots',
   });
 
+  // World model database
   this.models = [];
 }
 
 Ed.prototype = Object.create(EventEmitter2.prototype);
 
-
+/**
+ * World model entities
+ */
 
 Object.defineProperty(Ed.prototype, 'entities', {
   get: function() {
@@ -49,7 +54,9 @@ Ed.prototype.onEntities = function(msg) {
   this.entities = msg.entities;
 };
 
-
+/**
+ * World model snapshots
+ */
 
 Ed.prototype.update_snapshots = function() {
 
@@ -77,7 +84,9 @@ Ed.prototype.update_snapshots = function() {
   }.bind(this));
 };
 
-
+/**
+ * World model database
+ */
 
 Object.defineProperty(Ed.prototype, 'models', {
   get: function() {
@@ -110,6 +119,7 @@ Ed.prototype.updateModels = function() {
   ];
 };
 
+// export global
 window.Ed = Ed;
 
 })();
