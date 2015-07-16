@@ -2,7 +2,7 @@
 
 angular.module('challengeOpenApp')
   .controller('ModellistCtrl', function ($scope, robot) {
-    robot.ed.updateModels(); //tmp
+    // robot.ed.update_models(); //tmp
     $scope.models = robot.ed.models;
 
     robot.ed.on('models', function (models) {
