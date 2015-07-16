@@ -1,0 +1,65 @@
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  padding-top: 50px; /* fixed navbar */
+}
+
+.main-view {
+  height: 100%;
+}
+
+.entity-labeler {
+  height: 80%;
+}
+
+.rgbd-image {
+  height: 100%;
+  background: url(../images/depthimg.jpg) no-repeat center center; 
+  background-size: cover;
+}
+
+.model-view {
+  padding: 0;
+  background: #fff;
+  height: 100%;
+  -webkit-overflow-scrolling: touch;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  background-color: #f5f5f5;
+}
+
+.model-view-image {
+  height: 30%;
+}
+
+.model-view-image img {
+  float: none;
+  margin: 0 auto;
+  height: 100%;
+  -webkit-border-radius: 50% !important;
+  -moz-border-radius: 50% !important;
+  border-radius: 50% !important;
+}
+
+.model-db {
+  background-color: #f5f5f5;
+  white-space: nowrap;
+  overflow-y: hidden;
+  overflow-x: auto;
+  height: 20%;
+  -webkit-overflow-scrolling:touch;
+}
+
+.model-db button {
+  display: inline;
+  height: 100%;
+}
+
+.model-db button img {
+  height: 100%;
+}
