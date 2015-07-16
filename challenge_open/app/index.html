@@ -24,8 +24,21 @@
     <!-- Add your site or application content here -->
     <div class="header">
       <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
-        <div class="navbar-header">
-          <a ng-controller="ConnectionCtrl" class="navbar-brand" href="#/">challengeOpen - {{connection}}</a>
+        <div class="container-fluid">
+
+          <div class="navbar-header">
+            <a ng-controller="ConnectionCtrl" class="navbar-brand" href="#/">challengeOpen - {{connection}}</a>
+          </div>
+
+          <form class="navbar-form navbar-right" ng-controller="TriggerCtrl">
+            <button ng-click="trigger('call_robot')" type="submit" class="btn btn-info">
+              <span class="glyphicon glyphicon-flag"></span> Call robot
+            </button>
+            <button ng-click="trigger('exit_robot')" type="submit" class="btn btn-danger">
+              <span class="glyphicon glyphicon-off"></span>
+            </button>
+          </form>
+
         </div>
       </div>
     </div>
@@ -58,6 +71,7 @@
         <script src="scripts/controllers/modellist.js"></script>
         <script src="scripts/controllers/snapshotlist.js"></script>
         <script src="scripts/controllers/snapshotlabeler.js"></script>
+        <script src="scripts/controllers/trigger.js"></script>
         <!-- endbuild -->
 </body>
 </html>
