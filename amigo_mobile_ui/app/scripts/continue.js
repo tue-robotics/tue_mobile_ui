@@ -9,33 +9,6 @@ $(document).ready(function () {
 	input = $('#amigohear input.continue').focus();
 	log   = $('#hear-log');
 
-	var replaceList = [
-		// locations
-		'hallway table',
-		'kitchen counter',
-		'kitchen table',
-		'couch table',
-		'dinner table',
-		'left sidetable',
-		'right sidetable',
-
-		'waste bin',
-
-		'bed room',
-
-		// objects
-		'tooth paste',
-		'chocolate milk',
-		'energy drink',
-		'grape juice',
-		'orange juice',
-		'chocolate cookies',
-		'strawberry cookies',
-		'baby food',
-
-		'cleaning stuff',
-	];
-
 	$('form.continue').on('submit', function (e) {
 		e.preventDefault();
 		var text = input.val();
@@ -46,16 +19,12 @@ $(document).ready(function () {
 		text = text.toLowerCase();
 		text = text.replace('  ', ' ');
 
-		$.each(replaceList, function (i, v) {
-			text = text.replace(v, v.replace(/\s/g, ''));
-		});
-
 		var line = $('<li class="list-group-item">Amigo heard: ' + text + '</li>');
 		log.prepend(line);
 
 		var hearTopic = new ROSLIB.Topic({
 			ros : ros,
-			name : 'pocketsphinx/output',
+			name : 'speech_client/speech_string',
 			messageType : 'std_msgs/String'
 		});
 
