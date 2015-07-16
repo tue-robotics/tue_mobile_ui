@@ -11,5 +11,6 @@
 angular
   .module('challengeOpenApp', [
     'ngAnimate',
-    'ngTouch'
+    'ngTouch',
+    'ngDraggable',
   ]);
