@@ -31,6 +31,11 @@ function Ed (robot) {
     serviceType: 'ed_sensor_integration/GetSnapshots',
   });
 
+  // auto update snapshots
+  this.update_snapshots(function update_again(snapshots) {
+    _.delay(this.update_snapshots.bind(this), 1000, update_again.bind(this));
+  }.bind(this));
+
   // World model database
   this.models = {};
   this.models_service = ros.Service({
@@ -65,8 +70,8 @@ Ed.prototype.onEntities = function(msg) {
  * World model snapshots
  */
 
-Ed.prototype.update_snapshots = function() {
-
+Ed.prototype.update_snapshots = function(callback) {
+  var callback = callback || _.noop;
   var request = {
     revision: this.snapshot_revision,
   };
@@ -88,6 +93,7 @@ Ed.prototype.update_snapshots = function() {
     }.bind(this));
 
     this.emit('snapshots', this.snapshots);
+    callback(this.snapshots);
   }.bind(this));
 };
 
