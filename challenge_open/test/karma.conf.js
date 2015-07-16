@@ -31,6 +31,8 @@ module.exports = function(config) {
       'bower_components/eventemitter2/lib/eventemitter2.js',
       'bower_components/roslibjs/build/roslib.js',
       'bower_components/lodash/lodash.js',
+      'bower_components/hammerjs/hammer.js',
+      'bower_components/angular-hammer/angular-hammer.js',
       'bower_components/angular-mocks/angular-mocks.js',
       // endbower
       "app/scripts/**/*.js",
