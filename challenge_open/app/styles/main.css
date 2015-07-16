@@ -29,12 +29,6 @@ body {
   margin: 0;
 }
 
-.snapshot {
-  height: 100%;
-  /*background: url(../images/depthimg.jpg) no-repeat center center;*/
-  background-size: cover;
-}
-
 .models {
   padding: 0;
   background: #fff;
@@ -42,6 +36,14 @@ body {
   -webkit-overflow-scrolling: touch;
   overflow-y: scroll;
   overflow-x: hidden;
+  background-size: cover;
+  background: url(../images/depthimg.jpg) no-repeat top left;
+  background-size: 85%;
+  padding-left: 85%;
+}
+
+.dragging {
+  opacity: 0.5;
 }
 
 .models button {

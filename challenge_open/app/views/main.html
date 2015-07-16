@@ -1,9 +1,9 @@
 <div class="container-fluid snapshot-model-editor" ng-controller="SnapshotlistCtrl">
   <div class="row top-row">
-    <div class="col-xs-10 snapshot" ng-style="{ 'background-image': 'url('+snapshots[selected].src+')' }">
-    </div>
-    <div class="col-xs-2 models" ng-controller="ModellistCtrl">
-      <button ng-repeat="(id, model) in models" type="button" class="btn btn-lg" ng-class="{ 'btn-primary': selected == id, 'btn-default': selected != id }">
+    <div class="col-xs-12 models" ng-controller="ModellistCtrl" ng-style="{ 'background-image': 'url('+snapshots[selected].src+')' }">
+      <button ng-repeat="(id, model) in models" type="button" class="btn btn-lg" 
+      ng-class="{ 'btn-primary': selected == id, 'btn-default': selected != id }"
+      ng-drag="true" ng-center-anchor="true">
         {{snapshot.short_id}}
         <img class="img-responsive" src="{{model.src}}" />
       </button>
