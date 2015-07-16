@@ -7,6 +7,8 @@ var entities_topic_name = 'ed/gui/entities';
 
 var snapshot_service_name = 'ed/gui/get_snapshots';
 
+var models_service_name ='ed/gui/get_models';
+
 function Ed (robot) {
   EventEmitter2.apply(this);
 
@@ -30,7 +32,12 @@ function Ed (robot) {
   });
 
   // World model database
-  this.models = [];
+  this.models = {};
+  this.models_service = ros.Service({
+    name: models_service_name,
+    serviceType: 'ed_sensor_integration/GetModels',
+  });
+  this.update_models();
 }
 
 Ed.prototype = Object.create(EventEmitter2.prototype);
@@ -88,36 +95,26 @@ Ed.prototype.update_snapshots = function() {
  * World model database
  */
 
-Object.defineProperty(Ed.prototype, 'models', {
-  get: function() {
-    return this._models;
-  },
-  set: function(models) {
-    this._models = models;
-    this.emit('models', models);
-  }
-});
+Ed.prototype.update_models = function() {
 
-Ed.prototype.updateModels = function() {
-  this.models = [
-    { name: 'Coke', src: 'images/coca-cola.jpg' },
-    { name: 'Fanta', src: 'images/coca-cola.jpg' },
-    { name: 'd7f7', src: 'images/coca-cola.jpg' },
-    { name: '32', src: 'images/coca-cola.jpg' },
-    { name: 'd73f7', src: 'images/coca-cola.jpg' },
-    { name: 'd7f27', src: 'images/coca-cola.jpg' },
-    { name: 'd3217f7', src: 'images/coca-cola.jpg' },
-    { name: 'd73f7', src: 'images/coca-cola.jpg' },
-    { name: 'd7f7', src: 'images/coca-cola.jpg' },
-    { name: 'd7f2317', src: 'images/coca-cola.jpg' },
-    { name: 'd7321f7', src: 'images/coca-cola.jpg' },
-    { name: 'd3213127f7', src: 'images/coca-cola.jpg' },
-    { name: 'd7312f7', src: 'images/coca-cola.jpg' },
-    { name: 'd7312f7', src: 'images/coca-cola.jpg' },
-    { name: 'd7312f7', src: 'images/coca-cola.jpg' },
-    { name: 'd317f7', src: 'images/coca-cola.jpg' },
-  ];
+  var request = {};
+
+  this.models_service.callService(request, function (response) {
+    console.log(response);
+
+    response.model_names.forEach(function (name, i) {
+      var image_binary = response.model_images[i];
+
+      var encoding = image_binary.encoding;
+      image_binary.src = 'data:image/' + encoding + ';base64,' + image_binary.data;
+
+      this.models[name] = image_binary;
+    }.bind(this));
+
+    this.emit('models', this.models);
+  }.bind(this));
 };
+
 
 // export global
 window.Ed = Ed;
