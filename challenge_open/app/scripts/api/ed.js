@@ -1,7 +1,7 @@
 (function () {
 'use strict';
 
-/* global EventEmitter2 */
+/* global EventEmitter2, _ */
 
 var entities_topic_name = 'ed/gui/entities';
 
@@ -59,10 +59,21 @@ Ed.prototype.update_snapshots = function() {
 
   this.snapshot_service.callService(request, function (response) {
     this.snapshot_revision = response.new_revision;
+
     response.image_ids.forEach(function (id, i) {
-      var image = response.images[i];
-      this.snapshots[id] = image;
+      var image_binary = response.images[i];
+
+      var encoding = image_binary.encoding;
+      image_binary.src = 'data:image/' + encoding + ';base64,' + image_binary.data;
+      image_binary.short_id = _.trunc(id, {
+        'length': 8,
+        'omission': '',
+      });
+
+      this.snapshots[id] = image_binary;
     }.bind(this));
+
+    this.emit('snapshots', this.snapshots);
   }.bind(this));
 };
 
