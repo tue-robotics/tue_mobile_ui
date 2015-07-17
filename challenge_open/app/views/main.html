@@ -22,7 +22,8 @@
       <button ng-repeat="(id, snapshot) in snapshots"
           type="button" class="btn btn-lg"
           ng-class="{ 'btn-primary': selected == id, 'btn-default': selected != id }"
-          ng-click="select(id)">
+          ng-click="select(id)"
+          ng-tap="select(id)">
         <img class="img-responsive" src="{{snapshot.src}}" />
       </button>
     </div>
