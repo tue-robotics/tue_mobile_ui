@@ -5,6 +5,8 @@
 
 var entities_topic_name = 'ed/gui/entities';
 
+var query_meshes_service_name = 'ed/gui/query_meshes';
+
 var snapshot_service_name = 'ed/gui/get_snapshots';
 
 var models_service_name ='ed/gui/get_models';
@@ -18,12 +20,19 @@ function Ed (robot) {
 
   // World model entities
   this.entities = [];
+  this.meshes = {};
   this.entities_topic = ros.Topic({
     name: entities_topic_name,
     messageType: 'ed_gui_server/EntityInfos',
     throttle_rate: 5000,
   });
   // this.entities_topic.subscribe(this.onEntities.bind(this));
+
+  // Query meshes
+  this.query_meshes_service = ros.Service({
+    name: query_meshes_service_name,
+    serviceType: 'ed_gui_server/QueryMeshes',
+  });
 
   // World model snapshots
   this.snapshots = {};
