@@ -13,4 +13,11 @@ angular.module('challengeOpenApp')
         $scope.snapshots = snapshots;
       });
     });
+
+    $scope.onDragComplete=function(data,e){
+       console.log("drag success, data:", data, e);
+    }
+    $scope.onDropComplete=function(data,e){
+        console.log("drop success, data:", data, e);
+    }
   });

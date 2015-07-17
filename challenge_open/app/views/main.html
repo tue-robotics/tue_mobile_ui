@@ -1,16 +1,23 @@
 <div class="container-fluid snapshot-model-editor" ng-controller="SnapshotlistCtrl">
   <div class="row top-row">
-    <div class="col-xs-12 models" ng-controller="ModellistCtrl" ng-style="{ 'background-image': 'url('+snapshots[selected].src+')' }">
-      <button ng-repeat="(id, model) in models" type="button" class="btn btn-lg" 
+
+    <div ng-controller="ModellistCtrl"class="col-xs-12 models"
+        ng-style="{ 'background-image': 'url('+snapshots[selected].src+')' }"
+        ng-drop="true" ng-drop-success="onDropComplete($data,$event)">
+
+      <button ng-repeat="(id, model) in models" type="button" class="btn btn-lg"
       ng-class="{ 'btn-primary': selected == id, 'btn-default': selected != id }"
-      ng-drag="true" ng-center-anchor="true">
+      ng-drag="true" ng-center-anchor="true" ng-drag-success="onDragComplete($data,$event)">
         {{snapshot.short_id}}
         <img class="img-responsive" src="{{model.src}}" />
       </button>
+
     </div>
+
   </div>
 
   <div class="row bottom-row">
+
     <div class="col-xs-10 snapshots">
       <button ng-repeat="(id, snapshot) in snapshots"
           type="button" class="btn btn-lg"
@@ -19,7 +26,9 @@
         <img class="img-responsive" src="{{snapshot.src}}" />
       </button>
     </div>
-    <div class="col-xs-2 logo">
-    </div>
+
+    <div class="col-xs-2 logo"></div>
+
   </div>
+
 </div>
