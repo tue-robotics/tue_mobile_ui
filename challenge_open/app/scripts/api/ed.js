@@ -81,6 +81,29 @@ Object.defineProperty(Ed.prototype, 'entities', {
 Ed.prototype.onEntities = function(msg) {
   console.log(msg);
   this.entities = msg.entities;
+
+  var mesh_queue = [];
+  this.entities.forEach(function (entity) {
+    if (this.meshes[entity.id] && this.meshes[entity.id].revision === entity.mesh_revision) {
+      console.log('correct revision');
+    } else {
+      mesh_queue.push(entity.id);
+    }
+  }.bind(this));
+
+  console.log(mesh_queue);
+  var request = { entity_ids: mesh_queue};
+  this.query_meshes_service.callService(request, function (response) {
+    var error_msg = response.error_msg;
+    if (error_msg) {
+      console.warn('query_meshes_service:', error_msg);
+    }
+
+    response.entity_ids.forEach(function (id, i) {
+      // TODO: check revisions
+      this.meshes[id] = response.meshes[i];
+    }.bind(this));
+  }.bind(this));
 };
 
 /**
