@@ -38,8 +38,8 @@ body {
   overflow-x: hidden;
   background-size: cover;
   background: url(../images/depthimg.jpg) no-repeat top left;
-  background-size: 85%;
-  padding-left: 85%;
+  background-size: 83%;
+  padding-left: 83%;
 }
 
 .dragging {

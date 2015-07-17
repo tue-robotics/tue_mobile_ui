@@ -4,8 +4,7 @@
 /* global EventEmitter2, ROSLIB, Hardware, Ed */
 
 // Private variables
-var hostname = 'localhost';
-var rosbridge_url = 'ws://' + hostname + ':9090';
+var rosbridge_url = 'ws://' + window.location.hostname + ':9090';
 
 var RECONNECT_TIMEOUT = 5000; // ms
 

@@ -10,7 +10,7 @@
  */
 angular
   .module('challengeOpenApp', [
-    'ngAnimate',
-    'ngTouch',
+    // 'ngAnimate',
+    // 'ngTouch',
     'ngDraggable',
   ]);
