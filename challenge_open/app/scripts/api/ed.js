@@ -34,7 +34,7 @@ function Ed (robot) {
   });
 
   // auto update snapshots
-  this.update_snapshots(function update_again(snapshots) {
+  this.update_snapshots(function update_again() {
     _.delay(this.update_snapshots.bind(this), 1000, update_again.bind(this));
   }.bind(this));
 
@@ -79,7 +79,7 @@ Ed.prototype.onEntities = function(msg) {
  */
 
 Ed.prototype.update_snapshots = function(callback) {
-  var callback = callback || _.noop;
+  callback = callback || _.noop;
   var request = {
     revision: this.snapshot_revision,
   };
@@ -112,9 +112,7 @@ Ed.prototype.update_snapshots = function(callback) {
 Ed.prototype.update_models = function() {
 
   var request = {};
-
   this.models_service.callService(request, function (response) {
-    console.log(response);
 
     response.model_names.forEach(function (name, i) {
       var image_binary = response.model_images[i];
