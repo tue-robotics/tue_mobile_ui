@@ -6,8 +6,9 @@
         ng-drop="true" ng-drop-success="onDropComplete($data,$event)">
 
       <button ng-repeat="(id, model) in models" type="button" class="btn btn-lg"
-      ng-class="{ 'btn-primary': selected == id, 'btn-default': selected != id }"
-      ng-drag="true" ng-center-anchor="true" ng-drag-success="onDragComplete($data,$event)">
+          ng-class="{ 'btn-primary': selected == id, 'btn-default': selected != id }"
+          ng-drag="true" ng-center-anchor="true" ng-drag-data="id"
+          ng-drag-success="onDragComplete($data,$event)">
         {{snapshot.short_id}}
         <img class="img-responsive" src="{{model.src}}" />
       </button>
