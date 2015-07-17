@@ -9,7 +9,7 @@ var snapshot_service_name = 'ed/gui/get_snapshots';
 
 var models_service_name ='ed/gui/get_models';
 
-var interact_service_name = 'ed/gui/interact';
+var fit_model_service_name = 'ed/gui/fit_model';
 
 function Ed (robot) {
   EventEmitter2.apply(this);
@@ -46,10 +46,10 @@ function Ed (robot) {
   });
   this.update_models();
 
-  // World model interaction
-  this.interact_service = ros.Service({
-    name: interact_service_name,
-    serviceType: 'ed_gui_server/Interact',
+  // World model fitting
+  this.fit_model_service = ros.Service({
+    name: fit_model_service_name,
+    serviceType: 'ed_sensor_integration/FitModel',
   });
 }
 
@@ -128,14 +128,21 @@ Ed.prototype.update_models = function() {
 };
 
 /**
- * World model interaction
+ * World model fitting
  */
-Ed.prototype.interact = function(action, id, type) {
-  var command_yaml = { action: action, id: id, type: type };
-  var request = { command_yaml: JSON.stringify(command_yaml) };
-  this.interact_service.callService(request, function (response) {
-    var result = JSON.parse(response.result_json);
-    console.log(result);
+Ed.prototype.fit_model = function(model_name, image_id, click_x, click_y) {
+  var request = {
+    model_name: model_name,
+    image_id: image_id,
+    click_x: click_x,
+    click_y: click_y,
+  };
+
+  this.fit_model_service.callService(request, function (response) {
+    var error_msg = response.error_msg;
+    if (error_msg) {
+      console.warn('fit model error:', error_msg);
+    }
   });
 };
 
