@@ -9,7 +9,7 @@
           ng-class="{ 'btn-primary': selected == id, 'btn-default': selected != id }"
           ng-drag="true" ng-center-anchor="true" ng-drag-data="id"
           ng-drag-success="onDragComplete($data,$event)">
-        {{snapshot.short_id}}
+        <div class="model-name">{{id}}</div>
         <img class="img-responsive" src="{{model.src}}" />
       </button>
 

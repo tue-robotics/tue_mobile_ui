@@ -7,7 +7,9 @@ angular.module('challengeOpenApp')
 
     robot.ed.on('models', function (models) {
       $scope.$apply(function() {
-        $scope.models = models;
+        $scope.models = _.mapKeys(r.ed.models, function (v, k) {
+          return _.last(k.split('.')).replace('_', ' ')
+        });
       });
     });
   });
