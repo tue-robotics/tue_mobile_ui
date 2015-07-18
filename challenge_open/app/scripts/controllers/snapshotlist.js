@@ -8,6 +8,10 @@ angular.module('challengeOpenApp')
       $scope.selected = id;
     };
 
+    $scope.delete = function (id) {
+      console.log(id);
+    }
+
     robot.ed.on('snapshots', function (snapshots) {
       $scope.$apply(function () {
         $scope.snapshots = snapshots;
