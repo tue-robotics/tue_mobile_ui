@@ -120,6 +120,7 @@ Ed.prototype.update_snapshots = function(callback) {
   };
   if (this.delete_snapshot_queue.length) {
     console.log('deleting snapshots:', this.delete_snapshot_queue);
+    this.snapshots = _.omit(this.snapshots, this.delete_snapshot_queue);
     this.delete_snapshot_queue = [];
   }
 
