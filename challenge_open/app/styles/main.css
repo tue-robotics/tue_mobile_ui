@@ -95,3 +95,7 @@ body {
   padding: 5px;
   text-shadow: #fff 0 1px 0;
 }
+
+.icon-flipped {
+  transform: scaleX(-1);
+}

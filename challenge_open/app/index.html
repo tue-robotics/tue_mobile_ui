@@ -30,6 +30,13 @@
             <a ng-controller="ConnectionCtrl" class="navbar-brand" href="#/">challengeOpen - {{connection}}</a>
           </div>
 
+          <form class="navbar-form navbar-left" ng-controller="SnapshotlistCtrl">
+            <button type="submit" class="btn btn-warning" ng-click="undo()" ng-class="{active: isUndoing}">
+              <span class="glyphicon glyphicon-share-alt icon-flipped"></span>
+            </button>
+          </form>
+
+
           <form class="navbar-form navbar-right" ng-controller="TriggerCtrl">
             <button ng-click="trigger('explore')" type="submit" class="btn btn-info">
               <span class="glyphicon glyphicon-map-marker"></span> Explore

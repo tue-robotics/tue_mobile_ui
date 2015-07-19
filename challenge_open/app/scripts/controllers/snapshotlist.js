@@ -12,6 +12,14 @@ angular.module('challengeOpenApp')
       robot.ed.delete_snapshot(id);
     };
 
+    $scope.isUndoing = false;
+    $scope.undo = function () {
+      $scope.isUndoing = true;
+      robot.ed.undo_fit_model(function () {
+        $scope.isUndoing = false;
+      });
+    };
+
     robot.ed.on('snapshots', function (snapshots) {
       $scope.$apply(function () {
         $scope.snapshots = snapshots;
