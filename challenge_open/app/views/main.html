@@ -23,10 +23,9 @@
       <button ng-repeat="(id, snapshot) in snapshots"
           type="button" class="btn btn-lg"
           ng-class="{ 'btn-primary': selected == id, 'btn-default': selected != id }"
-          ng-click="select(id)"
-          ng-tap="select(id)">
+          ng-click="select(id)">
         <img class="img-responsive" src="{{snapshot.src}}" />
-        <div class="snapshot-delete" ng-click="delete(id, $event)" ng-tap="delete(id, $event)"><span class="glyphicon glyphicon-remove"></span></div>
+        <div class="snapshot-delete" ng-click="delete(id, $event)"><span class="glyphicon glyphicon-remove"></span></div>
       </button>
     </div>
 

@@ -31,22 +31,22 @@
           </div>
 
           <form class="navbar-form navbar-left">
-            <button type="submit" class="btn btn-warning" ng-click="undo()" ng-tap="undo()" ng-class="{active: isUndoing}">
+            <button type="submit" class="btn btn-warning" ng-click="undo()" ng-class="{active: isUndoing}">
               <span class="glyphicon glyphicon-share-alt icon-flipped"></span>
             </button>
-            <button type="submit" class="btn" ng-click="stretch()">
+            <button type="submit" class="btn btn-default" ng-click="stretch()">
               <span class="glyphicon glyphicon-move"></span>
             </button>
           </form>
 
           <form class="navbar-form navbar-right" ng-controller="TriggerCtrl">
-            <button ng-click="trigger('explore')" ng-tap="trigger('explore')" type="submit" class="btn btn-info">
+            <button ng-click="trigger('explore')" type="submit" class="btn btn-info">
               <span class="glyphicon glyphicon-map-marker"></span> Explore
             </button>
-            <button ng-click="trigger('call_robot')" ng-tap="trigger('call_robot')" type="submit" class="btn btn-info">
+            <button ng-click="trigger('call_robot')" type="submit" class="btn btn-info">
               <span class="glyphicon glyphicon-flag"></span> Call robot
             </button>
-            <button ng-click="trigger('exit_robot')" ng-tap="trigger('exit_robot')" type="submit" class="btn btn-danger">
+            <button ng-click="trigger('exit_robot')" type="submit" class="btn btn-danger">
               <span class="glyphicon glyphicon-off"></span>
             </button>
           </form>
@@ -68,6 +68,7 @@
     <script src="bower_components/roslibjs/build/roslib.js"></script>
     <script src="bower_components/lodash/lodash.js"></script>
     <script src="bower_components/ngDraggable/ngDraggable.js"></script>
+    <script src="bower_components/fastclick/lib/fastclick.js"></script>
     <!-- endbower -->
     <!-- endbuild -->
 
@@ -76,13 +77,13 @@
         <script src="scripts/api/hardware.js"></script>
         <script src="scripts/api/ed.js"></script>
         <script src="scripts/app.js"></script>
+        <script src="scripts/run.js"></script>
         <script src="scripts/controllers/main.js"></script>
         <script src="scripts/services/robot.js"></script>
         <script src="scripts/controllers/connection.js"></script>
         <script src="scripts/controllers/modellist.js"></script>
         <script src="scripts/controllers/snapshotlist.js"></script>
         <script src="scripts/controllers/trigger.js"></script>
-        <script src="scripts/directives/ngtap.js"></script>
         <!-- endbuild -->
 </body>
 </html>
