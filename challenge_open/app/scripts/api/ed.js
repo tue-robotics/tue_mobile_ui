@@ -36,19 +36,18 @@ function Ed (robot) {
 
   // World model snapshots
   this.snapshots = {};
-  this.snapshot_reision = 0;
+  this.snapshot_revision = 0;
   this.snapshot_service = ros.Service({
     name: snapshot_service_name,
     serviceType: 'ed_sensor_integration/GetSnapshots',
   });
 
-  // auto update snapshots
   this.delete_snapshot_queue = [];
 
-  this.update_snapshots(function update_again(err, snapshots) {
-    var delay = err ? 5000 : 1000;
-    _.delay(this.update_snapshots.bind(this), delay, update_again.bind(this));
-  }.bind(this));
+  // timer_id to avoid updating while one is in progress
+  // during an update, it will be null
+  this.snapshots_timer_id = null;
+  this.start_update_loop();
 
   // World model database
   this.models = {};
@@ -166,6 +165,30 @@ function process_snapshots (response) {
 
 Ed.prototype.delete_snapshot = function(id) {
   this.delete_snapshot_queue.push(id);
+  this.force_update();
+};
+
+Ed.prototype.start_update_loop = function () {
+  this.snapshots_timer_id = null;
+  this.update_snapshots(function update_again(err, snapshots) {
+    var delay = err ? 5000 : 1000;
+    this.snapshots_timer_id = _.delay(function (callback) {
+      this.snapshots_timer_id = null;
+      this.update_snapshots(callback);
+    }.bind(this), delay, update_again.bind(this));
+  }.bind(this));
+};
+
+Ed.prototype.force_update = function() {
+  if (this.snapshots_timer_id) {
+    console.log('force update');
+    window.clearTimeout(this.snapshots_timer_id);
+    this.snapshots_timer_id = null;
+    this.start_update_loop();
+  } else {
+    // else an update is already in progress
+    console.log('update is already in progress');
+  }
 };
 
 /**
@@ -209,6 +232,8 @@ Ed.prototype.fit_model = function(model_name, image_id, click_x, click_y) {
       console.warn('fit model error:', error_msg);
     }
   });
+
+  this.force_update();
 };
 
 Ed.prototype.undo_fit_model = function(callback) {
