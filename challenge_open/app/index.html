@@ -31,20 +31,20 @@
           </div>
 
           <form class="navbar-form navbar-left" ng-controller="SnapshotlistCtrl">
-            <button type="submit" class="btn btn-warning" ng-click="undo()" ng-class="{active: isUndoing}">
+            <button type="submit" class="btn btn-warning" ng-click="undo()" ng-tap="undo()" ng-class="{active: isUndoing}">
               <span class="glyphicon glyphicon-share-alt icon-flipped"></span>
             </button>
           </form>
 
 
           <form class="navbar-form navbar-right" ng-controller="TriggerCtrl">
-            <button ng-click="trigger('explore')" type="submit" class="btn btn-info">
+            <button ng-click="trigger('explore')" ng-tap="trigger('explore')" type="submit" class="btn btn-info">
               <span class="glyphicon glyphicon-map-marker"></span> Explore
             </button>
-            <button ng-click="trigger('call_robot')" type="submit" class="btn btn-info">
+            <button ng-click="trigger('call_robot')" ng-tap="trigger('call_robot')" type="submit" class="btn btn-info">
               <span class="glyphicon glyphicon-flag"></span> Call robot
             </button>
-            <button ng-click="trigger('exit_robot')" type="submit" class="btn btn-danger">
+            <button ng-click="trigger('exit_robot')" ng-tap="trigger('exit_robot')" type="submit" class="btn btn-danger">
               <span class="glyphicon glyphicon-off"></span>
             </button>
           </form>
