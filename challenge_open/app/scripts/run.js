@@ -37,7 +37,7 @@ angular.module('challengeOpenApp')
     		node = node.parentNode;
     	}
     	return false;
-	}
+	} 
 
     document.ontouchmove = function(e) {
 	    if(initialY !== null) {
@@ -54,8 +54,11 @@ angular.module('challengeOpenApp')
 
 	        if (inSnapshots(e.target))
 	        {
-	        	if (abs(direction) < 1)
-	        		return;
+	        	if (abs(direction) < 3) {	
+	        	}	
+	        	else {
+	        		e.preventDefault();
+	        	}        	
 	        }
 
 	        if(direction > 0 && modelsNode.scrollTop <= 0) {
