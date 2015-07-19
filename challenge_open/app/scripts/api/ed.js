@@ -125,6 +125,12 @@ Ed.prototype.update_snapshots = function(callback) {
   }
 
   this.snapshot_service.callService(request, function (response) {
+    if (!response.new_revision && _.size(this.snapshots) || // revision 0 && old snapshots
+        response.new_revision < this.snapshot_revision) {
+      console.warn('ed restart detected, reloading...');
+      this.snapshots = {}; // clear snapshots
+      this.update_models(); // reload model db
+    }
     this.snapshot_revision = response.new_revision;
 
     var snapshots = process_snapshots(response);
