@@ -8,8 +8,9 @@ angular.module('challengeOpenApp')
       $scope.selected = id;
     };
 
-    $scope.delete = function (id) {
+    $scope.delete = function (id, $event) {
       robot.ed.delete_snapshot(id);
+      $event.stopPropagation();
     };
 
     $scope.isUndoing = false;
@@ -26,9 +27,8 @@ angular.module('challengeOpenApp')
       });
     });
 
-    $scope.onDragComplete = function (data, e) {
+    $scope.onDragComplete = function (data, e) {};
 
-    };
     $scope.onDropComplete = function (data, e) {
       var div = e.element.parent();
       var w = div[0].offsetWidth;
