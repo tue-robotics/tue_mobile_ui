@@ -43,6 +43,8 @@ function Ed (robot) {
   });
 
   // auto update snapshots
+  this.delete_snapshot_queue = [];
+
   this.update_snapshots(function update_again() {
     _.delay(this.update_snapshots.bind(this), 1000, update_again.bind(this));
   }.bind(this));
@@ -114,7 +116,12 @@ Ed.prototype.update_snapshots = function(callback) {
   callback = callback || _.noop;
   var request = {
     revision: this.snapshot_revision,
+    delete_ids: this.delete_snapshot_queue,
   };
+  if (this.delete_snapshot_queue.length) {
+    console.log('deleting snapshots:', this.delete_snapshot_queue);
+    this.delete_snapshot_queue = [];
+  }
 
   this.snapshot_service.callService(request, function (response) {
     this.snapshot_revision = response.new_revision;
@@ -137,12 +144,15 @@ Ed.prototype.update_snapshots = function(callback) {
   }.bind(this));
 };
 
+Ed.prototype.delete_snapshot = function(id) {
+  this.delete_snapshot_queue.push(id);
+};
+
 /**
  * World model database
  */
 
 Ed.prototype.update_models = function() {
-
   var request = {};
   this.models_service.callService(request, function (response) {
 

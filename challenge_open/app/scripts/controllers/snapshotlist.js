@@ -9,7 +9,7 @@ angular.module('challengeOpenApp')
     };
 
     $scope.delete = function (id) {
-      console.log(id);
+      robot.ed.delete_snapshot(id);
     };
 
     robot.ed.on('snapshots', function (snapshots) {
