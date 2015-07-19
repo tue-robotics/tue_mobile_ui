@@ -45,8 +45,9 @@ function Ed (robot) {
   // auto update snapshots
   this.delete_snapshot_queue = [];
 
-  this.update_snapshots(function update_again() {
-    _.delay(this.update_snapshots.bind(this), 1000, update_again.bind(this));
+  this.update_snapshots(function update_again(err, snapshots) {
+    var delay = err ? 5000 : 1000;
+    _.delay(this.update_snapshots.bind(this), delay, update_again.bind(this));
   }.bind(this));
 
   // World model database
@@ -126,23 +127,36 @@ Ed.prototype.update_snapshots = function(callback) {
   this.snapshot_service.callService(request, function (response) {
     this.snapshot_revision = response.new_revision;
 
-    response.image_ids.forEach(function (id, i) {
-      var image_binary = response.images[i];
-
-      var encoding = image_binary.encoding;
-      image_binary.src = 'data:image/' + encoding + ';base64,' + image_binary.data;
-      image_binary.short_id = _.trunc(id, {
-        'length': 8,
-        'omission': '',
-      });
-
-      this.snapshots[id] = image_binary;
-    }.bind(this));
+    var snapshots = process_snapshots(response);
+    _.assign(this.snapshots, snapshots);
 
     this.emit('snapshots', this.snapshots);
-    callback(this.snapshots);
+
+    callback(null, this.snapshots);
+  }.bind(this), function (err) {
+    console.warn('update_snapshots failed:', err);
+    callback(err, null);
   }.bind(this));
 };
+
+function process_snapshots (response) {
+  var snapshots = {};
+
+  response.image_ids.forEach(function (id, i) {
+    var image_binary = response.images[i];
+
+    var encoding = image_binary.encoding;
+    image_binary.src = 'data:image/' + encoding + ';base64,' + image_binary.data;
+    image_binary.short_id = _.trunc(id, {
+      'length': 8,
+      'omission': '',
+    });
+
+    snapshots[id] = image_binary;
+  }.bind(this));
+
+  return snapshots;
+}
 
 Ed.prototype.delete_snapshot = function(id) {
   this.delete_snapshot_queue.push(id);
@@ -152,7 +166,7 @@ Ed.prototype.delete_snapshot = function(id) {
  * World model database
  */
 
-Ed.prototype.update_models = function() {
+Ed.prototype.update_models = function update_models () {
   var request = {};
   this.models_service.callService(request, function (response) {
 
@@ -166,6 +180,9 @@ Ed.prototype.update_models = function() {
     }.bind(this));
 
     this.emit('models', this.models);
+  }.bind(this), function (msg) {
+    console.warn('update_models failed:', msg);
+    _.delay(update_models.bind(this), 5000);
   }.bind(this));
 };
 
