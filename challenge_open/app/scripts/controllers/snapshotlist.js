@@ -21,6 +21,19 @@ angular.module('challengeOpenApp')
       });
     };
 
+    $scope.backgroundSize = "contain";
+    $scope.stretch = function () {
+      console.log("Setting bg size to: " + $scope.backgroundSize);
+      if ($scope.backgroundSize == "contain")
+      {
+        $scope.backgroundSize = "71% 100%";
+      }
+      else
+      {
+        $scope.backgroundSize = "contain";
+      }
+    };
+
     robot.ed.on('snapshots', function (snapshots) {
       $scope.$apply(function () {
         $scope.snapshots = snapshots;

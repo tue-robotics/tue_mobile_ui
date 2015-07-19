@@ -1,8 +1,8 @@
-<div class="container-fluid snapshot-model-editor" ng-controller="SnapshotlistCtrl">
+<div class="container-fluid snapshot-model-editor">
   <div class="row top-row">
 
     <div ng-controller="ModellistCtrl" class="col-xs-12 models"
-        ng-style="{ 'background-image': 'url('+snapshots[selected].src+')' }"
+        ng-style="{ 'background-image': 'url('+snapshots[selected].src+')', 'background-size': backgroundSize}"
         ng-drop="true" ng-drop-success="onDropComplete($data,$event)">
 
       <button ng-repeat="(id, model) in models" type="button" class="btn btn-lg"

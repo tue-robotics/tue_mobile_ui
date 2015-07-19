@@ -16,7 +16,7 @@
     <link rel="stylesheet" href="styles/main.css">
     <!-- endbuild -->
   </head>
-  <body ng-app="challengeOpenApp">
+  <body ng-app="challengeOpenApp" ng-controller="SnapshotlistCtrl">
     <!--[if lte IE 8]>
       <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
     <![endif]-->
@@ -30,12 +30,14 @@
             <a ng-controller="ConnectionCtrl" class="navbar-brand" href="#/">challengeOpen - {{connection}}</a>
           </div>
 
-          <form class="navbar-form navbar-left" ng-controller="SnapshotlistCtrl">
+          <form class="navbar-form navbar-left">
             <button type="submit" class="btn btn-warning" ng-click="undo()" ng-tap="undo()" ng-class="{active: isUndoing}">
               <span class="glyphicon glyphicon-share-alt icon-flipped"></span>
             </button>
+            <button type="submit" class="btn" ng-click="stretch()">
+              <span class="glyphicon glyphicon-move"></span>
+            </button>
           </form>
-
 
           <form class="navbar-form navbar-right" ng-controller="TriggerCtrl">
             <button ng-click="trigger('explore')" ng-tap="trigger('explore')" type="submit" class="btn btn-info">
