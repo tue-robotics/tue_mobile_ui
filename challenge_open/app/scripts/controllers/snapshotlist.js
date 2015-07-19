@@ -32,8 +32,8 @@ angular.module('challengeOpenApp')
     $scope.onDropComplete = function (data, e) {
       var div = e.element.parent();
       var w = div[0].offsetWidth;
-      var x = 100*e.x/w/0.83 | 0;
-      var y = 100*e.y/w/0.83 | 0;
+      var x = 100*e.x/w*1.29 | 0;
+      var y = 100*e.y/w*1.29 | 0;
 
       console.log('drop success, data:', data, x, y);
       robot.ed.fit_model(data, $scope.selected, x, y);
