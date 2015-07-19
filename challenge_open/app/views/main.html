@@ -1,7 +1,7 @@
 <div class="container-fluid snapshot-model-editor" ng-controller="SnapshotlistCtrl">
   <div class="row top-row">
 
-    <div ng-controller="ModellistCtrl"class="col-xs-12 models"
+    <div ng-controller="ModellistCtrl" class="col-xs-12 models"
         ng-style="{ 'background-image': 'url('+snapshots[selected].src+')' }"
         ng-drop="true" ng-drop-success="onDropComplete($data,$event)">
 
@@ -9,7 +9,7 @@
           ng-class="{ 'btn-primary': selected == id, 'btn-default': selected != id }"
           ng-drag="true" ng-center-anchor="true" ng-drag-data="id"
           ng-drag-success="onDragComplete($data,$event)">
-        <div class="model-name">{{id}}</div>
+        <div class="model-name">{{model.name}}</div>
         <img class="img-responsive" src="{{model.src}}" />
       </button>
 
