@@ -228,22 +228,23 @@ Ed.prototype.fit_model = function(model_name, image_id, click_x, click_y) {
   };
 
   this.fit_model_service.callService(request, function (response) {
+    this.force_update();
+
     var error_msg = response.error_msg;
     if (error_msg) {
       console.warn('fit model error:', error_msg);
     }
-  });
-
-  this.force_update();
+  }.bind(this));
 };
 
 Ed.prototype.undo_fit_model = function(callback) {
   var request = {
     undo_latest_fit: true,
-    // model_name: '',
   };
 
   this.fit_model_service.callService(request, function (response) {
+    this.force_update();
+
     var error_msg = response.error_msg;
     if (error_msg) {
       console.warn('fit model error:', error_msg);
@@ -251,10 +252,12 @@ Ed.prototype.undo_fit_model = function(callback) {
     } else {
       callback(null);
     }
-  }, function (err) {
+  }.bind(this), function (err) {
+      this.force_update();
+
       console.warn('fit model error:', err);
       callback(err);
-  });
+  }.bind(this));
 };
 
 // export global
