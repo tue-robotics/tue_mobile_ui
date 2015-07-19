@@ -23,13 +23,9 @@ angular.module('challengeOpenApp')
 
     $scope.backgroundSize = "contain";
     $scope.stretch = function () {
-      console.log("Setting bg size to: " + $scope.backgroundSize);
-      if ($scope.backgroundSize == "contain")
-      {
+      if ($scope.backgroundSize === "contain") {
         $scope.backgroundSize = "71% 100%";
-      }
-      else
-      {
+      } else {
         $scope.backgroundSize = "contain";
       }
     };
