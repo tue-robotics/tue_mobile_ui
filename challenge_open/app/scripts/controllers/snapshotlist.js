@@ -27,9 +27,15 @@ angular.module('challengeOpenApp')
     });
 
     $scope.onDragComplete = function (data, e) {
-       console.log('drag success, data:', data, e);
+
     };
     $scope.onDropComplete = function (data, e) {
-      robot.ed.fit_model(data, $scope.selected, e.x, e.y);
+      var div = e.element.parent();
+      var w = div[0].offsetWidth;
+      var x = 100*e.x/w/0.83 | 0;
+      var y = 100*e.y/w/0.83 | 0;
+
+      console.log('drop success, data:', data, x, y);
+      robot.ed.fit_model(data, $scope.selected, x, y);
     };
   });
