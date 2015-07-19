@@ -31,6 +31,9 @@
           </div>
 
           <form class="navbar-form navbar-right" ng-controller="TriggerCtrl">
+            <button ng-click="trigger('explore')" type="submit" class="btn btn-info">
+              <span class="glyphicon glyphicon-map-marker"></span> Explore
+            </button>
             <button ng-click="trigger('call_robot')" type="submit" class="btn btn-info">
               <span class="glyphicon glyphicon-flag"></span> Call robot
             </button>
