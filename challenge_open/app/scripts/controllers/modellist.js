@@ -9,7 +9,8 @@ angular.module('challengeOpenApp')
     robot.ed.on('models', function (models) {
       $scope.$apply(function() {
         $scope.models = _.mapValues(models, function (v, k) {
-          v.name = _.last(k.split('.')).replace('_', ' ');
+          v.name = _.last(_.words(k, /\w+/g))
+            .replace('_', ' ');
           return v;
         });
       });
