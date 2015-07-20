@@ -183,7 +183,7 @@ Ed.prototype.delete_snapshot = function(id) {
 Ed.prototype.start_update_loop = function () {
   this.snapshots_timer_id = null;
   this.update_snapshots(function update_again(err, new_snapshots) {
-    console.debug('i got %d new snapshots', _.size(new_snapshots));
+    // console.debug('i got %d new snapshots', _.size(new_snapshots));
 
     var delay = 1000;
     if (err) {
@@ -243,12 +243,12 @@ Ed.prototype.update_models = function update_models () {
 /**
  * World model fitting
  */
-Ed.prototype.fit_model = function(model_name, image_id, click_x, click_y) {
+Ed.prototype.fit_model = function(model_name, image_id, click_x_ratio, click_y_ratio) {
   var request = {
     model_name: model_name,
     image_id: image_id,
-    click_x: click_x,
-    click_y: click_y,
+    click_x_ratio: click_x_ratio,
+    click_y_ratio: click_y_ratio,
   };
 
   this.fit_model_service.callService(request, function (response) {
