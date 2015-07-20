@@ -61,7 +61,7 @@ angular.module('challengeOpenApp')
       console.log('x_ratio and y_ratio in bg: ' +
         (x_ratio*100).toFixed(1) + '% x ' +
         (y_ratio*100).toFixed(1) + '%' );
-      robot.ed.navigate_to(x, y, $scope.selected);
+      robot.ed.navigate_to(x_ratio, y_ratio, $scope.selected);
     }
 
     robot.ed.on('snapshots', function (snapshots) {
