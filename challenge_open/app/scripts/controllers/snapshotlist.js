@@ -21,6 +21,16 @@ angular.module('challengeOpenApp')
       });
     };
 
+    $scope.isSnapshotting = false;
+    $scope.make_snapshot = function () {
+      $scope.isSnapshotting = true;
+      robot.ed.make_snapshot(function () {
+        $scope.$apply(function () {
+          $scope.isSnapshotting = false;
+        });
+      })
+    };
+
     $scope.backgroundSize = "contain";
     $scope.stretch = function () {
       if ($scope.backgroundSize === "contain") {

@@ -13,6 +13,8 @@ var models_service_name ='ed/gui/get_models';
 
 var fit_model_service_name = 'ed/gui/fit_model';
 
+var make_snapshot_service_name = 'ed/make_snapshot';
+
 function Ed (robot) {
   EventEmitter2.apply(this);
 
@@ -48,6 +50,11 @@ function Ed (robot) {
   // during an update, it will be null
   this.snapshots_timer_id = null;
   this.start_update_loop();
+
+  this.make_snapshot_service = ros.Service({
+    name: make_snapshot_service_name,
+    serviceType: 'ed_sensor_integration/MakeSnapshot',
+  });
 
   // World model database
   this.models = {};
@@ -190,6 +197,10 @@ Ed.prototype.force_update = function() {
     // else an update is already in progress
     console.log('update is already in progress');
   }
+};
+
+Ed.prototype.make_snapshot = function(callback) {
+  this.make_snapshot_service.callService(null, callback);
 };
 
 /**
