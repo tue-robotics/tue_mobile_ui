@@ -201,6 +201,7 @@ Ed.prototype.force_update = function() {
 
 Ed.prototype.make_snapshot = function(callback) {
   this.make_snapshot_service.callService(null, callback);
+  this.force_update();
 };
 
 /**
