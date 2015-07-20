@@ -134,7 +134,7 @@ Ed.prototype.update_snapshots = function(callback, max_num_revisions) {
     this.delete_snapshot_queue = [];
   }
 
-  console.debug('update %d snapshots', max_num_revisions);
+  // console.debug('update %d snapshots', max_num_revisions);
   this.snapshot_service.callService(request, function (response) {
     if (!response.new_revision && _.size(this.snapshots) || // revision 0 && old snapshots
         response.new_revision < this.snapshot_revision) {
@@ -183,7 +183,7 @@ Ed.prototype.delete_snapshot = function(id) {
 Ed.prototype.start_update_loop = function () {
   this.snapshots_timer_id = null;
   this.update_snapshots(function update_again(err, new_snapshots) {
-    console.debug('i got %d new snapshots', _.size(new_snapshots));
+    // console.debug('i got %d new snapshots', _.size(new_snapshots));
 
     var delay = 1000;
     if (err) {
