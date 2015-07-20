@@ -29,6 +29,7 @@
 
     <div class="col-xs-9 snapshots">
       <button ng-repeat="(id, snapshot) in snapshots"
+          ng-if="id != 'current'"
           type="button" class="btn btn-lg"
           ng-class="{ 'btn-primary': selected == id, 'btn-default': selected != id }"
           ng-click="select(id)">
@@ -38,8 +39,8 @@
     </div>
 
     <div class="col-xs-2 logo">
-      <div id="robot-base-left" ng-click="send_twist(0,0,0.3)" class="robot-base"></div>
-      <div id="robot-base-right" ng-click="send_twist(0,0,-0.3)" class="robot-base"></div>
+      <button id="robot-base-left" ng-click="send_twist(0,0,0.3)" class="btn robot-base"></button>
+      <button id="robot-base-right" ng-click="send_twist(0,0,-0.3)" class="btn robot-base"></button>
       <!-- We are going to draw a canvas here -->
 <!--       <canvas id="teleop-canvas">
         Canvas not supported unfortunately.
