@@ -15,6 +15,8 @@ var fit_model_service_name = 'ed/gui/fit_model';
 
 var make_snapshot_service_name = 'ed/make_snapshot';
 
+var navigate_to_service_name = 'ed/navigate_to';
+
 function Ed (robot) {
   EventEmitter2.apply(this);
 
@@ -68,6 +70,11 @@ function Ed (robot) {
   this.fit_model_service = ros.Service({
     name: fit_model_service_name,
     serviceType: 'ed_sensor_integration/FitModel',
+  });
+
+  this.navigate_to_service = ros.Service({
+    name: navigate_to_service_name,
+    serviceType: 'ed_sensor_integration/NavigateTo',
   });
 }
 
@@ -282,6 +289,26 @@ Ed.prototype.undo_fit_model = function(callback) {
       console.warn('fit model error:', err);
       callback(err);
   }.bind(this));
+};
+
+var navigate_types = {
+  NAVIGATE_TO_PIXEL: 1,
+  TURN_LEFT        : 2,
+  TURN_RIGHT       : 3,
+};
+
+Ed.prototype.navigate_to = function(x, y, snapshot_id) {
+  this.navigate_to_service.callService({
+    snapshot_id: snapshot_id,
+    navigation_type: navigate_types['NAVIGATE_TO_PIXEL'],
+    click_x_ratio: x,
+    click_y_ratio: y,
+  }, function (result) {
+    var error_msg = result.error_msg;
+    if (error_msg) {
+      console.warn(error_msg);
+    }
+  });
 };
 
 // export global
