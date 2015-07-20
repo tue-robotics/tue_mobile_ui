@@ -19,7 +19,14 @@
 
   <div class="row bottom-row">
 
-    <div class="col-xs-10 snapshots">
+    <div class="col-xs-1 snapshot-controls">
+      <button type="submit" class="btn btn-primary" ng-click="make_snapshot_or_play()" ng-class="{active: isSnapshotting}">
+        <span ng-if="selected == 'current'" class="glyphicon glyphicon-camera"></span>
+        <span ng-if="selected != 'current'" class="glyphicon glyphicon-play-circle"></span>
+      </button>
+    </div>
+
+    <div class="col-xs-9 snapshots">
       <button ng-repeat="(id, snapshot) in snapshots"
           type="button" class="btn btn-lg"
           ng-class="{ 'btn-primary': selected == id, 'btn-default': selected != id }"

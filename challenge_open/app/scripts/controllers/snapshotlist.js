@@ -24,13 +24,17 @@ angular.module('challengeOpenApp')
     };
 
     $scope.isSnapshotting = false;
-    $scope.make_snapshot = function () {
-      $scope.isSnapshotting = true;
-      robot.ed.make_snapshot(function () {
-        $scope.$apply(function () {
-          $scope.isSnapshotting = false;
+    $scope.make_snapshot_or_play = function () {
+      if ($scope.selected) {
+        $scope.selected = "current";
+      } else {
+        $scope.isSnapshotting = true;
+        robot.ed.make_snapshot(function () {
+          $scope.$apply(function () {
+            $scope.isSnapshotting = false;
+          });
         });
-      });
+      }
     };
 
     $scope.backgroundSize = "contain";
