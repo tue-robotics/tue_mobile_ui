@@ -29,9 +29,11 @@ angular.module('challengeOpenApp')
       if ($scope.selected != "current") {
         $scope.selected = "current";
       } else {
+        // $scope.selected = _.last(_.keys(r.ed.snapshots));
         $scope.isSnapshotting = true;
         robot.ed.make_snapshot(function () {
           $scope.$apply(function () {
+            // window.setTimeout(function() { document.getElementsByClassName("snapshots")[0].scrollLeft = 100000 }, 100);
             $scope.isSnapshotting = false;
           });
         });
