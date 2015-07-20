@@ -78,7 +78,7 @@ body {
 }
 
 .snapshot-controls {
-  width: 12%;
+  width: 14%;
   height: 20%;
   padding: 5px;
   margin: 0;
@@ -124,4 +124,12 @@ body {
 #teleop-canvas {
   width: 100%;
   height: 100%;
+}
+
+.robot-base {
+  width: 50%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  float: left;
 }

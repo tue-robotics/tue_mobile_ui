@@ -33,6 +33,7 @@ Base.prototype.sendTwist = function(vx, vy, vth) {
   this.cmd_vel_topic.publish(twist);
   // console.log(this.cmd_vel_topic);
   // console.log(twist);
+  console.log("sendTwist: " + vx + "," + vy + "," + vth);
 };
 
 // export global

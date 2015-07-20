@@ -38,10 +38,12 @@
     </div>
 
     <div class="col-xs-2 logo">
+      <div id="robot-base-left" ng-click="send_twist(0,0,0.3)" class="robot-base"></div>
+      <div id="robot-base-right" ng-click="send_twist(0,0,-0.3)" class="robot-base"></div>
       <!-- We are going to draw a canvas here -->
-      <canvas id="teleop-canvas">
+<!--       <canvas id="teleop-canvas">
         Canvas not supported unfortunately.
-      </canvas>
+      </canvas> -->
     </div>
 
   </div>

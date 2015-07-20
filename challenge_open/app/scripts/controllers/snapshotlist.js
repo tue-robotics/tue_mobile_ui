@@ -47,6 +47,10 @@ angular.module('challengeOpenApp')
       }
     };
 
+    $scope.send_twist = function (vx, vy, vth) {
+      robot.base.sendTwist(vx, vy, vth);
+    };
+
     $scope.snapshot_click = function (e) {
       var x = e.offsetX;
       var y = e.offsetY;
