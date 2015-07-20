@@ -32,6 +32,7 @@ function Robot () {
   this.ed = new Ed(this);
   this.hardware = new Hardware(this);
   this.head = new Head(this);
+  this.base = new Base(this);
 }
 
 // inherit from EventEmitter2
