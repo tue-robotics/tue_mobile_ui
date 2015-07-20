@@ -26,7 +26,7 @@ angular.module('challengeOpenApp')
 
     $scope.isSnapshotting = false;
     $scope.make_snapshot_or_play = function () {
-      if ($scope.selected) {
+      if ($scope.selected != "current") {
         $scope.selected = "current";
       } else {
         $scope.isSnapshotting = true;
