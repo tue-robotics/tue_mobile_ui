@@ -4,6 +4,7 @@ angular.module('challengeOpenApp')
   .controller('SnapshotlistCtrl', function (robot, $scope) {
     $scope.snapshots = robot.ed.snapshots;
 
+    $scope.selected = "current";
     $scope.select = function (id) {
       $scope.selected = id;
     };
