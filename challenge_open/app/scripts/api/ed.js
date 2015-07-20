@@ -119,11 +119,14 @@ Ed.prototype.onEntities = function(msg) {
  * World model snapshots
  */
 
-Ed.prototype.update_snapshots = function(callback) {
+Ed.prototype.update_snapshots = function(callback, max_num_revisions) {
   callback = callback || _.noop;
+  max_num_revisions = max_num_revisions || 0;
+
   var request = {
     revision: this.snapshot_revision,
     delete_ids: this.delete_snapshot_queue,
+    max_num_revisions: max_num_revisions,
   };
   if (this.delete_snapshot_queue.length) {
     console.log('deleting snapshots:', this.delete_snapshot_queue);
@@ -131,6 +134,7 @@ Ed.prototype.update_snapshots = function(callback) {
     this.delete_snapshot_queue = [];
   }
 
+  console.debug('update %d snapshots', max_num_revisions);
   this.snapshot_service.callService(request, function (response) {
     if (!response.new_revision && _.size(this.snapshots) || // revision 0 && old snapshots
         response.new_revision < this.snapshot_revision) {
@@ -145,7 +149,7 @@ Ed.prototype.update_snapshots = function(callback) {
 
     this.emit('snapshots', this.snapshots);
 
-    callback(null, this.snapshots);
+    callback(null, snapshots);
   }.bind(this), function (err) {
     console.warn('update_snapshots failed:', err);
     callback(err, null);
@@ -178,13 +182,21 @@ Ed.prototype.delete_snapshot = function(id) {
 
 Ed.prototype.start_update_loop = function () {
   this.snapshots_timer_id = null;
-  this.update_snapshots(function update_again(err, snapshots) {
-    var delay = err ? 5000 : 1000;
+  this.update_snapshots(function update_again(err, new_snapshots) {
+    console.debug('i got %d new snapshots', _.size(new_snapshots));
+
+    var delay = 1000;
+    if (err) {
+      delay = 5000;
+    } else if (_.size(new_snapshots)) {
+      delay = 0;
+    }
+
     this.snapshots_timer_id = _.delay(function (callback) {
       this.snapshots_timer_id = null;
       this.update_snapshots(callback);
     }.bind(this), delay, update_again.bind(this));
-  }.bind(this));
+  }.bind(this), 1);
 };
 
 Ed.prototype.force_update = function() {
