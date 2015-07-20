@@ -1,7 +1,7 @@
 (function () {
 'use strict';
 
-/* global EventEmitter2, ROSLIB, Hardware, Ed */
+/* global EventEmitter2, ROSLIB, Hardware, Ed, Head */
 
 // Private variables
 var rosbridge_url = 'ws://' + window.location.hostname + ':9090';
@@ -31,6 +31,7 @@ function Robot () {
 
   this.ed = new Ed(this);
   this.hardware = new Hardware(this);
+  this.head = new Head(this);
 }
 
 // inherit from EventEmitter2
