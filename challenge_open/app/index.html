@@ -27,7 +27,7 @@
         <div class="container-fluid">
 
           <div class="navbar-header">
-            <a ng-controller="ConnectionCtrl" class="navbar-brand" href="#/">challengeOpen - {{connection}}</a>
+            <a ng-controller="ConnectionCtrl" class="navbar-brand" href="#/">{{connection}}</a>
           </div>
 
           <form class="navbar-form navbar-left">
@@ -40,8 +40,17 @@
           </form>
 
           <form class="navbar-form navbar-right" ng-controller="TriggerCtrl">
-            <button ng-click="trigger('explore')" type="submit" class="btn btn-info">
-              <span class="glyphicon glyphicon-map-marker"></span> Explore
+            <button class="btn btn-info dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+              <span class="glyphicon glyphicon-map-marker"></span> Navigate
+              <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+                <li><a href="#">Action</a></li>
+                <li><a href="#">Another action</a></li>
+                <li><a href="#">Something else here</a></li>
+                <li role="separator" class="divider"></li>
+                <li><a href="#">Separated link</a></li>
+                <li role="separator" class="divider"></li>
+                <li><a href="#">One more separated link</a></li>
+              </ul>
             </button>
             <button ng-click="trigger('call_robot')" type="submit" class="btn btn-info">
               <span class="glyphicon glyphicon-flag"></span> Call robot
