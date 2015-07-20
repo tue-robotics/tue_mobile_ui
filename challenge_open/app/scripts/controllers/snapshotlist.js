@@ -17,7 +17,9 @@ angular.module('challengeOpenApp')
     $scope.undo = function () {
       $scope.isUndoing = true;
       robot.ed.undo_fit_model(function () {
-        $scope.isUndoing = false;
+        $scope.$apply(function () {
+          $scope.isUndoing = false;
+        });
       });
     };
 
