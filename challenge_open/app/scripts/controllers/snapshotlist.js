@@ -30,7 +30,7 @@ angular.module('challengeOpenApp')
         $scope.$apply(function () {
           $scope.isSnapshotting = false;
         });
-      })
+      });
     };
 
     $scope.backgroundSize = "contain";
