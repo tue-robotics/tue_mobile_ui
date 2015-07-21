@@ -182,6 +182,7 @@ function process_snapshots (response) {
       'length': 8,
       'omission': '',
     });
+    image_binary.id = id;
 
     var ts = response.image_timestamps[i];
     image_binary.timestamp = new Date(ts.secs + ts.nsecs*1e-9);
