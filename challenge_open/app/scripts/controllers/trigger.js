@@ -13,4 +13,16 @@ angular.module('challengeOpenApp')
         data: name,
       });
     };
+
+    $scope.creating = false;
+    $scope.create_walls = function () {
+      $scope.creating = true;
+      robot.ed.create_walls(function () {
+        _.delay(function () {
+          $scope.$apply(function () {
+            $scope.creating = false;
+          });
+        }, 1000);
+      });
+    };
   });

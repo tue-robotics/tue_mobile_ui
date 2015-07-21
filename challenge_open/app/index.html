@@ -41,8 +41,8 @@
           </form>
 
           <form class="navbar-form navbar-right" ng-controller="TriggerCtrl">
-            <button ng-click="trigger('call_robot')" type="submit" class="btn btn-info">
-              <span class="glyphicon glyphicon-flag"></span> Call robot
+            <button ng-click="create_walls()" type="submit" class="btn btn-info" ng-disabled="creating">
+              <span class="glyphicon glyphicon-flag"></span> Create walls
             </button>
             <button ng-click="trigger('exit_robot')" type="submit" class="btn btn-danger">
               <span class="glyphicon glyphicon-off"></span>

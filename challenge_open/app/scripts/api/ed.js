@@ -17,6 +17,8 @@ var make_snapshot_service_name = 'ed/make_snapshot';
 
 var navigate_to_service_name = 'ed/navigate_to';
 
+var create_walls_service_name = 'ed/create_walls';
+
 function Ed (robot) {
   EventEmitter2.apply(this);
 
@@ -75,6 +77,11 @@ function Ed (robot) {
   this.navigate_to_service = ros.Service({
     name: navigate_to_service_name,
     serviceType: 'ed_sensor_integration/NavigateTo',
+  });
+
+  this.create_walls_service = ros.Service({
+    name: create_walls_service_name,
+    serviceType: 'std_srvs/Empty',
   });
 }
 
@@ -311,6 +318,13 @@ Ed.prototype.navigate_to = function(x, y, snapshot_id) {
     if (error_msg) {
       console.warn(error_msg);
     }
+  });
+};
+
+Ed.prototype.create_walls = function(callback) {
+  callback = callback || _.noop;
+  this.create_walls_service.callService({}, function (result) {
+    callback();
   });
 };
 
