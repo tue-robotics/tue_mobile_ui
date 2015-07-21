@@ -9,10 +9,10 @@ function Head (robot) {
   var ros = robot.ros;
 
   this.goal = null;
-  this.head_ac = ros.ActionClient({
-    serverName: 'head_ref/action_server',
-    actionName: 'head_ref/HeadReferenceAction',
-  });
+  // this.head_ac = ros.ActionClient({
+  //   serverName: 'head_ref/action_server',
+  //   actionName: 'head_ref/HeadReferenceAction',
+  // });
 }
 
 Head.prototype = Object.create(EventEmitter2.prototype);
