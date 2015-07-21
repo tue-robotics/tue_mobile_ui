@@ -176,6 +176,9 @@ function process_snapshots (response) {
       'omission': '',
     });
 
+    var ts = response.image_timestamps[i];
+    image_binary.timestamp = new Date(ts.secs + ts.nsecs*1e-9);
+
     snapshots[id] = image_binary;
   }.bind(this));
 
