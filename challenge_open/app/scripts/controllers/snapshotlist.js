@@ -19,7 +19,9 @@ angular.module('challengeOpenApp')
       $scope.isUndoing = true;
       robot.ed.undo_fit_model(function () {
         $scope.$apply(function () {
-          $scope.isUndoing = false;
+          _.delay(function () {
+            $scope.isUndoing = false;
+          }, 1000);
         });
       });
     };
