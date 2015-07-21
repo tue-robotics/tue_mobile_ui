@@ -20,11 +20,11 @@ angular.module('challengeOpenApp')
     $scope.undo = function () {
       $scope.isUndoing = true;
       robot.ed.undo_fit_model(function () {
-        $scope.$apply(function () {
-          _.delay(function () {
+        _.delay(function () {
+          $scope.$apply(function () {
             $scope.isUndoing = false;
-          }, 1000);
-        });
+          });
+        }, 1000);
       });
     };
 
