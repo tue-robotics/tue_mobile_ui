@@ -1,5 +1,7 @@
 'use strict';
 
+/* global _ */
+
 angular.module('challengeOpenApp')
   .controller('SnapshotlistCtrl', function (robot, $scope) {
     $scope.snapshots = robot.ed.snapshots;
@@ -28,7 +30,7 @@ angular.module('challengeOpenApp')
 
     $scope.isSnapshotting = false;
     $scope.make_snapshot_or_play = function () {
-      if ($scope.selected != "current") {
+      if ($scope.selected !== "current") {
         $scope.selected = "current";
       } else {
         // $scope.selected = _.last(_.keys(r.ed.snapshots));
@@ -74,8 +76,9 @@ angular.module('challengeOpenApp')
       console.log('x_ratio and y_ratio in bg: ' +
         (x_ratio*100).toFixed(1) + '% x ' +
         (y_ratio*100).toFixed(1) + '%' );
+      console.log('navigate to', $scope.selected);
       robot.ed.navigate_to(x_ratio, y_ratio, $scope.selected);
-    }
+    };
 
     robot.ed.on('snapshots', function (snapshots) {
       $scope.$apply(function () {
@@ -138,6 +141,6 @@ angular.module('challengeOpenApp')
       return {
         height: height_pixels,
         width: width_pixels,
-      }
+      };
     }
   });

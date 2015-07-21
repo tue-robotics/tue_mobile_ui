@@ -1,5 +1,7 @@
 'use strict';
 
+/* global _ */
+
 angular.module('challengeOpenApp')
   .controller('TriggerCtrl', function ($scope, robot) {
 

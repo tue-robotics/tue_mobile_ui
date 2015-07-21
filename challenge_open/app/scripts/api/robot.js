@@ -1,7 +1,7 @@
 (function () {
 'use strict';
 
-/* global EventEmitter2, ROSLIB, Hardware, Ed, Head */
+/* global EventEmitter2, ROSLIB, Hardware, Ed, Head, Base */
 
 // Private variables
 var rosbridge_url = 'ws://' + window.location.hostname + ':9090';

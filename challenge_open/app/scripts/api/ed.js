@@ -310,7 +310,7 @@ var navigate_types = {
 Ed.prototype.navigate_to = function(x, y, snapshot_id) {
   this.navigate_to_service.callService({
     snapshot_id: snapshot_id,
-    navigation_type: navigate_types['NAVIGATE_TO_PIXEL'],
+    navigation_type: navigate_types.NAVIGATE_TO_PIXEL,
     click_x_ratio: x,
     click_y_ratio: y,
   }, function (result) {
