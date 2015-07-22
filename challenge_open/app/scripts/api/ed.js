@@ -148,8 +148,12 @@ Ed.prototype.update_snapshots = function(callback, max_num_revisions) {
     this.delete_snapshot_queue = [];
   }
 
+  var start_time = new Date();
+
   // console.debug('update %d snapshots', max_num_revisions);
   this.snapshot_service.callService(request, function (response) {
+    var diff = new Date() - start_time;
+    this.emit('update_time', diff);
     if (!response.new_revision && _.size(this.snapshots) || // revision 0 && old snapshots
         response.new_revision < this.snapshot_revision) {
       console.warn('ed restart detected, reloading...');
@@ -206,7 +210,7 @@ Ed.prototype.start_update_loop = function () {
     var delay = 1000;
     if (err) {
       delay = 5000;
-    } else if (_.size(new_snapshots)) {
+    } else if (_.size(_.omit(new_snapshots, 'current'))) {
       delay = 0;
     }
 

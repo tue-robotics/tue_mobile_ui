@@ -80,6 +80,13 @@ angular.module('challengeOpenApp')
       robot.ed.navigate_to(x_ratio, y_ratio, $scope.selected);
     };
 
+    robot.ed.on('update_time', function (t) {
+      console.log(t);
+      $scope.$apply(function () {
+        $scope.update_time = t;
+      });
+    });
+
     robot.ed.on('snapshots', function (snapshots) {
       $scope.$apply(function () {
         $scope.snapshots = snapshots;
