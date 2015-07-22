@@ -207,7 +207,7 @@ Ed.prototype.start_update_loop = function () {
   this.update_snapshots(function update_again(err, new_snapshots) {
     // console.debug('i got %d new snapshots', _.size(new_snapshots));
 
-    var delay = 1000;
+    var delay = 500;
     if (err) {
       delay = 5000;
     } else if (_.size(_.omit(new_snapshots, 'current'))) {
