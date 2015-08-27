@@ -12,7 +12,7 @@ angular.module('challengeOpenApp')
 
     // Method for instantiating
     this.$get = function () {
-      var robot = window.r = new Robot();
+      var robot = window.r = new API.Robot();
       return robot;
     };
   });
