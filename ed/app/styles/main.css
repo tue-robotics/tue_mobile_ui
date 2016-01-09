@@ -1,3 +1,11 @@
+body {
+  margin: 0;
+  overflow: hidden;
+  background: black;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  color: #333;
+}
+
 /*
  * Base structure
  */
@@ -47,28 +55,21 @@
 }
 
 /*
- * main 
+ * main
  */
 
 .main {
   bottom: 0;
   position: fixed;
-}
 
-#viewer {
   padding-left: 0px;
   height: 100%  ;
 }
 
-#viewer-canvas {
+/*#viewer-canvas {
   height: 100%;
   width: 100%;
-}
-
-#entity-info-store-measurement
-{
-  width: 100%;
-}
+}*/
 
 .noselect {
     -webkit-touch-callout: none;
@@ -102,4 +103,76 @@ table.buttons td.table-header {
 table.buttons .btn {
   width: 100%;
     font-size: 10pt;
+}
+
+#action-menu {
+  opacity: 0;
+  z-index: -1;
+}
+
+#sidebar {
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  z-index: 1000;
+  display: block;
+  padding: 0px  ;
+  overflow-x: hidden;
+  overflow-y: auto; /* Scrollable contents if viewport is shorter than content. */
+  background-color: #222;
+  border-right: 1px solid #222;
+  height: 100%;
+}
+
+#main-tabs {
+  position: absolute;
+  width: 100%;
+}
+
+#sidebar > .tab-content {
+  height: 100%;
+}
+
+#sidebar h5 {
+  font-weight: bold;
+}
+
+.tab-pane {
+  background-color: #fff;
+  padding: 5px;
+  height: 100%;
+}
+
+.panel {
+  margin-bottom: 5px;
+}
+
+.nav-tabs li a {
+  padding: 10px;
+}
+
+/* TELEOP TAB */
+
+.tab {
+  margin-top: 42px;
+}
+
+#teleop .panel-body {
+  padding: 5px;
+}
+
+#teleop-speech button {
+  margin-top: 5px;
+}
+
+#teleop-body button {
+  margin-top: 5px;
+}
+
+#teleop-base, #teleop-head
+{
+  background-image: url("move-icon.png");
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: 80%;
 }

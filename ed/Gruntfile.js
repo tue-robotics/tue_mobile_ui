@@ -1,5 +1,5 @@
-// Generated on 2014-09-29 using
-// generator-webapp 0.5.0
+// Generated on 2015-10-07 using
+// generator-webapp 1.1.0
 'use strict';
 
 // # Globbing
@@ -13,8 +13,11 @@ module.exports = function (grunt) {
   // Time how long tasks take. Can help when optimizing build times
   require('time-grunt')(grunt);
 
-  // Load grunt tasks automatically
-  require('load-grunt-tasks')(grunt);
+  // Automatically load required grunt tasks
+  require('jit-grunt')(grunt, {
+    useminPrepare: 'grunt-usemin',
+    ngtemplates: 'grunt-angular-templates'
+  });
 
   // Configurable paths
   var config = {
@@ -36,72 +39,46 @@ module.exports = function (grunt) {
       },
       js: {
         files: ['<%= config.app %>/scripts/{,*/}*.js'],
-        tasks: ['jshint'],
-        options: {
-          livereload: true
-        }
-      },
-      jstest: {
-        files: ['test/spec/{,*/}*.js'],
-        tasks: ['test:watch']
+        tasks: ['eslint']
       },
       gruntfile: {
         files: ['Gruntfile.js']
       },
       styles: {
         files: ['<%= config.app %>/styles/{,*/}*.css'],
-        tasks: ['newer:copy:styles', 'autoprefixer']
-      },
-      livereload: {
-        options: {
-          livereload: '<%= connect.options.livereload %>'
-        },
-        files: [
-          '<%= config.app %>/{,*/}*.html',
-          '.tmp/styles/{,*/}*.css',
-          '<%= config.app %>/images/{,*/}*'
-        ]
+        tasks: ['newer:copy:styles', 'postcss']
       }
     },
 
-    // The actual grunt server settings
-    connect: {
+    browserSync: {
       options: {
-        port: 9000,
-        open: true,
-        livereload: 35729,
-        // Change this to '0.0.0.0' to access the server from outside
-        hostname: '0.0.0.0'
+        notify: false,
+        background: true,
+        watchOptions: {
+          ignored: ''
+        }
       },
       livereload: {
         options: {
-          middleware: function(connect) {
-            return [
-              connect.static('.tmp'),
-              connect().use('/bower_components', connect.static('./bower_components')),
-              connect.static(config.app)
-            ];
-          }
-        }
-      },
-      test: {
-        options: {
-          open: false,
-          port: 9001,
-          middleware: function(connect) {
-            return [
-              connect.static('.tmp'),
-              connect.static('test'),
-              connect().use('/bower_components', connect.static('./bower_components')),
-              connect.static(config.app)
-            ];
+          files: [
+            '<%= config.app %>/{,*/}*.html',
+            '.tmp/styles/{,*/}*.css',
+            '<%= config.app %>/images/{,*/}*',
+            '<%= config.app %>/scripts/{,*/}*.js'
+          ],
+          port: 9000,
+          server: {
+            baseDir: ['.tmp', config.app],
+            routes: {
+              '/bower_components': './bower_components'
+            }
           }
         }
       },
       dist: {
         options: {
-          base: '<%= config.dist %>',
-          livereload: false
+          background: false,
+          server: '<%= config.dist %>'
         }
       }
     },
@@ -122,33 +99,23 @@ module.exports = function (grunt) {
     },
 
     // Make sure code styles are up to par and there are no obvious mistakes
-    jshint: {
-      options: {
-        jshintrc: '.jshintrc',
-        reporter: require('jshint-stylish')
-      },
-      all: [
+    eslint: {
+      target: [
         'Gruntfile.js',
         '<%= config.app %>/scripts/{,*/}*.js',
-        '!<%= config.app %>/scripts/vendor/*',
-        'test/spec/{,*/}*.js'
+        '!<%= config.app %>/scripts/vendor/*'
       ]
     },
 
-    // Mocha testing framework configuration options
-    mocha: {
-      all: {
-        options: {
-          run: true,
-          urls: ['http://<%= connect.test.options.hostname %>:<%= connect.test.options.port %>/index.html']
-        }
-      }
-    },
-
-    // Add vendor prefixed styles
-    autoprefixer: {
+    postcss: {
       options: {
-        browsers: ['> 1%', 'last 2 versions', 'Firefox ESR', 'Opera 12.1']
+        map: true,
+        processors: [
+          // Add vendor prefixed styles
+          require('autoprefixer')({
+            browsers: ['> 1%', 'last 2 versions', 'Firefox ESR']
+          })
+        ]
       },
       dist: {
         files: [{
@@ -163,23 +130,21 @@ module.exports = function (grunt) {
     // Automatically inject Bower components into the HTML file
     wiredep: {
       app: {
-        ignorePath: /^\/|\.\.\//,
-        src: ['<%= config.app %>/index.html']
+        src: ['<%= config.app %>/index.html'],
+        ignorePath: /^(\.\.\/)*\.\./
       }
     },
 
     // Renames files for browser caching purposes
-    rev: {
+    filerev: {
       dist: {
-        files: {
-          src: [
-            '<%= config.dist %>/scripts/{,*/}*.js',
-            '<%= config.dist %>/styles/{,*/}*.css',
-            '<%= config.dist %>/images/{,*/}*.*',
-            '<%= config.dist %>/styles/fonts/{,*/}*.*',
-            '<%= config.dist %>/*.{ico,png}'
-          ]
-        }
+        src: [
+          '<%= config.dist %>/scripts/{,*/}*.js',
+          '<%= config.dist %>/styles/{,*/}*.css',
+          '<%= config.dist %>/images/{,*/}*.*',
+          '<%= config.dist %>/styles/fonts/{,*/}*.*',
+          '<%= config.dist %>/*.{ico,png}'
+        ]
       }
     },
 
@@ -196,10 +161,18 @@ module.exports = function (grunt) {
     // Performs rewrites based on rev and the useminPrepare configuration
     usemin: {
       options: {
-        assetsDirs: ['<%= config.dist %>', '<%= config.dist %>/images']
+        assetsDirs: [
+          '<%= config.dist %>',
+          '<%= config.dist %>/images',
+          '<%= config.dist %>/styles'
+        ],
+        patterns: {
+          js: [[/(images\/[^''""]*\.(png|jpg|jpeg|gif|webp|svg))/g, 'Replacing references to images']]
+        }
       },
       html: ['<%= config.dist %>/{,*/}*.html'],
-      css: ['<%= config.dist %>/styles/{,*/}*.css']
+      css: ['<%= config.dist %>/styles/{,*/}*.css'],
+      js: ['<%= config.dist %>/scripts/{,*/}*.js']
     },
 
     // The following *-min tasks produce minified files in the dist folder
@@ -228,50 +201,45 @@ module.exports = function (grunt) {
     htmlmin: {
       dist: {
         options: {
-          collapseBooleanAttributes: true,
           collapseWhitespace: true,
           conservativeCollapse: true,
-          removeAttributeQuotes: true,
-          removeCommentsFromCDATA: true,
-          removeEmptyAttributes: true,
-          removeOptionalTags: true,
-          removeRedundantAttributes: true,
-          useShortDoctype: true
+          collapseBooleanAttributes: true,
+          removeCommentsFromCDATA: true
         },
         files: [{
           expand: true,
           cwd: '<%= config.dist %>',
-          src: '{,*/}*.html',
+          src: ['*.html'],
           dest: '<%= config.dist %>'
         }]
       }
     },
 
-    // By default, your `index.html`'s <!-- Usemin block --> will take care
-    // of minification. These next options are pre-configured if you do not
-    // wish to use the Usemin blocks.
-    // cssmin: {
-    //   dist: {
-    //     files: {
-    //       '<%= config.dist %>/styles/main.css': [
-    //         '.tmp/styles/{,*/}*.css',
-    //         '<%= config.app %>/styles/{,*/}*.css'
-    //       ]
-    //     }
-    //   }
-    // },
-    // uglify: {
-    //   dist: {
-    //     files: {
-    //       '<%= config.dist %>/scripts/scripts.js': [
-    //         '<%= config.dist %>/scripts/scripts.js'
-    //       ]
-    //     }
-    //   }
-    // },
-    // concat: {
-    //   dist: {}
-    // },
+    ngtemplates: {
+      dist: {
+        options: {
+          module: 'EdGuiApp',
+          htmlmin: '<%= htmlmin.dist.options %>',
+          usemin: 'scripts/scripts.js'
+        },
+        cwd: '<%= config.app %>',
+        src: 'views/**/*.html',
+        dest: '.tmp/templateCache.js'
+      }
+    },
+
+    // ng-annotate tries to make the code safe for minification automatically
+    // by using the Angular long form for dependency injection.
+    ngAnnotate: {
+      dist: {
+        files: [{
+          expand: true,
+          cwd: '.tmp/concat/scripts',
+          src: '*.js',
+          dest: '.tmp/concat/scripts'
+        }]
+      }
+    },
 
     // Copies remaining files to places other tasks can use
     copy: {
@@ -284,23 +252,20 @@ module.exports = function (grunt) {
           src: [
             '*.{ico,png,txt}',
             'images/{,*/}*.webp',
-            '{,*/}*.html',
+            '*.html',
             'styles/fonts/{,*/}*.*'
           ]
         }, {
-          src: 'node_modules/apache-server-configs/dist/.htaccess',
-          dest: '<%= config.dist %>/.htaccess'
+          expand: true,
+          cwd: '.tmp/images',
+          dest: '<%= config.dist %>/images',
+          src: ['generated/*']
+        }, {
+          expand: true,
+          cwd: 'app/bower_components/bootstrap/dist',
+          src: 'fonts/*',
+          dest: '<%= config.dist %>'
         }]
-      },
-      fonts: {
-        expand: true,
-        dot: true,
-        flatten: true,
-        cwd: '<%= config.app %>',
-        dest: '<%= config.dist %>/fonts',
-        src: [
-          'bower_components/bootstrap/dist/fonts/*.*'
-        ]
       },
       styles: {
         expand: true,
@@ -316,9 +281,6 @@ module.exports = function (grunt) {
       server: [
         'copy:styles'
       ],
-      test: [
-        'copy:styles'
-      ],
       dist: [
         'copy:styles',
         'imagemin',
@@ -328,41 +290,19 @@ module.exports = function (grunt) {
   });
 
 
-  grunt.registerTask('serve', 'start the server and preview your app, --allow-remote for remote access', function (target) {
-    if (grunt.option('allow-remote')) {
-      grunt.config.set('connect.options.hostname', '0.0.0.0');
-    }
+  grunt.registerTask('serve', 'start the server and preview your app', function (target) {
+
     if (target === 'dist') {
-      return grunt.task.run(['build', 'connect:dist:keepalive']);
+      return grunt.task.run(['build', 'browserSync:dist']);
     }
 
     grunt.task.run([
       'clean:server',
       'wiredep',
       'concurrent:server',
-      'autoprefixer',
-      'connect:livereload',
+      'postcss',
+      'browserSync:livereload',
       'watch'
-    ]);
-  });
-
-  grunt.registerTask('server', function (target) {
-    grunt.log.warn('The `server` task has been deprecated. Use `grunt serve` to start a server.');
-    grunt.task.run([target ? ('serve:' + target) : 'serve']);
-  });
-
-  grunt.registerTask('test', function (target) {
-    if (target !== 'watch') {
-      grunt.task.run([
-        'clean:server',
-        'concurrent:test',
-        'autoprefixer'
-      ]);
-    }
-
-    grunt.task.run([
-      'connect:test',
-      'mocha'
     ]);
   });
 
@@ -371,20 +311,20 @@ module.exports = function (grunt) {
     'wiredep',
     'useminPrepare',
     'concurrent:dist',
-    'autoprefixer',
+    'postcss',
+    'ngtemplates',
     'concat',
+    'ngAnnotate',
+    'copy:dist',
     'cssmin',
     'uglify',
-    'copy:dist',
-    'copy:fonts',
-    'rev',
+    'filerev',
     'usemin',
     'htmlmin'
   ]);
 
   grunt.registerTask('default', [
-    'newer:jshint',
-    'test',
+    'newer:eslint',
     'build'
   ]);
 };

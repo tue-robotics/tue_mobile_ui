@@ -1,0 +1,33 @@
+<h5>Body pose board</h5>
+<div>
+  <button type="button" class="btn btn-primary">Apple</button>
+  <button type="button" class="btn btn-primary">Samsung</button>
+  <button type="button" class="btn btn-primary">Sony</button>
+  <button type="button" class="btn btn-primary">Apple</button>
+  <button type="button" class="btn btn-primary">Samsung</button>
+  <button type="button" class="btn btn-primary">Sony</button>
+  <button type="button" class="btn btn-primary">Apple</button>
+  <button type="button" class="btn btn-primary">Samsung</button>
+  <button type="button" class="btn btn-primary">Sony</button>
+  <button type="button" class="btn btn-primary">Apple</button>
+  <button type="button" class="btn btn-primary">Samsung</button>
+  <button type="button" class="btn btn-primary">Sony</button>
+</div>
+<hr />
+<h5>Specific joint set-points</h5>
+<div class="form-group">
+	<select class="form-control" id="joint-name">
+		<option>shoulder_yaw_joint</option>
+		<option>shoulder_pitch_joint</option>
+		<option>shoulder_roll_joint</option>
+		<option>elbow_pitch_joint</option>
+		<option>elbow_roll_joint</option>
+		<option>wrist_pitch_joint</option>
+		<option>wrist_yaw_joint</option>
+		<option>torso_joint</option>
+	</select>
+	<br />
+		<slider ng-model="sliders.sliderValue" min="testOptions.min" step="testOptions.step" max="testOptions.max" value="testOptions.value"></slider>
+	<br />
+	<button class="btn btn-primary">Go!</button>
+</div>

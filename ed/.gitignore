@@ -1,8 +1,9 @@
-# Dependency directories
-node_modules/
-app/bower_components/
-test/bower_components/
+*/node_modules
+*/.tmp
+*/.sass-cache
+*/bower_components
 
-# Build caches
-.tmp
-.sass-cache
+/node_modules
+/.tmp
+/.sass-cache
+/bower_components
