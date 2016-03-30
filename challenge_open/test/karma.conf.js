@@ -33,7 +33,9 @@ module.exports = function(config) {
       'bower_components/fastclick/lib/fastclick.js',
       'bower_components/angular-bootstrap/ui-bootstrap-tpls.js',
       'bower_components/eventemitter2/lib/eventemitter2.js',
+      'bower_components/bson/browser_build/bson.js',
       'bower_components/roslib/build/roslib.js',
+      'bower_components/base64-js/lib/b64.js',
       'bower_components/robot-api/dist/bundle.js',
       'bower_components/angular-mocks/angular-mocks.js',
       // endbower

@@ -1,6 +1,6 @@
 'use strict';
 
-/* global Robot */
+/* global API */
 
 angular.module('challengeOpenApp')
   .provider('robot', function () {
@@ -13,6 +13,7 @@ angular.module('challengeOpenApp')
     // Method for instantiating
     this.$get = function () {
       var robot = window.r = new API.Robot();
+      robot.connect();
       return robot;
     };
   });
