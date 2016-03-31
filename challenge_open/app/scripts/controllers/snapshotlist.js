@@ -84,8 +84,8 @@ angular.module('challengeOpenApp')
         return;
       }
 
-      console.log('Fit model!');
-      robot.ed.fit_model(data, $scope.selected, x_ratio, y_ratio);
+      console.log('Fit model!', data, x_ratio, y_ratio);
+      robot.ed.fit_model(data, x_ratio, y_ratio);
     };
 
     function getViewSize (div) {
