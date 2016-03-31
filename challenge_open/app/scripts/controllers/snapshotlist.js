@@ -4,17 +4,6 @@
 
 angular.module('challengeOpenApp')
   .controller('SnapshotlistCtrl', function (robot, $scope) {
-    $scope.snapshots = robot.ed.snapshots;
-
-    $scope.selected = "current";
-    $scope.select = function (id) {
-      $scope.selected = id;
-    };
-
-    $scope.delete = function (id, $event) {
-      robot.ed.delete_snapshot(id);
-      $event.stopPropagation();
-    };
 
     $scope.isUndoing = false;
     $scope.undo = function () {
@@ -26,22 +15,6 @@ angular.module('challengeOpenApp')
           });
         }, 1000);
       });
-    };
-
-    $scope.isSnapshotting = false;
-    $scope.make_snapshot_or_play = function () {
-      if ($scope.selected !== "current") {
-        $scope.selected = "current";
-      } else {
-        // $scope.selected = _.last(_.keys(r.ed.snapshots));
-        $scope.isSnapshotting = true;
-        robot.ed.make_snapshot(function () {
-          $scope.$apply(function () {
-            // window.setTimeout(function() { document.getElementsByClassName("snapshots")[0].scrollLeft = 100000 }, 100);
-            $scope.isSnapshotting = false;
-          });
-        });
-      }
     };
 
     $scope.backgroundSize = 'contain';
@@ -84,12 +57,6 @@ angular.module('challengeOpenApp')
       console.log(t);
       $scope.$apply(function () {
         $scope.update_time = t;
-      });
-    });
-
-    robot.ed.on('snapshots', function (snapshots) {
-      $scope.$apply(function () {
-        $scope.snapshots = snapshots;
       });
     });
 
