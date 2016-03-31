@@ -2,7 +2,7 @@
   <div class="row top-row">
 
     <div ng-controller="ModellistCtrl" class="col-xs-12 models"
-        ng-style="{ 'background-image': 'url('+snapshots[selected].src+')', 'background-size': backgroundSize}"
+        ng-style="{ 'background-image': 'url('+camera_src+')', 'background-size': backgroundSize}"
         ng-drop="true" ng-drop-success="onDropComplete($data,$event)">
 
       <button ng-repeat="(id, model) in models" type="button" class="btn btn-lg"
