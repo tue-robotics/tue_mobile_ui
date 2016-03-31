@@ -3,8 +3,7 @@
 
     <div ng-controller="ModellistCtrl" class="col-xs-12 models"
         ng-style="{ 'background-image': 'url('+snapshots[selected].src+')', 'background-size': backgroundSize}"
-        ng-drop="true" ng-drop-success="onDropComplete($data,$event)"
-        ng-click="snapshot_click($event)">
+        ng-drop="true" ng-drop-success="onDropComplete($data,$event)">
 
       <button ng-repeat="(id, model) in models" type="button" class="btn btn-lg"
           ng-class="{ 'btn-primary': selected == id, 'btn-default': selected != id }"

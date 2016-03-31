@@ -30,28 +30,28 @@ angular.module('challengeOpenApp')
       robot.base.sendTwist(vx, vy, vth);
     };
 
-    $scope.snapshot_click = function (e) {
-      var x = e.offsetX;
-      var y = e.offsetY;
+    // $scope.snapshot_click = function (e) {
+    //   var x = e.offsetX;
+    //   var y = e.offsetY;
 
-      var div = e.target;
-      var size = getViewSize(div);
+    //   var div = e.target;
+    //   var size = getViewSize(div);
 
-      var width_pixels = size.width;
-      var height_pixels = size.height;
+    //   var width_pixels = size.width;
+    //   var height_pixels = size.height;
 
-      var x = e.x;
-      var y = e.y - div.offsetTop;
+    //   var x = e.x;
+    //   var y = e.y - div.offsetTop;
 
-      var x_ratio = x / width_pixels;
-      var y_ratio = y / height_pixels;
+    //   var x_ratio = x / width_pixels;
+    //   var y_ratio = y / height_pixels;
 
-      console.log('x_ratio and y_ratio in bg: ' +
-        (x_ratio*100).toFixed(1) + '% x ' +
-        (y_ratio*100).toFixed(1) + '%' );
-      console.log('navigate to', $scope.selected);
-      robot.ed.navigate_to(x_ratio, y_ratio, $scope.selected);
-    };
+    //   console.log('x_ratio and y_ratio in bg: ' +
+    //     (x_ratio*100).toFixed(1) + '% x ' +
+    //     (y_ratio*100).toFixed(1) + '%' );
+    //   console.log('navigate to', $scope.selected);
+    //   robot.ed.navigate_to(x_ratio, y_ratio, $scope.selected);
+    // };
 
     robot.ed.on('update_time', function (t) {
       console.log(t);
