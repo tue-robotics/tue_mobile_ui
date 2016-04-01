@@ -39,8 +39,13 @@
     </div>
 
     <div class="col-xs-2 logo">
-      <button id="robot-base-left" ng-click="send_twist(0,0,0.3)" class="robot-base">Left</button>
-      <button id="robot-base-right" ng-click="send_twist(0,0,-0.3)" class="robot-base">Right</button>
+      <!-- <button id="robot-base-left" ng-click="send_twist(0,0,0.3)" class="robot-base">Left</button>
+      <button id="robot-base-right" ng-click="send_twist(0,0,-0.3)" class="robot-base">Right</button> -->
+
+      <div ng-controller="TeleopCtrl">
+        <div ng-include="'views/tabs/base.html'" class="tab"></div>
+      </div>
+
       <!-- We are going to draw a canvas here -->
 <!--       <canvas id="teleop-canvas">
         Canvas not supported unfortunately.
