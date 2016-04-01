@@ -19,7 +19,8 @@ angular.module('challengeOpenApp')
 
       function update() {
         _.delay(function () {
-          robot.head.getImage(128, function (url) {
+          var resolution = +location.search.substr(1,location.search.length) || 640;
+          robot.head.getImage(resolution, function (url) {
             $scope.$apply(function () {
               $scope.camera_src = url;
               update();
