@@ -18,41 +18,20 @@
 
   </div>
 
-  <div class="row bottom-row">
+</div>
 
-    <div class="col-xs-1 snapshot-controls">
-      <button type="submit" class="btn" ng-click="make_snapshot_or_play()"
-          ng-class="{ active: isSnapshotting, 'btn-primary': selected == 'current', 'btn-success': selected != 'current' }">
-        <span ng-if="selected == 'current'" class="glyphicon glyphicon-camera"></span>
-        <span ng-if="selected != 'current'" class="glyphicon glyphicon-play-circle"></span>
-      </button>
-    </div>
+  <div class="footer teleop">
 
-    <div class="col-xs-9 snapshots">
-      <button ng-repeat="(id, snapshot) in snapshots"
-          ng-if="id != 'current'"
-          type="button" class="btn btn-lg"
-          ng-class="{ 'btn-primary': selected == id, 'btn-default': selected != id }"
-          ng-click="select(id)">
-        <img class="img-responsive" src="{{snapshot.src}}" />
-        <div class="snapshot-delete" ng-click="delete(id, $event)"><span class="glyphicon glyphicon-remove"></span></div>
-      </button>
-    </div>
-
-    <div class="col-xs-2 logo">
-      <!-- <button id="robot-base-left" ng-click="send_twist(0,0,0.3)" class="robot-base">Left</button>
-      <button id="robot-base-right" ng-click="send_twist(0,0,-0.3)" class="robot-base">Right</button> -->
-
-      <div ng-controller="TeleopCtrl">
-        <div ng-include="'views/tabs/base.html'" class="tab"></div>
-      </div>
-
-      <!-- We are going to draw a canvas here -->
-<!--       <canvas id="teleop-canvas">
-        Canvas not supported unfortunately.
-      </canvas> -->
+    <div ng-controller="TeleopCtrl">
+      <div ng-include="'views/tabs/base.html'" class="tab"></div>
     </div>
 
   </div>
 
-</div>
+  <div class="footer head">
+
+    <div ng-controller="TeleopCtrl">
+<!--         <div ng-include="'views/tabs/base.html'" class="tab"></div>
+-->      </div>
+
+  </div>

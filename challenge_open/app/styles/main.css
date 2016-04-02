@@ -15,7 +15,7 @@ body {
 }
 
 .top-row {
-  height: 80%;
+  height: 100%;
 }
 
 .bottom-row {
@@ -133,4 +133,27 @@ body {
   padding: 0;
   float: left;
   opacity: 0.5;
+}
+
+footer {
+  height: 20%;
+  background-color: transparent !important;
+  border: 0 !important;
+}
+
+.footer {
+  width: 20%;
+  height: 20%;
+  position: absolute;
+  bottom: 0;
+}
+
+.teleop {
+  left: 0;
+  background-color: rgba(255, 255, 255, 0.5);
+}
+
+.head {
+  right: 0;
+  background-color: rgba(255, 255, 255, 0.5);
 }
