@@ -6,6 +6,9 @@ angular.module('challengeOpenApp')
   .controller('ModellistCtrl', function ($scope, robot) {
     $scope.models = robot.ed.models;
 
+    var resolution = Number.parseInt(location.search.substr(1,location.search.length)) || 640;
+    console.log('setting the resolution to', resolution, 'pixels');
+
     robot.ed.on('models', function (models) {
       $scope.$apply(function() {
         $scope.models = _.mapValues(models, function (v, k) {
@@ -25,9 +28,8 @@ angular.module('challengeOpenApp')
           waiting_time = 500;
         }
 
-        console.log(waiting_time);
         _.delay(function () {
-          var resolution = +location.search.substr(1,location.search.length) || 640;
+
           // console.time('getImage');
           robot.head.getImage(resolution, function (url, _, time_diff) {
             // console.timeEnd('getImage');
