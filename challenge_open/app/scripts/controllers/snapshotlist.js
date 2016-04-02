@@ -63,8 +63,7 @@ angular.module('challengeOpenApp')
       robot.ed.fit_model('NAVIGATE', x_ratio, y_ratio);
     };
 
-    robot.ed.on('update_time', function (t) {
-      console.log(t);
+    robot.head.on('update_time', function (t) {
       $scope.$apply(function () {
         $scope.update_time = t;
       });
