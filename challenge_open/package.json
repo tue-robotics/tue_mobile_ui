@@ -38,6 +38,7 @@
   "scripts": {
     "test": "grunt test",
     "bower": "node ./node_modules/.bin/bower",
-    "grunt": "node ./node_modules/.bin/grunt"
+    "grunt": "node ./node_modules/.bin/grunt",
+    "serve": "node ./node_modules/.bin/grunt serve"
   }
 }
