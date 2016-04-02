@@ -15,7 +15,7 @@ angular.module('challengeOpenApp')
     updateImage();
 
     $scope.teleopBase = function(teleopEvent) {
-      robot.base.sendTwist(teleopEvent.py, 0, - teleopEvent.px);
+      robot.base.sendTwist(0.5 * teleopEvent.py, 0, -teleopEvent.px);
     }
 
     $scope.teleopHead = function(teleopEvent) {
