@@ -20,7 +20,7 @@ angular.module('challengeOpenApp')
 
     $scope.teleopHead = function(teleopEvent) {
       if (teleopEvent.px == 0 && teleopEvent.py == 0) {
-        robot.head.cancelGoal();
+        // robot.head.cancelGoal();
       } else {
         var scale = 1.5;
         robot.head.sendPanTiltGoal( - scale * teleopEvent.px, - scale * teleopEvent.py);
