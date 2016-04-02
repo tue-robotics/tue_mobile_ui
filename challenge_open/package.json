@@ -39,6 +39,7 @@
     "test": "grunt test",
     "bower": "node ./node_modules/.bin/bower",
     "grunt": "node ./node_modules/.bin/grunt",
+    "build": "node ./node_modules/.bin/grunt build",
     "serve": "node ./node_modules/.bin/grunt serve"
   }
 }
