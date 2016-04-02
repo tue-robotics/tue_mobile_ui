@@ -11,6 +11,7 @@ angular.module('challengeOpenApp')
     });
 
     $scope.trigger = function (name) {
+      console.log('trigger:', name);
       topic.publish({
         data: name,
       });

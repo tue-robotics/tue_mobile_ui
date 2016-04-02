@@ -30,13 +30,17 @@
             <a ng-controller="ConnectionCtrl" class="navbar-brand" href="#/">{{connection}}</a>
           </div>
 
-          <form class="navbar-form navbar-left">
+          <form class="navbar-form navbar-left" ng-controller="TriggerCtrl">
             <button type="submit" class="btn btn-warning" ng-click="undo()" ng-disabled="isUndoing">
               <span ng-if="isUndoing" class="glyphicon glyphicon-time"></span>
               <span ng-if="!isUndoing" class="glyphicon glyphicon-share-alt icon-flipped"></span>
             </button>
             <button type="submit" class="btn btn-default" ng-click="stretch()">
               <span class="glyphicon glyphicon-move"></span>
+            </button>
+            <button type="submit" class="btn btn-info" ng-click="gpsr(); trigger('gpsr')" ng-disabled="isAskingGPSR">
+              <span ng-if="isAskingGPSR" class="glyphicon glyphicon-time"></span>
+              <span ng-if="!isAskingGPSR" class="glyphicon glyphicon-bell"></span>
             </button>
           </form>
 

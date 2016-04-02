@@ -26,6 +26,16 @@ angular.module('challengeOpenApp')
       }
     };
 
+    $scope.isAskingGPSR = false;
+    $scope.gpsr = function () {
+      $scope.isAskingGPSR = true;
+      _.delay(function () {
+        $scope.$apply(function () {
+          $scope.isAskingGPSR = false;
+        });
+      }, 1000);
+    };
+
     $scope.send_twist = function (vx, vy, vth) {
       robot.base.sendTwist(vx, vy, vth);
     };
