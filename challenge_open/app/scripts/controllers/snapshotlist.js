@@ -72,7 +72,7 @@ angular.module('challengeOpenApp')
     $scope.onDragComplete = function (data, e) {};
 
     $scope.onDropComplete = function (data, e) {
-      var div = e.element.parent()[0];
+      var div = e.element.parent()[0].parentElement;
       var size = getViewSize(div);
 
       var width_pixels = size.width;
