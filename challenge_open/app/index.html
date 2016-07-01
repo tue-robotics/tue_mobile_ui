@@ -44,6 +44,9 @@
               <span ng-if="!isAskingGPSR" class="glyphicon glyphicon-bell"></span>
               AMIGO
             </button>
+            <button ng-click="undo()" type="submit" class="btn btn-warning" ng-disabled="isUndoing">
+              <span class="glyphicon glyphicon-share-alt icon-flipped"></span> Undo
+            </button>
           </form>
 
           <p class="navbar-text">ed update: {{update_time}} ms</p>
