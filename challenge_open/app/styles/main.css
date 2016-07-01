@@ -57,10 +57,6 @@ body {
   width: 100%;
 }
 
-.model-list-wrapper {
-  margin-bottom: 200px;
-}
-
 .snapshots {
   white-space: nowrap;
   overflow-y: hidden;
