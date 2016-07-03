@@ -1,6 +1,19 @@
 var robot = window.r = new API.Robot();
 robot.connect();
 
+robot.on('status', function (status) {
+  console.log('status:', status);
+  if (status == 'connecting') {
+    document.body.style.backgroundColor = 'blue';
+  } else if (status == 'connected') {
+    document.body.style.backgroundColor = 'green';
+  } else {
+    document.body.style.backgroundColor = 'red';
+  }
+});
+
+
+
 var topic = robot.ros.Topic({
   name: 'trigger',
   messageType: 'std_msgs/String',
