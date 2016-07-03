@@ -12,8 +12,6 @@ robot.on('status', function (status) {
   }
 });
 
-
-
 var topic = robot.ros.Topic({
   name: 'trigger',
   messageType: 'std_msgs/String',
