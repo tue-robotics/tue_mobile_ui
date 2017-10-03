@@ -11,7 +11,8 @@
     "angular-circular-navigation": "*",
     "fastclick": "~1.0.6",
     "three.js": "threejs#*",
-    "angular": "~1.4.8"
+    "angular": "~1.4.8",
+    "ngDraggable": "~0.1.8"
   },
   "appPath": "app",
   "moduleName": "EdGuiApp",
