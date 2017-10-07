@@ -43,18 +43,25 @@ function handleJointState(device,name_arguments,position_arguments) {
 }
 
 function handleAmigoGripperCommand(device,argument) {
-  var topic = new ROSLIB.Topic({
+  var action = new ROSLIB.ActionClient({
     ros: ros,
-    name : device + '/references',
-    messageType: 'amigo_msgs/AmigoGripperCommand'
+    serverName: device + '/action',
+    actionName: 'tue_manipulation_msgs/GripperCommandAction',
+    timeout: 10,
   });
 
-  var message = new ROSLIB.Message({
-    direction : parseInt(argument, 10),
-    max_torque : 50
+
+  var goal = new ROSLIB.Goal({
+    actionClient: action,
+    goalMessage: {
+      command: {
+        direction : parseInt(argument, 10),
+        max_torque : 50
+      }
+    }
   });
 
-  topic.publish(message);
+  goal.send();
 }
 
 function handleSpeech(speech) {
