@@ -28,6 +28,7 @@
   },
   "scripts": {
     "bower": "bower",
+    "build": "grunt build",
     "serve": "grunt serve",
     "postinstall": "bower install && cd test && bower install"
   },
