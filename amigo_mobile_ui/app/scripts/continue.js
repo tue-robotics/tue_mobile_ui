@@ -24,7 +24,7 @@ $(document).ready(function () {
 
 		var hearTopic = new ROSLIB.Topic({
 			ros : ros,
-			name : 'speech_client/speech_string',
+			name : 'hmi/string',
 			messageType : 'std_msgs/String'
 		});
 
