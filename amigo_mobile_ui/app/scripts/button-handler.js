@@ -64,6 +64,31 @@ function handleAmigoGripperCommand(device,argument) {
   goal.send();
 }
 
+function handleHeadRef(argument) {
+  var action = new ROSLIB.ActionClient({
+    ros: ros,
+    serverName: 'head_ref/action_server',
+    actionName: 'head_ref/HeadReferenceAction',
+    timeout: 10,
+  });
+
+  argument = argument.split(',');
+  for (var i=0; i<argument.length; i++) {
+    argument[i] = parseFloat(argument[i]);
+  }
+
+  var goal = new ROSLIB.Goal({
+    actionClient: action,
+    goalMessage: {
+      goal_type: 1,
+      pan: argument[0],
+      tilt: argument[1],
+    }
+  });
+
+  goal.send();
+}
+
 function handleSpeech(speech) {
   var topic = new ROSLIB.Topic({
     ros: ros,
@@ -115,6 +140,9 @@ $( document ).ready(function() {
     switch (req[0]) {
       case 'sensor_msgs/JointState':
         handleJointState(req[1],req[2],req[3]);
+        break;
+      case 'head_ref/HeadReferenceAction':
+        handleHeadRef(req[1], req[2]);
         break;
       case 'amigo_msgs/AmigoGripperCommand':
         handleAmigoGripperCommand(req[1],req[2]);
