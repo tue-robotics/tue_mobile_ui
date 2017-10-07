@@ -15,18 +15,31 @@ function handleJointState(device,name_arguments,position_arguments) {
   /* Joint names */
   name_arguments = name_arguments.split(',');
 
-  var topic = new ROSLIB.Topic({
+
+  console.log('device: ', device);
+  console.log('name_arguments: ', name_arguments);
+  console.log('position_arguments: ', position_arguments);
+
+  var action = new ROSLIB.ActionClient({
     ros: ros,
-    name: device + '/references',
-    messageType : 'sensor_msgs/JointState'
+    serverName: 'body/joint_trajectory_action',
+    actionName: 'control_msgs/FollowJointTrajectoryAction',
+    timeout: 10,
   });
 
-  var message = new ROSLIB.Message({
-    position : position_arguments,
-    name : name_arguments
+  var goal = new ROSLIB.Goal({
+    actionClient: action,
+    goalMessage: {
+      trajectory: {
+        joint_names: name_arguments,
+        points: [{
+          positions: position_arguments
+        }]
+      }
+    }
   });
 
-  topic.publish(message);
+  goal.send();
 }
 
 function handleAmigoGripperCommand(device,argument) {
