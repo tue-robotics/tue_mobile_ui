@@ -134,7 +134,7 @@ $(document).ready(function () {
   getMeasurementsService = new ROSLIB.Service({
       ros : ros,
       name : 'ed/gui/get_measurements',
-      serviceType : 'ed/GetMeasurements'
+      serviceType : 'ed_msgs/GetMeasurements'
   });
   getMeasurements();
 
@@ -218,14 +218,14 @@ $(document).ready(function () {
   raiseEventService = new ROSLIB.Service({
       ros : ros,
       name : 'ed/gui/raise_event',
-      serviceType : 'ed/RaiseEvent'
+      serviceType : 'ed_msgs/RaiseEvent'
   });
 
   // label service
   setLabelService = new ROSLIB.Service({
       ros : ros,
       name : 'ed/gui/set_label',
-      serviceType : 'ed/SetLabel'
+      serviceType : 'ed_msgs/SetLabel'
   });
   $('#set-label-form').on('submit', function (e) {
     e.preventDefault();
