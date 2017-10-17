@@ -1,17 +1,54 @@
 <h5>Body pose board</h5>
-<div>
-  <button type="button" class="btn btn-primary">Apple</button>
-  <button type="button" class="btn btn-primary">Samsung</button>
-  <button type="button" class="btn btn-primary">Sony</button>
-  <button type="button" class="btn btn-primary">Apple</button>
-  <button type="button" class="btn btn-primary">Samsung</button>
-  <button type="button" class="btn btn-primary">Sony</button>
-  <button type="button" class="btn btn-primary">Apple</button>
-  <button type="button" class="btn btn-primary">Samsung</button>
-  <button type="button" class="btn btn-primary">Sony</button>
-  <button type="button" class="btn btn-primary">Apple</button>
-  <button type="button" class="btn btn-primary">Samsung</button>
-  <button type="button" class="btn btn-primary">Sony</button>
+<div ng-controller="JointCtrl">
+  <h6>Torso</h6>
+  <div>
+    <button type="button" class="btn btn-primary" ng-click="sendJointCommand('dsa')">High</button>
+    <button type="button" class="btn btn-primary">Normal</button>
+    <button type="button" class="btn btn-primary">Low</button>
+  </div>
+  <h6>Left arm</h6>
+  <div>
+    <button type="button" class="btn btn-primary">Photo</button>
+    <button type="button" class="btn btn-primary">Give</button>
+    <button type="button" class="btn btn-primary">Carry</button>
+    <button type="button" class="btn btn-primary">Salut</button>
+    <button type="button" class="btn btn-primary">Reset</button>
+    <button type="button" class="btn btn-primary">Null</button>
+  </div>
+  <h6>Right arm</h6>
+  <div>
+    <button type="button" class="btn btn-primary">Photo</button>
+    <button type="button" class="btn btn-primary">Give</button>
+    <button type="button" class="btn btn-primary">Carry</button>
+    <button type="button" class="btn btn-primary">Salut</button>
+    <button type="button" class="btn btn-primary">Reset</button>
+    <button type="button" class="btn btn-primary">Null</button>
+  </div>
+  <h6>Grippers</h6>
+  <div>
+    <button type="button" class="btn btn-primary">Open left</button>
+    <button type="button" class="btn btn-primary">Open right</button>
+    <button type="button" class="btn btn-primary">Close left</button>
+    <button type="button" class="btn btn-primary">Close right</button>
+  </div>
+  <h6>Head</h6>
+  <div>
+    <div>
+      <button type="button" class="btn btn-primary">Up left</button>
+      <button type="button" class="btn btn-primary">Up center</button>
+      <button type="button" class="btn btn-primary">Up right</button>
+    </div>
+    <div>
+      <button type="button" class="btn btn-primary">Middle left</button>
+      <button type="button" class="btn btn-primary">Middle center</button>
+      <button type="button" class="btn btn-primary">Middle right</button>
+    </div>
+    <div>
+      <button type="button" class="btn btn-primary">Down left</button>
+      <button type="button" class="btn btn-primary">Down center</button>
+      <button type="button" class="btn btn-primary">Down right</button>
+  </div>
+  </div>
 </div>
 <hr />
 <h5>Specific joint set-points</h5>
