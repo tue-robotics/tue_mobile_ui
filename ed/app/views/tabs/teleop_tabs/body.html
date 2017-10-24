@@ -1,8 +1,8 @@
 <h5>Body pose board</h5>
-<div ng-controller="JointCtrl">
+<div ng-controller="TeleopCtrl">
   <h6>Torso</h6>
   <div>
-    <button type="button" class="btn btn-primary" ng-click="sendJointCommand('dsa')">High</button>
+    <button type="button" class="btn btn-primary" ng-click="TeleopCtrl.sendJointCommand();">High</button>
     <button type="button" class="btn btn-primary">Normal</button>
     <button type="button" class="btn btn-primary">Low</button>
   </div>

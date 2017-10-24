@@ -31,3 +31,7 @@ To run the build tasks:
 `grunt build` will build the app in the build directory. It will also run the linter and test cases.
 
 `grunt serve` will watch for any changes to any of the src/ files and automatically build the files. This is ideal for those developing as you should only have to run `grunt serve` once.
+
+
+## In robot-api (~/ros/kinetic/system/src/robot-api)
+npm run watch_global

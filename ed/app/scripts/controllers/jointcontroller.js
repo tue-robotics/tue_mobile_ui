@@ -1,7 +1,7 @@
 'use strict';
-
+// THIS IS NOT NECESSARY: EVERYTHING WILL BE IN TeleopCtrl
 angular.module('EdGuiApp')
-  .controller('JointCtrl', function($scope, $timeout, robot) {
+  .controller('JointCtrl', function($scope), $timeout, robot) {
 
     $scope.sendJointCommand = function(cmd) {
       console.log('Joint command:', cmd)
