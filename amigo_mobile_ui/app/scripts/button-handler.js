@@ -15,33 +15,78 @@ function handleJointState(device,name_arguments,position_arguments) {
   /* Joint names */
   name_arguments = name_arguments.split(',');
 
-  var topic = new ROSLIB.Topic({
+
+  console.log('device: ', device);
+  console.log('name_arguments: ', name_arguments);
+  console.log('position_arguments: ', position_arguments);
+
+  var action = new ROSLIB.ActionClient({
     ros: ros,
-    name: device + '/references',
-    messageType : 'sensor_msgs/JointState'
+    serverName: 'body/joint_trajectory_action',
+    actionName: 'control_msgs/FollowJointTrajectoryAction',
+    timeout: 10,
   });
 
-  var message = new ROSLIB.Message({
-    position : position_arguments,
-    name : name_arguments
+  var goal = new ROSLIB.Goal({
+    actionClient: action,
+    goalMessage: {
+      trajectory: {
+        joint_names: name_arguments,
+        points: [{
+          positions: position_arguments
+        }]
+      }
+    }
   });
 
-  topic.publish(message);
+  goal.send();
 }
 
 function handleAmigoGripperCommand(device,argument) {
-  var topic = new ROSLIB.Topic({
+  var action = new ROSLIB.ActionClient({
     ros: ros,
-    name : device + '/references',
-    messageType: 'amigo_msgs/AmigoGripperCommand'
+    serverName: device + '/action',
+    actionName: 'tue_manipulation_msgs/GripperCommandAction',
+    timeout: 10,
   });
 
-  var message = new ROSLIB.Message({
-    direction : parseInt(argument, 10),
-    max_torque : 50
+
+  var goal = new ROSLIB.Goal({
+    actionClient: action,
+    goalMessage: {
+      command: {
+        direction : parseInt(argument, 10),
+        max_torque : 50
+      }
+    }
   });
 
-  topic.publish(message);
+  goal.send();
+}
+
+function handleHeadRef(argument) {
+  var action = new ROSLIB.ActionClient({
+    ros: ros,
+    serverName: 'head_ref/action_server',
+    actionName: 'head_ref/HeadReferenceAction',
+    timeout: 10,
+  });
+
+  argument = argument.split(',');
+  for (var i=0; i<argument.length; i++) {
+    argument[i] = parseFloat(argument[i]);
+  }
+
+  var goal = new ROSLIB.Goal({
+    actionClient: action,
+    goalMessage: {
+      goal_type: 1,
+      pan: argument[0],
+      tilt: argument[1],
+    }
+  });
+
+  goal.send();
 }
 
 function handleSpeech(speech) {
@@ -95,6 +140,9 @@ $( document ).ready(function() {
     switch (req[0]) {
       case 'sensor_msgs/JointState':
         handleJointState(req[1],req[2],req[3]);
+        break;
+      case 'head_ref/HeadReferenceAction':
+        handleHeadRef(req[1], req[2]);
         break;
       case 'amigo_msgs/AmigoGripperCommand':
         handleAmigoGripperCommand(req[1],req[2]);

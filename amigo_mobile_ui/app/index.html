@@ -53,6 +53,7 @@
                     <ul>
                         <li><a href="#teleop">Teleop</a></li>
                         <li><a href="#poses">Custom Poses</a></li>
+                        <li><a href="#presentation">Presentation</a></li>
                     </ul>
 
                     <h4>Sounds</h4>
@@ -61,12 +62,6 @@
                         <li><a href="#texttospeech">Text to Speech</a></li>
                         <li><a href="#amigohear">Amigo hear</a></li>
                     </ul>
-
-                    <h4>Skill Server</h4>
-                    <ul>
-                        <li><a href="#skillserver">Skill Server</a></li>
-                    </ul>
-
                 </div>
             </div>
 
@@ -218,11 +213,12 @@
                                     left_arm/gripper|
                                     -1
                                     ">L-Open</button></td>
-                                <td colspan="2"><button type="button" class="btn btn-default" data-src="
+                                <td><button type="button" class="btn btn-default" data-src="
                                     amigo_msgs/AmigoGripperCommand|
                                     left_arm/gripper|
                                     1
                                     ">L-Close</button></td>
+                                <td></td>
                             </tr>
                             <tr>
                                 <td><button type="button" class="btn btn-default" data-src="
@@ -240,66 +236,54 @@
                             <tr><td colspan="3" class="table-header">Head</td></tr>
                             <tr>
                                 <td><button type="button" class="btn btn-default" data-src="
-                                    sensor_msgs/JointState|
-                                    neck|
-                                    neck_pan_joint,neck_tilt_joint|
+                                    head_ref/HeadReferenceAction|
                                     0.5,-0.5
                                     ">Up-L</button></td>
                                 <td><button type="button" class="btn btn-default" data-src="
-                                    sensor_msgs/JointState|
-                                    neck|
-                                    neck_pan_joint,neck_tilt_joint|
+                                    head_ref/HeadReferenceAction|
                                     0,-0.5
                                     ">Up-C</button></td>
                                 <td><button type="button" class="btn btn-default" data-src="
-                                    sensor_msgs/JointState|
-                                    neck|
-                                    neck_pan_joint,neck_tilt_joint|
+                                    head_ref/HeadReferenceAction|
                                     -0.5,-0.5
                                     ">Up-R</button></td>
                             </tr>
                             <tr>
                                 <td><button type="button" class="btn btn-default" data-src="
-                                    sensor_msgs/JointState|
-                                    neck|
-                                    neck_pan_joint,neck_tilt_joint|
+                                    head_ref/HeadReferenceAction|
                                     0.5,0
                                     ">Middle-L</button></td>
                                 <td><button type="button" class="btn btn-default" data-src="
-                                    sensor_msgs/JointState|
-                                    neck|
-                                    neck_pan_joint,neck_tilt_joint|
+                                    head_ref/HeadReferenceAction|
                                     0.0,0.0
                                     ">Middle-C</button></td>
                                 <td><button type="button" class="btn btn-default" data-src="
-                                    sensor_msgs/JointState|
-                                    neck|
-                                    neck_pan_joint,neck_tilt_joint|
+                                    head_ref/HeadReferenceAction|
                                     -0.5,0
                                     ">Middle-R</button></td>
                             </tr>
                             <tr>
                                 <td><button type="button" class="btn btn-default" data-src="
-                                    sensor_msgs/JointState|
-                                    neck|
-                                    neck_pan_joint,neck_tilt_joint|
+                                    head_ref/HeadReferenceAction|
                                     0.5,0.5
                                     ">Down-L</button></td>
                                 <td><button type="button" class="btn btn-default" data-src="
-                                    sensor_msgs/JointState|
-                                    neck|
-                                    neck_pan_joint,neck_tilt_joint|
+                                    head_ref/HeadReferenceAction|
                                     0,0.5
                                     ">Down-C</button></td>
                                 <td><button type="button" class="btn btn-default" data-src="
-                                    sensor_msgs/JointState|
-                                    neck|
-                                    neck_pan_joint,neck_tilt_joint|
+                                    head_ref/HeadReferenceAction|
                                     -0.5,0.5
                                     ">Down-R</button></td>
                             </tr>
                         </table>
 
+                </div>
+
+                <div id="presentation" data-title="Presentation">
+                    <div class="container">
+                        Present in <input class="btn btn-primary" type="button" value="English"> or in <input class="btn btn-primary" type="button" value="Dutch">
+                    </div>
                 </div>
 
                 <div id="soundboard"    data-title="Sound Board">
@@ -373,11 +357,6 @@
                         <ul id="hear-log" class="list-group"></ul>
                     </div>
                 </div>
-
-                <div id="skillserver" data-title="Skill Server">
-                    <!-- Fill m up scotty -->
-                    <p>I shouldn't be here, I should be a set of buttons :(. Did you start the skill-server? Otherwise refresh :).</p>
-                </div>
             </div>
         </div>
 
@@ -407,9 +386,9 @@
         <script src="scripts/pinghistory.js"></script>
         <script src="scripts/teleop.js"></script>
         <script src="scripts/canvas-teleop.js"></script>
+        <script src="scripts/presentation.js"></script>
 
         <script src="scripts/pagenav.js"></script>
-        <script src="scripts/skillserver.js"></script>
         <script src="scripts/button-handler.js"></script>
         <script src="scripts/text-to-speech.js"></script>
         <script src="scripts/battery-manager.js"></script>
