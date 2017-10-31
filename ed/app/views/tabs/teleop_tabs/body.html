@@ -1,28 +1,28 @@
 <h5>Body pose board</h5>
-<div ng-controller="TeleopCtrl">
+<div ng-controller="JointCtrl">
   <h6>Torso</h6>
   <div>
-    <button type="button" class="btn btn-primary" ng-click="sendJointCommand({joint_names: ['torso_joint'], positions: [0.4]});">High</button>
-    <button type="button" class="btn btn-primary" ng-click="sendJointCommand({joint_names: ['torso_joint'], positions: [0.35]});">Normal</button>
-    <button type="button" class="btn btn-primary" ng-click="sendJointCommand({joint_names: ['torso_joint'], positions: [0.10]});">Low</button>
+    <button ng-repeat="(key, value) in default_configurations['torso']"
+            type="button" class="btn btn-primary"
+            ng-click="sendJointCommand({body_part: 'torso', configuration: key});">
+            {{key}}
+    </button>
   </div>
   <h6>Left arm</h6>
   <div>
-    <button type="button" class="btn btn-primary">Photo</button>
-    <button type="button" class="btn btn-primary">Give</button>
-    <button type="button" class="btn btn-primary">Carry</button>
-    <button type="button" class="btn btn-primary">Salut</button>
-    <button type="button" class="btn btn-primary">Reset</button>
-    <button type="button" class="btn btn-primary">Null</button>
+    <button ng-repeat="(key, value) in default_configurations['left_arm']"
+            type="button" class="btn btn-primary"
+            ng-click="sendJointCommand({body_part: 'left_arm', configuration: key});">
+            {{key}}
+    </button>
   </div>
   <h6>Right arm</h6>
   <div>
-    <button type="button" class="btn btn-primary">Photo</button>
-    <button type="button" class="btn btn-primary">Give</button>
-    <button type="button" class="btn btn-primary">Carry</button>
-    <button type="button" class="btn btn-primary">Salut</button>
-    <button type="button" class="btn btn-primary">Reset</button>
-    <button type="button" class="btn btn-primary">Null</button>
+    <button ng-repeat="(key, value) in default_configurations['right_arm']"
+            type="button" class="btn btn-primary"
+            ng-click="sendJointCommand({body_part: 'right_arm', configuration: key});">
+            {{key}}
+    </button>
   </div>
   <h6>Grippers</h6>
   <div>

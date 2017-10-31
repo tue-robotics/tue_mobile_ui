@@ -18,11 +18,6 @@ angular.module('EdGuiApp')
       robot.base.sendTwist(teleopEvent.py, 0, - teleopEvent.px);
     }
 
-    $scope.sendJointCommand = function(cmd) {
-      console.log('Joint command:', cmd)
-      robot.body.sendGoal(cmd)
-    }
-
     $scope.teleopHead = function(teleopEvent) {
       if (teleopEvent.px == 0 && teleopEvent.py == 0) {
         robot.head.cancelGoal();
