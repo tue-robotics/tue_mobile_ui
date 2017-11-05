@@ -1,0 +1,17 @@
+<!-- lost connection modal -->
+<div class="modal fade" id="modalConnectionLost" tabindex="-1" role="dialog" aria-labelledby="modalConnectionLostLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title" id="modalConnectionLostLabel">ROS connection lost!</h4>
+      </div>
+      <div class="modal-body">
+        Please turn on the ros backend and ensure a proper connection.
+      </div>
+      <div class="modal-footer">
+        <button id="dismiss" type="button" class="btn" data-dismiss="modal">Dismiss</button>
+        <button id="reconnect" type="button" class="btn btn-primary" data-loading-text="Connecting...">Connect</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
