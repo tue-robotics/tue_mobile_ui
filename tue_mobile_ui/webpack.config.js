@@ -2,6 +2,7 @@ const path = require('path');
 const webpack = require('webpack'); //to access built-in plugins
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
+const ExtractTextPlugin = require('extract-text-webpack-plugin');
 
 module.exports = {
   entry: {
@@ -13,7 +14,6 @@ module.exports = {
   },
   module: {
     rules: [
-      { test: /\.(ejs)$/, loader: 'html-loader' },
       {
         test: /\.(html)$/,
         use: {
@@ -23,9 +23,28 @@ module.exports = {
           }
         }
       },
-      { test: /\.css$/, use: ['style-loader', 'css-loader'] },
-      { test: /\.woff($|\?)|\.woff2($|\?)|\.ttf($|\?)|\.eot($|\?)|\.svg($|\?)/, loader: 'url-loader?limit=2048' },
-      { test: /\.png$|\.mp3$/, loader: 'url-loader?limit=2048' },
+      {
+        test: /\.css$/,
+        use: ExtractTextPlugin.extract({
+          fallback: "style-loader",
+          use: "css-loader"
+        })
+      },
+      {
+        test: /\.woff($|\?)|\.woff2($|\?)|\.ttf($|\?)|\.eot($|\?)|\.svg($|\?)/,
+        loader: 'url-loader',
+        options: {
+          limit: 2048,
+          name: '[name]-[hash].[ext]'
+        }
+      },
+      {
+        test: /\.png$|\.mp3$/, loader: 'url-loader',
+        options: {
+          limit: 2048,
+          name: '[name]-[hash].[ext]'
+        }
+      }
     ]
   },
   plugins: [
@@ -36,10 +55,14 @@ module.exports = {
     new webpack.ProvidePlugin({
       // $: 'jquery',
       jQuery: 'jquery'
-    })
+    }),
+    new ExtractTextPlugin({
+      filename: "[name]-[contenthash].css",
+      disable: process.env.NODE_ENV !== 'production'
+    }),
   ],
   output: {
-    filename: '[name].bundle.js',
+    filename: "[name]-[chunkhash].js",
     path: path.resolve(__dirname, 'dist')
   }
 };
