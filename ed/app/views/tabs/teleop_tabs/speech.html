@@ -1,3 +1,9 @@
+<h5>Text to speech</h5>
+<form ng-submit="speak()" ng-controller="SpeechCtrl">
+  <input type="text" ng-model="sentence" name="sentence" placeholder="Enter the text and press <enter> ..."/>
+  <input type="submit" id="submit" value="Submit" />
+</form>
+<hr />
 <h5>Sound board</h5>
 <div>
   <button type="button" class="btn btn-primary">Apple</button>
@@ -12,10 +18,5 @@
   <button type="button" class="btn btn-primary">Apple</button>
   <button type="button" class="btn btn-primary">Samsung</button>
   <button type="button" class="btn btn-primary">Sony</button>
-</div>
-<hr />
-<h5>Text to speech</h5>
-<div class="form-group">
-  <input type="text" class="form-control continue" placeholder="Enter the text and press <enter> ...">
 </div>
 <!-- <ul id="hear-log" class="list-group"></ul> -->

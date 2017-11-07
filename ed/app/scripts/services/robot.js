@@ -18,6 +18,7 @@ angular.module('EdGuiApp')
         'head': true,
         'base': true,
         'body': true,
+        'speech': true,
         'actionServer': true});
       robot.connect();
       return robot;
