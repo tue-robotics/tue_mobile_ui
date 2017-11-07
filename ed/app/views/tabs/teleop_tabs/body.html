@@ -26,11 +26,12 @@
   </div>
   <h6>Grippers</h6>
   <div>
-    <button type="button" class="btn btn-primary">Open left</button>
-    <button type="button" class="btn btn-primary">Open right</button>
-    <button type="button" class="btn btn-primary">Close left</button>
-    <button type="button" class="btn btn-primary">Close right</button>
+    <button type="button" class="btn btn-primary" ng-click="sendGripperCommand({side: 'left', direction: 'open'})">Open left</button>
+    <button type="button" class="btn btn-primary" ng-click="sendGripperCommand({side: 'right', direction: 'open'})">Open right</button>
+    <button type="button" class="btn btn-primary" ng-click="sendGripperCommand({side: 'left', direction: 'close'})">Close left</button>
+    <button type="button" class="btn btn-primary" ng-click="sendGripperCommand({side: 'right', direction: 'close'})">Close right</button>
   </div>
+  <!--
   <h6>Head</h6>
   <div>
     <div>
@@ -67,4 +68,5 @@
 		<slider ng-model="sliders.sliderValue" min="testOptions.min" step="testOptions.step" max="testOptions.max" value="testOptions.value"></slider>
 	<br />
 	<button class="btn btn-primary">Go!</button>
+-->
 </div>
