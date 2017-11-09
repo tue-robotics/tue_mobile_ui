@@ -9,19 +9,6 @@
 
     <link rel="shortcut icon" href="favicon.ico">
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
-
-    <!-- build:css({.tmp,app}) styles/vendor.css -->
-    <!-- bower:css -->
-    <link rel="stylesheet" href="bower_components/seiyria-bootstrap-slider/dist/css/bootstrap-slider.css" />
-    <!-- endbower -->
-    <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.css" />
-    <link rel="stylesheet" href="bower_components/angular-circular-navigation/angular-circular-navigation.css">
-    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
-
-    <!-- endbuild -->
-    <!-- build:css({.tmp,app}) styles/main.css -->
-    <link rel="stylesheet" href="styles/main.css">
-    <!-- endbuild -->
   </head>
   <body ng-app="EdGuiApp" class="noselect">
 
@@ -39,43 +26,6 @@
 
     <div class="main-view" ng-include="'views/main.html'" ng-controller="MainCtrl">
     </div>
-
-    <!-- build:js({.tmp,app}) scripts/vendor.js -->
-    <!-- bower:js -->
-    <script src="bower_components/jquery/dist/jquery.js"></script>
-    <script src="bower_components/console-polyfill/index.js"></script>
-    <script src="bower_components/eventemitter2/lib/eventemitter2.js"></script>
-    <script src="bower_components/bson/browser_build/bson.js"></script>
-    <script src="bower_components/roslib/build/roslib.js"></script>
-    <script src="bower_components/robot-api/dist/bundle.js"></script>
-    <script src="bower_components/bootstrap/dist/js/bootstrap.js"></script>
-    <script src="bower_components/angular/angular.js"></script>
-    <script src="bower_components/angular-bootstrap/ui-bootstrap-tpls.js"></script>
-    <script src="bower_components/jquery-bridget/jquery.bridget.js"></script>
-    <script src="bower_components/seiyria-bootstrap-slider/js/bootstrap-slider.js"></script>
-    <script src="bower_components/angular-bootstrap-slider/slider.js"></script>
-    <script src="bower_components/angular-circular-navigation/angular-circular-navigation.js"></script>
-    <script src="bower_components/fastclick/lib/fastclick.js"></script>
-    <script src="bower_components/three.js/build/three.js"></script>
-    <!-- endbower -->
-    <!-- endbuild -->
-
-    <!-- build:js({.tmp,app}) scripts/scripts.js -->
-    <script src="scripts/orbitControls.js"></script>
-    <script src="scripts/scenerenderer.js"></script>
-
-    <script src="scripts/app.js"></script>
-    <script src="scripts/run.js"></script>
-
-    <script src="scripts/services/robot.js"></script>
-    <script src="scripts/directives/ngwebgl.js"></script>
-    <script src="scripts/directives/ngteleopcanvas.js"></script>
-    <script src="scripts/controllers/main.js"></script>
-    <script src="scripts/controllers/connection.js"></script>
-    <script src="scripts/controllers/circularmenu.js"></script>
-    <script src="scripts/controllers/sidebar.js"></script>
-    <script src="scripts/controllers/teleop.js"></script>
-    <!-- endbuild -->
 
   </body>
 </html>
