@@ -17,5 +17,9 @@
       2
     ],
     "no-console": 0
+  },
+  "overrides": {
+    "files": "webpack.config.js",
+    "env": { "node": true }
   }
 }
