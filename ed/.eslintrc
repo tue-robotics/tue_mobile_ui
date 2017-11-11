@@ -1,0 +1,21 @@
+{
+  "parserOptions": {
+    "sourceType": "module"
+  },
+  "extends": [
+    "eslint:recommended"
+  ],
+  "env": {
+    "browser": true
+  },
+  "globals": {
+    "angular": true
+  },
+  "rules": {
+    "indent": [
+      2,
+      2
+    ],
+    "no-console": 0
+  }
+}
