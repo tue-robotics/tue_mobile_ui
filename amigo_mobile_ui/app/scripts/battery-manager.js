@@ -1,6 +1,5 @@
-'use strict';
-
-/* global ros */
+import $ from 'jquery';
+import ros from './ros-connect-amigo';
 
 var set_battery;
 

@@ -1,6 +1,6 @@
 'use strict';
 
-/* global ros */
+import $ from 'jquery';
 
 var input;
 var log;

@@ -1,3 +1,5 @@
+import $ from 'jquery';
+
 $('#presentation').on('click', 'input', function (e) {
   var action = new ROSLIB.ActionClient({
     ros: ros,

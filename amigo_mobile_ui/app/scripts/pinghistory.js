@@ -2,8 +2,7 @@
 * Draws a graph on a canvas
 **/
 
-// dependencies
-/*global pingHistory:true, ros:true */
+import $ from 'jquery';
 
 // globals
 

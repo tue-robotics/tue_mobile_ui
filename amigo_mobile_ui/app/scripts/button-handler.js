@@ -1,4 +1,4 @@
-/* global ros */
+import $ from 'jquery';
 
 (function () {
 

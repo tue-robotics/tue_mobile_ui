@@ -1,31 +1,19 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
     <head>
         <meta charset="utf-8">
         <title>Amigo Mobile UI</title>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width">
-        <link rel="shortcut icon" href="/favicon.ico">
 
         <!-- Apple Web Applications configuration -->
         <meta name="apple-mobile-web-app-capable" content="yes">
         <link rel="apple-touch-icon-precomposed" href="apple-touch-icon-precomposed.png">
         <link rel="apple-touch-startup-image" href="startup.png">
-
-        <!-- build:css(.) styles/vendor.css -->
-        <link rel="stylesheet" type="text/css" href="bower_components/snapjs/snap.css" />
-        <!-- bower:css -->
-        <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.css" />
-        <!-- endbower -->
-        <!-- endbuild -->
-
-        <!-- build:css(.tmp) styles/main.css -->
-        <link rel="stylesheet" href="styles/main.css">
-        <!-- endbuild -->
     </head>
     <body>
         <audio>
-            <source src="http://www.xamuel.com/blank-mp3-files/point1sec.mp3" type="audio/mp3" />
+            <source src="silence.mp3" type="audio/mp3" />
         </audio>
 
         <!-- lost connection modal -->
@@ -359,63 +347,5 @@
                 </div>
             </div>
         </div>
-
-        <script>
-          var weinre = window.location.protocol + '//' + window.location.hostname + ':8080/target/target-script-min.js#anonymous';
-          location.search.indexOf('debug')>0 && document.write('<script src="' + weinre + '"><\/script>');
-        </script>
-        <!-- build:js(.) scripts/vendor.js -->
-        <!-- bower:js -->
-        <script src="bower_components/jquery/dist/jquery.js"></script>
-        <script src="bower_components/console-polyfill/index.js"></script>
-        <script src="bower_components/eventemitter2/lib/eventemitter2.js"></script>
-        <script src="bower_components/roslibjs/build/roslib.js"></script>
-        <script src="bower_components/hammerjs/hammer.js"></script>
-        <script src="bower_components/handlebars/handlebars.js"></script>
-        <script src="bower_components/snapjs/snap.js"></script>
-        <!-- endbower -->
-        <script src="bower_components/jquery-hashchange/jquery.hashchange.js"></script>
-        <!-- endbuild -->
-
-        <!-- build:js(.) scripts/plugins.js -->
-        <script src="bower_components/bootstrap/dist/js/bootstrap.js"></script>
-        <!-- endbuild -->
-
-        <!-- build:js({app,.tmp}) scripts/main.js -->
-        <script src="scripts/ros-connect-amigo.js"></script>
-        <script src="scripts/pinghistory.js"></script>
-        <script src="scripts/teleop.js"></script>
-        <script src="scripts/canvas-teleop.js"></script>
-        <script src="scripts/presentation.js"></script>
-
-        <script src="scripts/pagenav.js"></script>
-        <script src="scripts/button-handler.js"></script>
-        <script src="scripts/text-to-speech.js"></script>
-        <script src="scripts/battery-manager.js"></script>
-        <script src="scripts/continue.js"></script>
-        <!-- endbuild -->
-
-        <script>
-            (function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=
-            function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;
-            e=o.createElement(i);r=o.getElementsByTagName(i)[0];
-            e.src='//www.google-analytics.com/analytics.js';
-            r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));
-            ga('create', 'UA-48827893-2', {
-              'cookieDomain': 'none',       // enable testing on localhost
-              'siteSpeedSampleRate': 100    // enable Site Speed measuring
-            });
-            // track page switches
-            $(window).bind('hashchange', function(e) {
-                var page = location.pathname+location.search+location.hash;
-                ga('set', 'page', page);
-                ga('send', 'pageview');
-            });
-            // track poses
-            $('#main button').click(function() {
-                var val = this.innerHTML;
-                ga('send', 'event', 'button', 'click', val);
-            });
-        </script>
     </body>
 </html>
