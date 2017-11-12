@@ -44,7 +44,15 @@ module.exports = {
           limit: 2048,
           name: '[name]-[hash].[ext]'
         }
-      }
+      },
+      /*
+      * Necessary to be able to use angular 1 with webpack as explained in https://github.com/webpack/webpack/issues/2049
+      */
+      {
+        test: require.resolve('angular'),
+        loader: 'exports-loader?window.angular'
+      },
+      { test: /angular-[^.]+\.js$/, loader: "imports-loader?angular" },
     ]
   },
   plugins: [
@@ -54,7 +62,9 @@ module.exports = {
     }),
     new webpack.ProvidePlugin({
       // $: 'jquery',
-      jQuery: 'jquery'
+      jQuery: 'jquery',
+      angular: 'angular',
+      THREE: 'three',
     }),
     new ExtractTextPlugin({
       filename: "[name]-[contenthash].css",
