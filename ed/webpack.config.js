@@ -65,6 +65,8 @@ module.exports = {
       jQuery: 'jquery',
       angular: 'angular',
       THREE: 'three',
+      FastClick: 'fastclick',
+      API: 'robot-api',
     }),
     new ExtractTextPlugin({
       filename: "[name]-[contenthash].css",

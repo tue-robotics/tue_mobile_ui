@@ -9,6 +9,8 @@ import './styles/main.css';
 // import js
 
 import 'angular-circular-navigation/angular-circular-navigation.js'
+import 'angular-bootstrap-slider';
+
 import './scripts/app'
 import './scripts/controllers/circularmenu'
 import './scripts/controllers/connection'
