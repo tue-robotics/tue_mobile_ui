@@ -1,8 +1,5 @@
 {
-  "name": "amigo_mobile_ui",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "private": true,
   "scripts": {
     "start": "webpack-dev-server --open",
     "build": "cross-env NODE_ENV=production webpack -p --progress"
