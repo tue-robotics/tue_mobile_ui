@@ -134,16 +134,15 @@
     mesh.position.z = 10;
     scene.add( mesh );
 
-    // Temporarily disabled to suppress errors. DO NOT MERGE
-    // setInterval(function() {
-    //   robot.head.getImage(640, function(rgb, depth) {
-    //     var texture_image = new Image();
-    //     texture_image.src = depth;
-    //
-    //     texture.image = texture_image;
-    //     texture.needsUpdate = true;
-    //   });
-    // }, 100);
+    setInterval(function() {
+      robot.head.getImage(640, function(rgb, depth) {
+        var texture_image = new Image();
+        texture_image.src = depth;
+
+        texture.image = texture_image;
+        texture.needsUpdate = true;
+      });
+    }, 100);
 
     /* END RENDER KINECT */
 

@@ -44,6 +44,6 @@ angular.module('EdGuiApp')
         }, time_diff * 2);
       }
 
-      update(200); // Disabled to suppress errors. DO NOT MERGE
+      update(200);
     });
   });

@@ -12,7 +12,7 @@ angular.module('EdGuiApp')
         });
       }, 1000)
     }
-    // updateImage(); // Disabled to suppress error. DO NOT MERGE
+    updateImage(); // Disabled to suppress error. DO NOT MERGE
 
     $scope.teleopBase = function(teleopEvent) {
       robot.base.sendTwist(teleopEvent.py, 0, - teleopEvent.px);
