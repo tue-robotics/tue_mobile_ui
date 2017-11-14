@@ -125,7 +125,7 @@ table.buttons .btn {
   height: 100%;
 }
 
-#main-tabs {
+#overlay-buttons {
   position: absolute;
   top: 58px;
   left: 15px;
@@ -133,23 +133,18 @@ table.buttons .btn {
   width: 100%;
 }
 
-#main-tabs ul {
+#overlay-buttons ul {
   border-bottom: 0 !important;
 }
 
-#main-tabs li {
+#overlay-buttons li {
   margin: 5px;
 }
 
-#main-tabs li a {
+#overlay-buttons li a {
   border-radius: 20px;
   background-color: white;
   border: 0 !important;
-}
-
-#main-tabs .active a {
-  background-color: green;
-  color: white;
 }
 
 #sidebar > .tab-content {
