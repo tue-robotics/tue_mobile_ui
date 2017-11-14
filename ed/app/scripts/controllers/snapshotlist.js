@@ -17,14 +17,7 @@ angular.module('EdGuiApp')
       });
     };
 
-    $scope.backgroundSize = 'contain';
-    $scope.stretch = function () {
-      if ($scope.backgroundSize === 'contain') {
-        $scope.backgroundSize = '71% 100%';
-      } else {
-        $scope.backgroundSize = 'contain';
-      }
-    };
+    $scope.backgroundSize = '71% 100%';
 
     $scope.isAskingGPSR = false;
     $scope.gpsr = function () {

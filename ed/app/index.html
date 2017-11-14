@@ -23,7 +23,7 @@
     <link rel="stylesheet" href="styles/main.css">
     <!-- endbuild -->
   </head>
-  <body ng-app="EdGuiApp" class="noselect">
+  <body ng-app="EdGuiApp" class="noselect" ng-controller="TriggerCtrl">
 
     <div class="header">
       <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
@@ -80,6 +80,21 @@
               </div>
             </div>
             <div class="tab-pane" id="scene-editor" ng-controller="SnapshotlistCtrl">
+              <!-- Nav tabs -->
+              <div class="overlay-buttons">
+                <ul class="nav nav-tabs">
+                  <li>
+                      <a href="#" ng-click="undo()">
+                          <icon class="fa fa-undo"></icon> Undo
+                      </a>
+                  </li>
+                  <li>
+                      <a href="#" ng-click="create_walls()">
+                          <icon class="fa fa-cubes"></icon> Create walls
+                      </a>
+                  </li>
+                </ul>
+              </div>
               <div class="container-fluid snapshot-model-editor">
                 <div class="row top-row">
 
@@ -100,6 +115,22 @@
 
                   </div>
 
+                </div>
+
+              </div>
+
+              <div class="footer teleop">
+
+                <div ng-controller="TeleopCtrl">
+                  <div ng-include="'views/tabs/teleop_tabs/base.html'"></div>
+                </div>
+
+              </div>
+
+              <div class="footer head">
+
+                <div ng-controller="TeleopCtrl">
+                  <div ng-include="'views/tabs/teleop_tabs/head.html'"></div>
                 </div>
 
               </div>
@@ -150,6 +181,7 @@
     <script src="scripts/controllers/snapshotlist.js"></script>
     <script src="scripts/controllers/modellist.js"></script>
     <script src="scripts/controllers/jointcontroller.js"></script>
+    <script src="scripts/controllers/trigger.js"></script>
     <!-- endbuild -->
 
   </body>

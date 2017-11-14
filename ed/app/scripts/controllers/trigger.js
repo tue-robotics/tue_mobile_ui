@@ -2,7 +2,7 @@
 
 /* global _ */
 
-angular.module('challengeOpenApp')
+angular.module('EdGuiApp')
   .controller('TriggerCtrl', function ($scope, robot) {
 
     var topic = robot.ros.Topic({
