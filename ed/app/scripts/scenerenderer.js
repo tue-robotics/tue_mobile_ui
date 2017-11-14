@@ -134,16 +134,6 @@
     mesh.position.z = 10;
     scene.add( mesh );
 
-    setInterval(function() {
-      robot.head.getImage(640, function(rgb, depth) {
-        var texture_image = new Image();
-        texture_image.src = depth;
-
-        texture.image = texture_image;
-        texture.needsUpdate = true;
-      });
-    }, 100);
-
     /* END RENDER KINECT */
 
     this.robot.ed.watch({
