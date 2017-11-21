@@ -13,7 +13,7 @@ angular.module('EdGuiApp')
       robot.body.sendGripperGoal(cmd)
     }
 
-    $scope.joint_names = robot.body.joint_names
-    $scope.default_configurations = robot.body.default_configurations
+    $scope.joint_names = robot.body.jointNames
+    $scope.default_configurations = robot.body.defaultConfigurations
 
   });

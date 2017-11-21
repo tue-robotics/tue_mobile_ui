@@ -10,17 +10,17 @@
   </div>
   <h6>Left arm</h6>
   <div>
-    <button ng-repeat="(key, value) in default_configurations['left_arm']"
+    <button ng-repeat="(key, value) in default_configurations['leftArm']"
             type="button" class="btn btn-primary"
-            ng-click="sendJointCommand({body_part: 'left_arm', configuration: key});">
+            ng-click="sendJointCommand({body_part: 'leftArm', configuration: key});">
             {{key}}
     </button>
   </div>
   <h6>Right arm</h6>
   <div>
-    <button ng-repeat="(key, value) in default_configurations['right_arm']"
+    <button ng-repeat="(key, value) in default_configurations['rightArm']"
             type="button" class="btn btn-primary"
-            ng-click="sendJointCommand({body_part: 'right_arm', configuration: key});">
+            ng-click="sendJointCommand({body_part: 'rightArm', configuration: key});">
             {{key}}
     </button>
   </div>
