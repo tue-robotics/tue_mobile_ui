@@ -1,16 +1,16 @@
-<div class="panel panel-default" ng-controller="ActionsCtrl">
+<div class="panel panel-default" ng-controller="ActionsCtrl" ng-init="active=false;idle=false">
   <div class="panel-heading">
     Action server
   </div>
   <h5>Generic</h5>
   <div>
-    <button type="button" class="btn btn-primary" ng-click="trigger('amigo');">Trigger</button>
-    <button type="button" class="btn btn-primary">Cancel</button>
+    <button type="button" class="btn btn-primary" ng-click="trigger('amigo');" ng-disabled="active">Trigger</button>
+    <button type="button" class="btn btn-primary" ng-click="cancel();" ng-disabled="idle">Cancel</button>
   </div>
   <h5>Shortcuts</h5>
   <div>
-    <button type="button" class="btn btn-primary" ng-click="present('en')">Presentation</button>
-    <button type="button" class="btn btn-primary" ng-click="present('nl')">Presentation Dutch</button>
+    <button type="button" class="btn btn-primary" ng-click="present('en')" ng-disabled="active">Presentation</button>
+    <button type="button" class="btn btn-primary" ng-click="present('nl')" ng-disabled="active">Presentation Dutch</button>
   </div>
 
 </div>
