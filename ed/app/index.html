@@ -81,7 +81,7 @@
                     <div ng-include="'views/tabs/teleop.html'" class="tab">
                     </div>
                   </div>
-                  <div class="tab-pane" id="actions">
+                  <div class="tab-pane" id="actions" ng-controller="ActionsCtrl">
                     <div ng-include="'views/tabs/actions.html'" class="tab">
                     </div>
                   </div>
@@ -181,6 +181,7 @@
     <script src="scripts/directives/ngwebgl.js"></script>
     <script src="scripts/directives/ngteleopcanvas.js"></script>
     <script src="scripts/controllers/main.js"></script>
+    <script src="scripts/controllers/actions.js"></script>
     <script src="scripts/controllers/connection.js"></script>
     <script src="scripts/controllers/circularmenu.js"></script>
     <script src="scripts/controllers/ed.js"></script>
