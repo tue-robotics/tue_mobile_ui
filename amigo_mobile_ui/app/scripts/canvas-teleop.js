@@ -17,10 +17,6 @@ var teleop;
 
 var cursorImg;
 
-// code wrapper
-(function () {
-'use strict';
-
 // private variables
 var canvas, ctx;
 
@@ -215,6 +211,3 @@ function updateNavigation() {
 
 // when the dom is ready, start the code
 $(document).ready(init);
-
-// end wrapper
-}());

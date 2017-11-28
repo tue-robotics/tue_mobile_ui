@@ -14,10 +14,6 @@ var pingHistory;
 
 var historyLength = 10*60*1000; // 10 minutes
 
-// code wrapper
-(function () {
-'use strict';
-
 draw = function () {
 
   // clear the canvas
@@ -149,6 +145,3 @@ function init() {
 
 // when the dom is ready, start the code
 $(document).ready(init);
-
-// end wrapper
-}());
