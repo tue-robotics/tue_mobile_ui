@@ -4,14 +4,13 @@
   </div>
   <h5>Generic</h5>
   <div>
-    <!--<button type="button" class="btn btn-primary" ng-click="sendGripperCommand({side: 'left', direction: 'open'});">Open left</button>-->
     <button type="button" class="btn btn-primary" ng-click="trigger('amigo');">Trigger</button>
     <button type="button" class="btn btn-primary">Cancel</button>
   </div>
   <h5>Shortcuts</h5>
   <div>
-    <button type="button" class="btn btn-primary">Presentation</button>
-    <button type="button" class="btn btn-primary">Presentation Dutch</button>
+    <button type="button" class="btn btn-primary" ng-click="present('en')">Presentation</button>
+    <button type="button" class="btn btn-primary" ng-click="present('nl')">Presentation Dutch</button>
   </div>
 
 </div>
