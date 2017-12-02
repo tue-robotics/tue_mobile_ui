@@ -13,5 +13,6 @@
 
   <buildtool_depend>catkin</buildtool_depend>
   <run_depend>rosbridge_server</run_depend>
+  <run_depend>action_server_msgs</run_depend>
 
 </package>
