@@ -30,7 +30,6 @@ angular.module('EdGuiApp')
     	actionClient.cancel();
     }
 
-
     // Callback function to perform autonomous presentation
     $scope.present = function (language) {
       console.log('Starting presentation in', language)
@@ -59,9 +58,6 @@ angular.module('EdGuiApp')
 
       // Add feedback callback
       goal.on('feedback', function(feedback) {
-        console.log('Receiving feedback');
-        // ToDo Rokus: publish more often
-        console.log('Feedback: ' + feedback.current_subtask);
         $scope.current_subtask = feedback.current_subtask;
       });
 
@@ -74,7 +70,8 @@ angular.module('EdGuiApp')
       		$scope.active = false;
       	}
 
-        // If status > 0, there is no active task anymore. Therefore, clear the current subtask from the scope.
+        // If status > 0, there is no active task anymore. 
+        // Therefore, clear the current subtask from the scope.
         if (status.status > 1)
         {
           $scope.current_subtask = '';
