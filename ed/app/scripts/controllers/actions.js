@@ -62,6 +62,7 @@ angular.module('EdGuiApp')
         console.log('Receiving feedback');
         // ToDo Rokus: publish more often
         console.log('Feedback: ' + feedback.current_subtask);
+        $scope.current_subtask = feedback.current_subtask;
       });
 
       // Add status callback
@@ -77,6 +78,12 @@ angular.module('EdGuiApp')
       	$scope.idle = false;  // Set idle to true by default to make sure external actions can be cancelled
       	// console.log('Receiving status');
         // console.log('Feedback: ' + feedback.current_subtask);
+
+        // If status > 0, there is no active task anymore. Therefore, clear the current subtask from the scope.
+        if (status.status > 1)
+        {
+          $scope.current_subtask = '';
+        }
       });
 
       // Send goal
