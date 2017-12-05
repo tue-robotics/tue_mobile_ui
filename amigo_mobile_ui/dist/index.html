@@ -1,157 +1,137 @@
-<!DOCTYPE html> <html> <head> <meta charset=utf-8> <title>Amigo Mobile UI</title> <meta name=description content=""> <meta name=viewport content="width=device-width"> <link rel="shortcut icon" href=/38246267.favicon.ico> <!-- Apple Web Applications configuration --> <meta name=apple-mobile-web-app-capable content=yes> <link rel=apple-touch-icon-precomposed href=b2bfe05c.apple-touch-icon-precomposed.png> <link rel=apple-touch-startup-image href=212852a5.startup.png> <link rel=stylesheet href=styles/158578ff.vendor.css> <link rel=stylesheet href=styles/b7720a88.main.css>  <body> <audio> <source src=http://www.xamuel.com/blank-mp3-files/point1sec.mp3 type="audio/mp3"> </audio> <!-- lost connection modal --> <div class="modal fade" id=modalConnectionLost tabindex=-1 role=dialog aria-labelledby=modalConnectionLostLabel aria-hidden=true data-backdrop=static data-keyboard=false> <div class=modal-dialog> <div class=modal-content> <div class=modal-header> <h4 class=modal-title id=modalConnectionLostLabel>ROS connection lost!</h4> </div> <div class=modal-body> Please turn on the ros backend and ensure a proper connection. </div> <div class=modal-footer> <button id=dismiss type=button class=btn data-dismiss=modal>Dismiss</button> <button id=reconnect type=button class="btn btn-primary" data-loading-text=Connecting...>Connect</button> </div> </div><!-- /.modal-content --> </div><!-- /.modal-dialog --> </div><!-- /.modal --> <div class=snap-drawers> <div class="snap-drawer snap-drawer-left" id=menu> <div> <h4>Robot Movement</h4> <ul> <li><a href=#teleop>Teleop</a></li> <li><a href=#poses>Custom Poses</a></li> <li><a href=#presentation>Presentation</a></li> </ul> <h4>Sounds</h4> <ul> <li><a href=#soundboard>Sound Board</a></li> <li><a href=#texttospeech>Text to Speech</a></li> <li><a href=#amigohear>Amigo hear</a></li> </ul> </div> </div> <div class="snap-drawer snap-drawer-right" id=toggles> <h4>Status</h4> <ul> <li> <div class=progress> <div id=battery-bar class=progress-bar role=progressbar></div> </div> </li> </ul> <h4>Toggles</h4> <ul> <li><button class=btn id=toggle-audio>Audio</button></li> </ul> <h4>Connection</h4> <ul> <li> <canvas class=history-ping width=265 height=50></canvas> </li> </ul> </div> </div> <div id=content class=snap-content> <div id=toolbar> <span id=open-left></span> <h1>Amigo Mobile UI</h1> <span id=toggle-options class="glyphicon glyphicon-th"></span> </div> <div id=main> <div id=teleop class=active data-title=Teleop data-snap-ignore=true> <canvas id=teleop-canvas height=150 width=150> Canvas not supported unfortunately. </canvas> </div> <div id=poses data-title="Custom Poses"> <table class=buttons> <tr><td colspan=3 class=table-header>Torso <tr> <td><button type=button class="btn btn-default" data-src="
+<!DOCTYPE html> <html> <head> <meta charset=utf-8> <title>Amigo Mobile UI</title> <meta name=description content=""> <meta name=viewport content="width=device-width"> <meta name=apple-mobile-web-app-capable content=yes> <link rel=apple-touch-icon-precomposed href=apple-touch-icon-precomposed-687545f128ba0ede1fef8acc6b258fee.png> <link rel=apple-touch-startup-image href=startup-f4c07097880c0a9d12cd2ac95ce7bbd7.png> <link href="entry-7691191f45ad85d59f3d92a902c42f84.css" rel="stylesheet"></head> <body> <audio> <source src=data:audio/mpeg;base64,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 type=audio/mp3 /> </audio> <div class="modal fade" id=modalConnectionLost tabindex=-1 role=dialog aria-labelledby=modalConnectionLostLabel aria-hidden=true data-backdrop=static data-keyboard=false> <div class=modal-dialog> <div class=modal-content> <div class=modal-header> <h4 class=modal-title id=modalConnectionLostLabel>ROS connection lost!</h4> </div> <div class=modal-body> Please turn on the ros backend and ensure a proper connection. </div> <div class=modal-footer> <button id=dismiss type=button class=btn data-dismiss=modal>Dismiss</button> <button id=reconnect type=button class="btn btn-primary" data-loading-text=Connecting...>Connect</button> </div> </div> </div> </div> <div class=snap-drawers> <div class="snap-drawer snap-drawer-left" id=menu> <div> <h4>Robot Movement</h4> <ul> <li><a href=#teleop>Teleop</a></li> <li><a href=#poses>Custom Poses</a></li> <li><a href=#presentation>Presentation</a></li> </ul> <h4>Sounds</h4> <ul> <li><a href=#soundboard>Sound Board</a></li> <li><a href=#texttospeech>Text to Speech</a></li> <li><a href=#amigohear>Amigo hear</a></li> </ul> </div> </div> <div class="snap-drawer snap-drawer-right" id=toggles> <h4>Status</h4> <ul> <li> <div class=progress> <div id=battery-bar class=progress-bar role=progressbar></div> </div> </li> </ul> <h4>Toggles</h4> <ul> <li><button class=btn id=toggle-audio>Audio</button></li> </ul> <h4>Connection</h4> <ul> <li> <canvas class=history-ping width=265 height=50></canvas> </li> </ul> </div> </div> <div id=content class=snap-content> <div id=toolbar> <span id=open-left></span> <h1>Amigo Mobile UI</h1> <span id=toggle-options class="glyphicon glyphicon-th"></span> </div> <div id=main> <div id=teleop class=active data-title=Teleop data-snap-ignore=true> <canvas id=teleop-canvas height=150 width=150> Canvas not supported unfortunately. </canvas> </div> <div id=poses data-title="Custom Poses"> <table class=buttons> <tr><td colspan=3 class=table-header>Torso</td></tr> <tr> <td><button type=button class="btn btn-default" data-src="
                                     sensor_msgs/JointState|
                                     torso|
                                     torso_joint|
                                     0.4
-                                    ">High</button> <td><button type=button class="btn btn-default" data-src="
+                                    ">High</button></td> <td><button type=button class="btn btn-default" data-src="
                                     sensor_msgs/JointState|
                                     torso|
                                     torso_joint|
                                     0.35
-                                    ">Middle</button> <td><button type=button class="btn btn-default" data-src="
+                                    ">Middle</button></td> <td><button type=button class="btn btn-default" data-src="
                                     sensor_msgs/JointState|
                                     torso|
                                     torso_joint|
                                     0.1
-                                    ">Low</button>  <tr><td colspan=3 class=table-header>Arm-left <tr> <td><button type=button class="btn btn-default" data-src="
+                                    ">Low</button></td> </tr> <tr><td colspan=3 class=table-header>Arm-left</td></tr> <tr> <td><button type=button class="btn btn-default" data-src="
                                     sensor_msgs/JointState|
                                     left_arm|
                                     shoulder_yaw_joint_left,shoulder_pitch_joint_left,shoulder_roll_joint_left,elbow_pitch_joint_left,elbow_roll_joint_left,wrist_pitch_joint_left,wrist_yaw_joint_left|
                                     -1.5700,-0.4208,-0.1500,0.9000,1.8300,-0.0792,-0.5500
-                                    ">Photo</button> <td><button type=button class="btn btn-default" data-src="
+                                    ">Photo</button></td> <td><button type=button class="btn btn-default" data-src="
                                     sensor_msgs/JointState|
                                     left_arm|
                                     shoulder_yaw_joint_left,shoulder_pitch_joint_left,shoulder_roll_joint_left,elbow_pitch_joint_left,elbow_roll_joint_left,wrist_pitch_joint_left,wrist_yaw_joint_left|
                                     -0.1,0.4,0.0,1.2,0.0,0.0,0.0
-                                    ">Give</button> <td><button type=button class="btn btn-default" data-src="
+                                    ">Give</button></td> <td><button type=button class="btn btn-default" data-src="
                                     sensor_msgs/JointState|
                                     left_arm|
                                     shoulder_yaw_joint_left,shoulder_pitch_joint_left,shoulder_roll_joint_left,elbow_pitch_joint_left,elbow_roll_joint_left,wrist_pitch_joint_left,wrist_yaw_joint_left|
                                     -0.1,-0.6,0.0,1.8,-0.1,0.4,0.0
-                                    ">Carrying</button> <tr> <td><button type=button class="btn btn-default" data-src="
+                                    ">Carrying</button></td> </tr><tr> <td><button type=button class="btn btn-default" data-src="
                                     sensor_msgs/JointState|
                                     left_arm|
                                     shoulder_yaw_joint_left,shoulder_pitch_joint_left,shoulder_roll_joint_left,elbow_pitch_joint_left,elbow_roll_joint_left,wrist_pitch_joint_left,wrist_yaw_joint_left|
                                     -1.2240,0.9271,-1.0283,2.2860,-0.2499,-0.1762,-0.0300
-                                    ">Salut</button> <td><button type=button class="btn btn-default" data-src="
+                                    ">Salut</button></td> <td><button type=button class="btn btn-default" data-src="
                                     sensor_msgs/JointState|
                                     left_arm|
                                     shoulder_yaw_joint_left,shoulder_pitch_joint_left,shoulder_roll_joint_left,elbow_pitch_joint_left,elbow_roll_joint_left,wrist_pitch_joint_left,wrist_yaw_joint_left|
                                     -0.1,-0.2,0.2,0.8,0.0,0.0 ,0.0
-                                    ">Reset</button> <td><button type=button class="btn btn-default" data-src="
+                                    ">Reset</button></td> <td><button type=button class="btn btn-default" data-src="
                                     sensor_msgs/JointState|
                                     left_arm|
                                     shoulder_yaw_joint_left,shoulder_pitch_joint_left,shoulder_roll_joint_left,elbow_pitch_joint_left,elbow_roll_joint_left,wrist_pitch_joint_left,wrist_yaw_joint_left|
                                     0.0000,0.0000,0.0000,0.0000,0.0000,0.0000,0.0000
-                                    ">Null</button>  <tr><td colspan=3 class=table-header>Arm-right <tr> <td><button type=button class="btn btn-default" data-src="
+                                    ">Null</button></td> </tr> <tr><td colspan=3 class=table-header>Arm-right</td></tr> <tr> <td><button type=button class="btn btn-default" data-src="
                                     sensor_msgs/JointState|
                                     right_arm|
                                     shoulder_yaw_joint_right,shoulder_pitch_joint_right,shoulder_roll_joint_right,elbow_pitch_joint_right,elbow_roll_joint_right,wrist_pitch_joint_right,wrist_yaw_joint_right|
                                     -1.4600,-0.4208,0.1500,0.9000,-1.8300,-0.0792,0.5500
-                                    ">Photo</button> <td><button type=button class="btn btn-default" data-src="
+                                    ">Photo</button></td> <td><button type=button class="btn btn-default" data-src="
                                     sensor_msgs/JointState|
                                     right_arm|
                                     shoulder_yaw_joint_right,shoulder_pitch_joint_right,shoulder_roll_joint_right,elbow_pitch_joint_right,elbow_roll_joint_right,wrist_pitch_joint_right,wrist_yaw_joint_right|
                                     -0.1,0.4,0.0,1.2,0.0,0.0,0.0
-                                    ">Give</button> <td><button type=button class="btn btn-default" data-src="
+                                    ">Give</button></td> <td><button type=button class="btn btn-default" data-src="
                                     sensor_msgs/JointState|
                                     right_arm|
                                     shoulder_yaw_joint_right,shoulder_pitch_joint_right,shoulder_roll_joint_right,elbow_pitch_joint_right,elbow_roll_joint_right,wrist_pitch_joint_right,wrist_yaw_joint_right|
                                     -0.1,-0.6,0.0,1.8,-0.1,0.4,0.0
-                                    ">Carrying</button> <tr> <td><button type=button class="btn btn-default" data-src="
+                                    ">Carrying</button></td> </tr><tr> <td><button type=button class="btn btn-default" data-src="
                                     sensor_msgs/JointState|
                                     right_arm|
                                     shoulder_yaw_joint_right,shoulder_pitch_joint_right,shoulder_roll_joint_right,elbow_pitch_joint_right,elbow_roll_joint_right,wrist_pitch_joint_right,wrist_yaw_joint_right|
                                     -1.2240,0.9271,-1.0283,2.2860,-0.2499,-0.1762,-0.0300
-                                    ">Salut</button> <td><button type=button class="btn btn-default" data-src="
+                                    ">Salut</button></td> <td><button type=button class="btn btn-default" data-src="
                                     sensor_msgs/JointState|
                                     right_arm|
                                     shoulder_yaw_joint_right,shoulder_pitch_joint_right,shoulder_roll_joint_right,elbow_pitch_joint_right,elbow_roll_joint_right,wrist_pitch_joint_right,wrist_yaw_joint_right|
                                     -0.1,-0.2,0.2,0.8,0.0,0.0 ,0.0
-                                    ">Reset</button> <td><button type=button class="btn btn-default" data-src="
+                                    ">Reset</button></td> <td><button type=button class="btn btn-default" data-src="
                                     sensor_msgs/JointState|
                                     right_arm|
                                     shoulder_yaw_joint_right,shoulder_pitch_joint_right,shoulder_roll_joint_right,elbow_pitch_joint_right,elbow_roll_joint_right,wrist_pitch_joint_right,wrist_yaw_joint_right|
                                      0,0.6,0.7,1.9,0.2,0.2,0
-                                    ">Mic</button>  <tr><td colspan=3 class=table-header>Grippers <tr> <td><button type=button class="btn btn-default" data-src="
+                                    ">Mic</button></td> </tr> <tr><td colspan=3 class=table-header>Grippers</td></tr> <tr> <td><button type=button class="btn btn-default" data-src="
                                     amigo_msgs/AmigoGripperCommand|
                                     left_arm/gripper|
                                     -1
-                                    ">L-Open</button> <td><button type=button class="btn btn-default" data-src="
+                                    ">L-Open</button></td> <td><button type=button class="btn btn-default" data-src="
                                     amigo_msgs/AmigoGripperCommand|
                                     left_arm/gripper|
                                     1
-                                    ">L-Close</button> <td>  <tr> <td><button type=button class="btn btn-default" data-src="
+                                    ">L-Close</button></td> <td></td> </tr> <tr> <td><button type=button class="btn btn-default" data-src="
                                     amigo_msgs/AmigoGripperCommand|
                                     right_arm/gripper|
                                     -1
-                                    ">R-Open</button> <td><button type=button class="btn btn-default" data-src="
+                                    ">R-Open</button></td> <td><button type=button class="btn btn-default" data-src="
                                     amigo_msgs/AmigoGripperCommand|
                                     right_arm/gripper|
                                     1
-                                    ">R-Close</button> <td>  <tr><td colspan=3 class=table-header>Head <tr> <td><button type=button class="btn btn-default" data-src="
+                                    ">R-Close</button></td> <td></td> </tr> <tr><td colspan=3 class=table-header>Head</td></tr> <tr> <td><button type=button class="btn btn-default" data-src="
                                     head_ref/HeadReferenceAction|
                                     0.5,-0.5
-                                    ">Up-L</button> <td><button type=button class="btn btn-default" data-src="
+                                    ">Up-L</button></td> <td><button type=button class="btn btn-default" data-src="
                                     head_ref/HeadReferenceAction|
                                     0,-0.5
-                                    ">Up-C</button> <td><button type=button class="btn btn-default" data-src="
+                                    ">Up-C</button></td> <td><button type=button class="btn btn-default" data-src="
                                     head_ref/HeadReferenceAction|
                                     -0.5,-0.5
-                                    ">Up-R</button>  <tr> <td><button type=button class="btn btn-default" data-src="
+                                    ">Up-R</button></td> </tr> <tr> <td><button type=button class="btn btn-default" data-src="
                                     head_ref/HeadReferenceAction|
                                     0.5,0
-                                    ">Middle-L</button> <td><button type=button class="btn btn-default" data-src="
+                                    ">Middle-L</button></td> <td><button type=button class="btn btn-default" data-src="
                                     head_ref/HeadReferenceAction|
                                     0.0,0.0
-                                    ">Middle-C</button> <td><button type=button class="btn btn-default" data-src="
+                                    ">Middle-C</button></td> <td><button type=button class="btn btn-default" data-src="
                                     head_ref/HeadReferenceAction|
                                     -0.5,0
-                                    ">Middle-R</button>  <tr> <td><button type=button class="btn btn-default" data-src="
+                                    ">Middle-R</button></td> </tr> <tr> <td><button type=button class="btn btn-default" data-src="
                                     head_ref/HeadReferenceAction|
                                     0.5,0.5
-                                    ">Down-L</button> <td><button type=button class="btn btn-default" data-src="
+                                    ">Down-L</button></td> <td><button type=button class="btn btn-default" data-src="
                                     head_ref/HeadReferenceAction|
                                     0,0.5
-                                    ">Down-C</button> <td><button type=button class="btn btn-default" data-src="
+                                    ">Down-C</button></td> <td><button type=button class="btn btn-default" data-src="
                                     head_ref/HeadReferenceAction|
                                     -0.5,0.5
-                                    ">Down-R</button>  </table> </div> <div id=presentation data-title=Presentation> <div class=container> Present in <input class="btn btn-primary" type=button value=English> or in <input class="btn btn-primary" type=button value=Dutch> </div> </div> <div id=soundboard data-title="Sound Board"> <table class=buttons> <tr><td colspan=3 class=table-header>Default <tr> <td><button type=button class="btn btn-default" data-src="Sound|
+                                    ">Down-R</button></td> </tr> </table> </div> <div id=presentation data-title=Presentation> <div class=container> Present in <input class="btn btn-primary" type=button value=English> or in <input class="btn btn-primary" type=button value=Dutch> </div> </div> <div id=soundboard data-title="Sound Board"> <table class=buttons> <tr><td colspan=3 class=table-header>Default</td></tr> <tr> <td><button type=button class="btn btn-default" data-src="Sound|
                                     Hello!
-                                    ">Hallo</button> <td><button type=button class="btn btn-default" data-src="Sound|
+                                    ">Hallo</button></td> <td><button type=button class="btn btn-default" data-src="Sound|
                                     Mijn naam is Amigo
-                                    ">Introduce</button> <td><button type=button class="btn btn-default" data-src="Sound|
+                                    ">Introduce</button></td> <td><button type=button class="btn btn-default" data-src="Sound|
                                     Ik ben de servicerobot van de TU Eindhoven
-                                    ">TU/e</button>  <tr> <td><button type=button class="btn btn-default" data-src="Sound|
+                                    ">TU/e</button></td> </tr> <tr> <td><button type=button class="btn btn-default" data-src="Sound|
                                     Wil je op de foto met mij?
-                                    ">Photo</button> <td><button type=button class="btn btn-default" data-src="Sound|
+                                    ">Photo</button></td> <td><button type=button class="btn btn-default" data-src="Sound|
                                     Niet bang zijn, ik bijt niet. Dat kan ik niet eens!
-                                    ">No bite</button> <td><button type=button class="btn btn-default" data-src="Sound|
+                                    ">No bite</button></td> <td><button type=button class="btn btn-default" data-src="Sound|
                                     Hoe heet jij?
-                                    ">Your name?</button>  <tr> <td><button type=button class="btn btn-default" data-src="Sound|
+                                    ">Your name?</button></td> </tr> <tr> <td><button type=button class="btn btn-default" data-src="Sound|
                                     Ja
-                                    ">Yes</button> <td><button type=button class="btn btn-default" data-src="Sound|
+                                    ">Yes</button></td> <td><button type=button class="btn btn-default" data-src="Sound|
                                     Nee
-                                    ">No</button> <td><button type=button class="btn btn-default" data-src="Sound|
+                                    ">No</button></td> <td><button type=button class="btn btn-default" data-src="Sound|
                                     Au! Dat doet pijn.
-                                    ">Ouch</button>  </table> </div> <div id=texttospeech data-title="Text to Speech"> <div class=container> <form role=form data-action=tts> <div class=form-group> <label for=disabledTextInput>Enter the text amigo should say:</label> <input class=form-control placeholder="Enter the text and press <enter> ..." data-action=tts> </div> </form> <div id=speech-log class=list-group></div> </div> </div> <div id=amigohear data-title="Amigo hear"> <div class=container> <form role=form class=continue> <div class=form-group> <label for=disabledTextInput>Enter the text amigo should hear:</label> <input class="form-control continue" placeholder="Enter the text and press <enter> ..."> </div> </form> <ul id=hear-log class=list-group></ul> </div> </div> </div> </div> <script>var weinre = window.location.protocol + '//' + window.location.hostname + ':8080/target/target-script-min.js#anonymous';
-          location.search.indexOf('debug')>0 && document.write('<script src="' + weinre + '"><\/script>');</script> <script src=scripts/95da5e01.vendor.js></script> <script src=scripts/d08775b7.plugins.js></script> <script src=scripts/5255a777.main.js></script> <script>(function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=
-            function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;
-            e=o.createElement(i);r=o.getElementsByTagName(i)[0];
-            e.src='//www.google-analytics.com/analytics.js';
-            r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));
-            ga('create', 'UA-48827893-2', {
-              'cookieDomain': 'none',       // enable testing on localhost
-              'siteSpeedSampleRate': 100    // enable Site Speed measuring
-            });
-            // track page switches
-            $(window).bind('hashchange', function(e) {
-                var page = location.pathname+location.search+location.hash;
-                ga('set', 'page', page);
-                ga('send', 'pageview');
-            });
-            // track poses
-            $('#main button').click(function() {
-                var val = this.innerHTML;
-                ga('send', 'event', 'button', 'click', val);
-            });</script>  
+                                    ">Ouch</button></td> </tr> </table> </div> <div id=texttospeech data-title="Text to Speech"> <div class=container> <form role=form data-action=tts> <div class=form-group> <label for=disabledTextInput>Enter the text amigo should say:</label> <input type=text class=form-control placeholder="Enter the text and press <enter> ..." data-action=tts> </div> </form> <div id=speech-log class=list-group></div> </div> </div> <div id=amigohear data-title="Amigo hear"> <div class=container> <form role=form class=continue> <div class=form-group> <label for=disabledTextInput>Enter the text amigo should hear:</label> <input type=text class="form-control continue" placeholder="Enter the text and press <enter> ..."> </div> </form> <ul id=hear-log class=list-group></ul> </div> </div> </div> </div> <script type="text/javascript" src="entry-31cc1ed0bc10c3c11d43.js"></script></body> </html> 

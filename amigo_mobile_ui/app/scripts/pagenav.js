@@ -1,4 +1,5 @@
-'use strict';
+import $ from 'jquery';
+import Snap from 'snapjs';
 
 $( document ).ready(function() {
   /* Menu Toggle button */
@@ -8,7 +9,7 @@ $( document ).ready(function() {
     element: document.getElementById('content'),
   });
 
-  $(window).bind('hashchange', function() {
+  $(window).on('hashchange', function() {
     var hash = window.location.hash;
     if (!hash) {
       return;
@@ -27,7 +28,7 @@ $( document ).ready(function() {
     // set title
     $('#toolbar h1').html(page.data('title'));
   })
-  .hashchange();
+  $(window).trigger('hashchange');
 
   $('#open-left').click(function() {
     if (snapper.state().state === 'left'){

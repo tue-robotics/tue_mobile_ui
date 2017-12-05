@@ -1,6 +1,6 @@
-'use strict';
-
-/* global ros */
+import $ from 'jquery';
+import ROSLIB from 'roslib';
+import ros from './ros-connect-amigo';
 
 $(document).ready(function () {
 

@@ -1,8 +1,8 @@
-'use strict';
+import EventEmitter2 from 'eventemitter2';
+import $ from 'jquery';
+import ROSLIB from 'roslib';
 
-var TELEOP = {};
-
-TELEOP.Teleop = function(options) {
+export default function Teleop(options) {
   options = options || {};
   var ros = options.ros;
   var topic = options.topic || 'cmd_vel';
@@ -32,4 +32,4 @@ TELEOP.Teleop = function(options) {
     cmdVel.publish(twist);
   };
 };
-TELEOP.Teleop.prototype.__proto__ = EventEmitter2.prototype;
+Teleop.prototype.__proto__ = EventEmitter2.prototype;

@@ -7,25 +7,26 @@
 * - show dialog on connection problems
 **/
 
-/*global $:false */
+import $ from 'jquery';
+import ROSLIB from 'roslib';
+import 'bootstrap/js/button.js';
+import 'bootstrap/js/modal.js';
 
 // configuration
 var rosUrl = 'ws://' + window.location.hostname + ':9090';
 var pingInterval = 5000;  // ms. The time between pings
 var pingTimeout = 2000;     // ms. If ros doesn't respond within this period of time, close the connection
 
-// global variables
-var ros;
-
-// code wrapper
-(function () {
-'use strict';
+// Connecting to ROS.
+const ros = window.ros = new ROSLIB.Ros();
+export default ros;
 
 // initialize the connection to rosbridge
 function init() {
   initConnectionManager();
   initPingService();
 
+  ros.connect(rosUrl);
   console.log('ros-connect-amigo initialized');
 }
 
@@ -38,11 +39,6 @@ function initConnectionManager() {
 
   buttonReconnect.click(function() {
     ros.connect(rosUrl);
-  });
-
-  // Connecting to ROS.
-  ros = new ROSLIB.Ros({
-    url : rosUrl
   });
 
   ros.addListener('connection', function() {
@@ -113,6 +109,3 @@ function pingNodesAlive() {
 
 // when the dom is ready, start the code
 $(document).ready(init);
-
-// end wrapper
-}());
