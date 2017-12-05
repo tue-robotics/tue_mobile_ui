@@ -13,7 +13,7 @@ angular.module('EdGuiApp')
     var actionClient = new ROSLIB.ActionClient({
       ros: robot.ros,
       serverName: 'action_server/task',
-      actionName: 'action_server/TaskAction',
+      actionName: 'action_server_msgs/TaskAction',
     });
 
   	// Trigger button callback
@@ -61,7 +61,7 @@ angular.module('EdGuiApp')
       goal.on('feedback', function(feedback) {
         console.log('Receiving feedback');
         // ToDo Rokus: publish more often
-        // console.log('Feedback: ' + feedback.current_subtask);
+        console.log('Feedback: ' + feedback.current_subtask);
       });
 
       // Add status callback
