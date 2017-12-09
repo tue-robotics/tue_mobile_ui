@@ -2,6 +2,8 @@
 
   <ng-controller ng-controller="StatusCtrl">
 
+    <tue-ebuttons></tue-ebuttons>
+
     <tue-hardware-button title="all"
         status="hardware.all" action="sendCommand('all', action)">
       <span ng-if="rosStatus != 'connected'" us-spinner="{ position:'relative', radius:5, width:2, length: 6 }"></span>
@@ -38,8 +40,6 @@
       <span ng-if="rosStatus == 'connected'" class="glyphicon glyphicon-user"></span>
     </tue-hardware-button>
 
-    <tue-ebuttons></tue-ebuttons>
-
   </div>
 
   <div ng-controller="BatteryCtrl" class="battery-wrapper" title="battery value">
@@ -71,6 +71,9 @@
     </ul>
 
 
+    
+
+
 
 <!--     <ul class="nav navbar-nav navbar-right">
       <li>
@@ -84,6 +87,23 @@
         </li>
       </ul>
     </ul> -->
+  </script>
+
+  <!-- template: '\
+      <button ng-repeat="ebutton in ebuttons" class="btn btn-xs btn-circle" \
+          ng-class="ebutton.color" ng-attr-title="{{ebutton.name}}">\
+        <span ng-class="ebutton.icon"></span>\
+      </button>\
+    ', -->
+  <script type="text/ng-template" id="/ebutton.html">
+    <ul class="nav navbar-nav navbar-right" style="padding: 0 15px;">
+      <li>
+        <!-- <button ng-repeat="ebutton in ebuttons" class="btn btn-xs btn-circle" ng-class="ebutton.color" ng-attr-title="{{ebutton.name}}"> -->
+        <button ng-repeat="ebutton in ebuttons" class="btn navbar-btn btn-circle" ng-class="ebutton.color" ng-attr-title="{{ebutton.name}}">
+          <span ng-class="ebutton.icon"></span>
+        </button>
+      </li>
+    </ul>
   </script>
 
 </div>

@@ -6,12 +6,13 @@ angular.module('EdGuiApp')
   return {
     restrict: 'E',
     transclude: true,
-    template: '\
-      <button ng-repeat="ebutton in ebuttons" class="btn btn-xs btn-circle" \
-          ng-class="ebutton.color" ng-attr-title="{{ebutton.name}}">\
-        <span ng-class="ebutton.icon"></span>\
-      </button>\
-    ',
+    templateUrl: '/ebutton.html',
+    // template: '\
+    //   <button ng-repeat="ebutton in ebuttons" class="btn btn-xs btn-circle" \
+    //       ng-class="ebutton.color" ng-attr-title="{{ebutton.name}}">\
+    //     <span ng-class="ebutton.icon"></span>\
+    //   </button>\
+    // ',
 
     controller: function ($scope, $attrs, robot) {
       // Constants
