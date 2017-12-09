@@ -61,8 +61,7 @@ module.exports = {
       template: 'app/index.html'
     }),
     new webpack.ProvidePlugin({
-      // $: 'jquery',
-      jQuery: 'jquery',
+      'window.jQuery': 'jquery',
       angular: 'angular',
       THREE: 'three',
       FastClick: 'fastclick',
