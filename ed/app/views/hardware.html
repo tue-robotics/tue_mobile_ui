@@ -2,30 +2,14 @@
 
   <ng-controller ng-controller="StatusCtrl">
 
+    <tue-battery-status/>
+
     <tue-ebuttons></tue-ebuttons>
 
-    <tue-hardware-button title="all"
-        status="hardware.all" action="sendCommand('all', action)">
+    <tue-hardware-button title="head"
+        status="hardware.head" action="sendCommand('head', action)">
       <span ng-if="rosStatus != 'connected'" us-spinner="{ position:'relative', radius:5, width:2, length: 6 }"></span>
-      <span ng-if="rosStatus == 'connected'" class="glyphicon glyphicon-plane"></span>
-    </tue-hardware-button>
-
-    <tue-hardware-button title="base"
-        status="hardware.base" action="sendCommand('base', action)">
-      <span ng-if="rosStatus != 'connected'" us-spinner="{ position:'relative', radius:5, width:2, length: 6 }"></span>
-      <span ng-if="rosStatus == 'connected'" class="glyphicon glyphicon-move"></span>
-    </tue-hardware-button>
-
-    <tue-hardware-button title="spindle"
-        status="hardware.spindle" action="sendCommand('spindle', action)">
-      <span ng-if="rosStatus != 'connected'" us-spinner="{ position:'relative', radius:5, width:2, length: 6 }"></span>
-      <span ng-if="rosStatus == 'connected'" class="glyphicon glyphicon-sort"></span>
-    </tue-hardware-button>
-
-    <tue-hardware-button title="left arm"
-        status="hardware.left_arm" action="sendCommand('left_arm', action)">
-      <span ng-if="rosStatus != 'connected'" us-spinner="{ position:'relative', radius:5, width:2, length: 6 }"></span>
-      <span ng-if="rosStatus == 'connected'" class="glyphicon glyphicon-hand-left"></span>
+      <span ng-if="rosStatus == 'connected'" class="glyphicon glyphicon-user"></span>
     </tue-hardware-button>
 
     <tue-hardware-button title="right arm"
@@ -34,23 +18,33 @@
       <span ng-if="rosStatus == 'connected'" class="glyphicon glyphicon-hand-right"></span>
     </tue-hardware-button>
 
-    <tue-hardware-button title="head"
-        status="hardware.head" action="sendCommand('head', action)">
+    <tue-hardware-button title="left arm"
+        status="hardware.left_arm" action="sendCommand('left_arm', action)">
       <span ng-if="rosStatus != 'connected'" us-spinner="{ position:'relative', radius:5, width:2, length: 6 }"></span>
-      <span ng-if="rosStatus == 'connected'" class="glyphicon glyphicon-user"></span>
+      <span ng-if="rosStatus == 'connected'" class="glyphicon glyphicon-hand-left"></span>
+    </tue-hardware-button>
+
+    <tue-hardware-button title="spindle"
+        status="hardware.spindle" action="sendCommand('spindle', action)">
+      <span ng-if="rosStatus != 'connected'" us-spinner="{ position:'relative', radius:5, width:2, length: 6 }"></span>
+      <span ng-if="rosStatus == 'connected'" class="glyphicon glyphicon-sort"></span>
+    </tue-hardware-button>
+
+    <tue-hardware-button title="base"
+        status="hardware.base" action="sendCommand('base', action)">
+      <span ng-if="rosStatus != 'connected'" us-spinner="{ position:'relative', radius:5, width:2, length: 6 }"></span>
+      <span ng-if="rosStatus == 'connected'" class="glyphicon glyphicon-move"></span>
+    </tue-hardware-button>
+
+    <tue-hardware-button title="all"
+        status="hardware.all" action="sendCommand('all', action)">
+      <span ng-if="rosStatus != 'connected'" us-spinner="{ position:'relative', radius:5, width:2, length: 6 }"></span>
+      <span ng-if="rosStatus == 'connected'" class="glyphicon glyphicon-plane"></span>
     </tue-hardware-button>
 
   </div>
 
-  <div ng-controller="BatteryCtrl" class="battery-wrapper" title="battery value">
-    <progressbar value="battery" type="{{batteryType}}"
-        ngCloak
-        ng-class="{'progress-striped': batteryUnknown, active: batteryUnknown}">
-      <b ng-if="batteryUnknown">Unknown</b>
-      <b ng-if="!batteryUnknown">{{battery}}%</b>
-    </progressbar>
-  </div>
-
+  <!-- Define hardware buttons -->
   <script type="text/ng-template" id="/hardware-button.html">
     <ul class="nav navbar-nav navbar-right" style="padding: 0 10px;">
       <li class="dropdown">
@@ -61,40 +55,12 @@
             <span class="glyphicon glyphicon-{{options.glyphicon}}"></span> {{action}}
           </a>
         </li>
-          <!-- <li><a href="#">Action</a></li>
-          <li><a href="#">Another action</a></li>
-          <li><a href="#">Something else here</a></li>
-          <li role="separator" class="divider"></li>
-          <li><a href="#">Separated link</a></li> -->
         </ul>
       </li>
     </ul>
-
-
-    
-
-
-
-<!--     <ul class="nav navbar-nav navbar-right">
-      <li>
-        <button class="btn btn-xs dropdown-toggle" ng-class="status.class" dropdown-toggle ng-transclude />
-      </li>
-      <ul class="dropdown-menu" role="menu">
-        <li ng-repeat="(action, options) in status.actions" ng-class="options.enabled || 'disabled'">
-          <a href="#" ng-click="handleClick(action)">
-            <span class="glyphicon glyphicon-{{options.glyphicon}}"></span> {{action}}
-          </a>
-        </li>
-      </ul>
-    </ul> -->
   </script>
 
-  <!-- template: '\
-      <button ng-repeat="ebutton in ebuttons" class="btn btn-xs btn-circle" \
-          ng-class="ebutton.color" ng-attr-title="{{ebutton.name}}">\
-        <span ng-class="ebutton.icon"></span>\
-      </button>\
-    ', -->
+  <!-- Define ebuttons -->
   <script type="text/ng-template" id="/ebutton.html">
     <ul class="nav navbar-nav navbar-right" style="padding: 0 15px;">
       <li>
@@ -105,5 +71,28 @@
       </li>
     </ul>
   </script>
+
+  <!-- Define battery status indicator -->
+  <script type="text/ng-template" id="/battery.html">
+    <!-- <ul class="nav navbar-nav navbar-right" style="padding: 0 15px;"> -->
+    <ul class="nav navbar-nav navbar-right">
+      <li style="width: 100px;">
+        <!-- <uib-progressbar value="battery" type="{{batteryType}}" ngCloak ng-class="{'progress-striped': batteryUnknown, active: batteryUnknown}"> -->
+        <uib-progressbar value="battery" type="{{batteryType}}" ng-class="{'progress-striped': batteryUnknown, active: batteryUnknown}"
+        style="margin: 8px; min-height: 32px">
+          <b ng-if="batteryUnknown">Unknown</b>
+          <b ng-if="!batteryUnknown">{{battery}}%</b>
+        </uib-progressbar>
+      </li>
+    </ul>
+  </script>
+  <!-- <div ng-controller="BatteryCtrl" class="battery-wrapper" title="battery value">
+    <progressbar value="battery" type="{{batteryType}}"
+        ngCloak
+        ng-class="{'progress-striped': batteryUnknown, active: batteryUnknown}">
+      <b ng-if="batteryUnknown">Unknown</b>
+      <b ng-if="!batteryUnknown">{{battery}}%</b>
+    </progressbar>
+  </div> -->
 
 </div>

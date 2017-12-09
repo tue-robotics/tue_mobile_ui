@@ -1,7 +1,7 @@
 'use strict';
 
 angular
-  .module('EdGuiApp', ['angularCircularNavigation','ui.bootstrap-slider', 'ngDraggable'
+  .module('EdGuiApp', ['angularCircularNavigation', 'ui.bootstrap', 'ui.bootstrap-slider', 'ngDraggable'
   ]);
 
 
