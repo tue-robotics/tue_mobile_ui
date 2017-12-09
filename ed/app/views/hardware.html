@@ -1,6 +1,6 @@
-<div ng-controller="HardwareCtrl">
+<ng-controller ng-controller="HardwareCtrl">
 
-  <div class="button-wrapper" ng-controller="StatusCtrl">
+  <ng-controller ng-controller="StatusCtrl">
 
     <tue-hardware-button title="all"
         status="hardware.all" action="sendCommand('all', action)">
@@ -52,9 +52,25 @@
   </div>
 
   <script type="text/ng-template" id="/hardware-button.html">
-    <div class="btn-group" dropdown>
-      <button class="btn btn-xs dropdown-toggle" ng-class="status.class" dropdown-toggle ng-transclude>
-      </button>
+    <ul class="nav navbar-nav navbar-right">
+      <li class="dropdown">
+        <button class="btn btn-default navbar-btn dropdown-toggle" ng-class="status.class" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">A <span class="caret"></span></button>
+        <ul class="dropdown-menu">
+          <li><a href="#">Action</a></li>
+          <li><a href="#">Another action</a></li>
+          <li><a href="#">Something else here</a></li>
+          <li role="separator" class="divider"></li>
+          <li><a href="#">Separated link</a></li>
+        </ul>
+      </li>
+    </ul>
+
+
+
+<!--     <ul class="nav navbar-nav navbar-right">
+      <li>
+        <button class="btn btn-xs dropdown-toggle" ng-class="status.class" dropdown-toggle ng-transclude />
+      </li>
       <ul class="dropdown-menu" role="menu">
         <li ng-repeat="(action, options) in status.actions" ng-class="options.enabled || 'disabled'">
           <a href="#" ng-click="handleClick(action)">
@@ -62,7 +78,7 @@
           </a>
         </li>
       </ul>
-    </div>
+    </ul> -->
   </script>
 
 </div>
