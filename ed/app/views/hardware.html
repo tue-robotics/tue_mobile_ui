@@ -52,15 +52,20 @@
   </div>
 
   <script type="text/ng-template" id="/hardware-button.html">
-    <ul class="nav navbar-nav navbar-right">
+    <ul class="nav navbar-nav navbar-right" style="padding: 0 10px;">
       <li class="dropdown">
-        <button class="btn btn-default navbar-btn dropdown-toggle" ng-class="status.class" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">A <span class="caret"></span></button>
+        <button class="btn btn-default navbar-btn dropdown-toggle" ng-class="status.class" data-toggle="dropdown" role="button" ng-transclude></button>
         <ul class="dropdown-menu">
-          <li><a href="#">Action</a></li>
+        <li ng-repeat="(action, options) in status.actions" ng-class="options.enabled || 'disabled'">
+          <a href="#" ng-click="handleClick(action)">
+            <span class="glyphicon glyphicon-{{options.glyphicon}}"></span> {{action}}
+          </a>
+        </li>
+          <!-- <li><a href="#">Action</a></li>
           <li><a href="#">Another action</a></li>
           <li><a href="#">Something else here</a></li>
           <li role="separator" class="divider"></li>
-          <li><a href="#">Separated link</a></li>
+          <li><a href="#">Separated link</a></li> -->
         </ul>
       </li>
     </ul>
