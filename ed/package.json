@@ -8,7 +8,7 @@
   "dependencies": {
     "angular": "^1.4.8",
     "angular-bootstrap-slider": "git+https://github.com/seiyria/angular-bootstrap-slider.git#0.1.28",
-    "angular-circular-navigation": "*",
+    "angular-circular-navigation": "git+https://github.com/Rayman/angular-circular-navigation.git",
     "angular-ui-bootstrap": "^0.14.3",
     "bootstrap": "^3.3.5",
     "bootstrap-slider": "^10.0.0",
