@@ -1,21 +1,35 @@
-<div class="panel panel-default" ng-controller="ActionsCtrl" ng-init="active=false;idle=false">
-  <div class="panel-heading">
-    Action server
-  </div>
-  <h5>Generic</h5>
-  <div>
-    <button type="button" class="btn btn-primary" ng-click="trigger('amigo');" ng-disabled="active">Trigger</button>
-    <button type="button" class="btn btn-primary" ng-click="cancel();">Cancel</button>
-  </div>
+<div class="panel panel-default">
 
-  <div class="panel panel-primary" style="margin-top: 10px;margin-bottom: 10px;">
-      <div class="panel-heading">Current action</div>
-      <div class="panel-body" ng-model="ActionsCtrl">{{current_subtask}}</div>
+  <!-- Launch files -->
+  <div ng-controller="LaunchCtrl">
+    <h5>Modes</h5>
+    <div class="panel panel-primary" style="margin-top: 10px;margin-bottom: 10px;">
+        <div class="panel-heading">Current mode</div>
+        <div class="panel-body" ng-model="LaunchCtrl" placeholder="Nothing running...">{{current_mode}}</div>
+        <div style="padding: 0 8px;">
+          <button type="button" class="btn btn-primary" ng-click="stop()" ng-disabled="active">Stop</button>
+          <button type="button" class="btn btn-primary" ng-click="restart()" ng-disabled="active">Restart</button>
+    </div>
+    </div>    
   </div>
-  <h5>Shortcuts</h5>
-  <div>
-    <button type="button" class="btn btn-primary" ng-click="present('en')" ng-disabled="active">Presentation</button>
-    <button type="button" class="btn btn-primary" ng-click="present('nl')" ng-disabled="active">Presentation Dutch</button>
+  
+  <!-- Actions -->
+  <div ng-controller="ActionsCtrl" ng-init="active=false;idle=false">
+    <h5>Generic</h5>
+    <div>
+      <button type="button" class="btn btn-primary" ng-click="trigger('amigo');" ng-disabled="active">Trigger</button>
+      <button type="button" class="btn btn-primary" ng-click="cancel();">Cancel</button>
+    </div>
+
+    <div class="panel panel-primary" style="margin-top: 10px;margin-bottom: 10px;">
+        <div class="panel-heading">Current action</div>
+        <div class="panel-body" ng-model="ActionsCtrl">{{current_subtask}}</div>
+    </div>
+    <h5>Shortcuts</h5>
+    <div>
+      <button type="button" class="btn btn-primary" ng-click="present('en')" ng-disabled="active">Presentation</button>
+      <button type="button" class="btn btn-primary" ng-click="present('nl')" ng-disabled="active">Presentation Dutch</button>
+    </div>
   </div>
 
 </div>
