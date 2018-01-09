@@ -39,7 +39,7 @@ module.exports = {
         }
       },
       {
-        test: /\.png$|\.mp3$|\.ico$/, loader: 'url-loader',
+        test: /\.png$|\.mp3$|\.jpg$|\.ico$/, loader: 'url-loader',
         options: {
           limit: 2048,
           name: '[name]-[hash].[ext]'
