@@ -10,22 +10,132 @@
     <link rel="shortcut icon" href="favicon.ico">
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
   </head>
-  <body ng-app="EdGuiApp" class="noselect">
+  <body ng-app="EdGuiApp" class="noselect" ng-controller="TriggerCtrl">
 
     <div class="header">
       <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+        <div class="navbar-header">
+          <a ng-controller="ConnectionCtrl" class="navbar-brand" href="#/">{{connection}}</a>
+        </div>
         <div class="container-fluid">
-
-          <div class="navbar-header">
-            <a ng-controller="ConnectionCtrl" class="navbar-brand" href="#/">{{connection}}</a>
-          </div>
-
+          <ul class="nav navbar-nav" role="tablist">
+            <li class="active">
+                <a href="#robot-control" role="tab" data-toggle="tab">
+                    <icon class="fa fa-android"></icon> Robot control
+                </a>
+            </li>
+            <li><a href="#scene-editor" role="tab" data-toggle="tab">
+                <i class="fa fa-building"></i> Scene editor
+                </a>
+            </li>
+          </ul>
         </div>
       </div>
     </div>
 
-    <div class="main-view" ng-include="'views/main.html'" ng-controller="MainCtrl">
+    <div class="main-view" ng-controller="MainCtrl">
+      <div class="container-fluid">
+        <div class="row">
+
+          <div class="tab-content">
+            <div class="tab-pane active" id="robot-control">
+              <div class="col-xs-9 col-sm-9 col-md-9 main" ng-include="'views/scene.html'">
+              </div>
+              <div ng-controller="CircularmenuCtrl">
+                <circular id="action-menu"
+                  options="options">
+                </circular>
+              </div>
+              <div id="sidebar" class="col-xs-3 col-sm-3 col-md-3 sidebar" ng-controller="SidebarCtrl">
+
+                <div id="robot-control-tabs">
+                  <ul class="nav nav-tabs" role="tablist">
+                    <li class="active">
+                        <a href="#teleop" role="tab" data-toggle="tab">
+                            <icon class="fa fa-arrows"></icon> Teleop
+                        </a>
+                    </li>
+                    <li class="nav nav-tabs">
+                      <a href="#actions" role="tab" data-toggle="tab">
+                          <icon class="fa fa-play-circle-o"</icon> Action server
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+
+                <div class="tab-content">
+                  <div class="tab-pane active" id="teleop" ng-controller="TeleopCtrl">
+                    <div ng-include="'views/tabs/teleop.html'" class="tab">
+                    </div>
+                  </div>
+                  <div class="tab-pane" id="actions" ng-controller="ActionsCtrl">
+                    <div ng-include="'views/tabs/actions.html'" class="tab">
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="tab-pane" id="scene-editor" ng-controller="SnapshotlistCtrl">
+              <!-- Nav tabs -->
+              <div class="overlay-buttons">
+                <ul class="nav nav-tabs">
+                  <li>
+                      <a href="#" ng-click="undo()">
+                          <icon class="fa fa-undo"></icon> Undo
+                      </a>
+                  </li>
+                  <li>
+                      <a href="#" ng-click="create_walls()">
+                          <icon class="fa fa-cubes"></icon> Create walls
+                      </a>
+                  </li>
+                </ul>
+              </div>
+              <div class="container-fluid snapshot-model-editor">
+                <div class="row top-row">
+
+                  <div ng-controller="ModellistCtrl" class="col-xs-12 models"
+                      ng-style="{ 'background-image': 'url('+camera_src+')', 'background-size': backgroundSize}"
+                      ng-drop="true" ng-drop-success="onDropComplete($data,$event)"
+                      ng-click="camera_click($event)">
+
+                    <div class="model-list-wrapper">
+                      <button ng-repeat="(id, model) in models" type="button" class="btn btn-lg"
+                          ng-class="{ 'btn-primary': selected == id, 'btn-default': selected != id }"
+                          ng-drag="true" ng-center-anchor="true" ng-drag-data="id"
+                          ng-drag-success="onDragComplete($data,$event)">
+                        <div class="model-name">{{model.name}}</div>
+                        <img class="img-responsive" src="{{model.src}}" />
+                      </button>
+                    </div>
+
+                  </div>
+
+                </div>
+
+              </div>
+
+              <div class="footer teleop">
+
+                <div ng-controller="TeleopCtrl">
+                  <div ng-include="'views/tabs/teleop_tabs/base.html'"></div>
+                </div>
+
+              </div>
+
+              <div class="footer head">
+
+                <div ng-controller="TeleopCtrl">
+                  <div ng-include="'views/tabs/teleop_tabs/head.html'"></div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
+
 
   </body>
 </html>

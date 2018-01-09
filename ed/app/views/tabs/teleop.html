@@ -1,11 +1,3 @@
-<div class="panel panel-default" id="kinect-view">
-  <div class="panel-heading">
-    Robot's view
-  </div>
-  <div class="panel-body">
-    <img src="{{kinect_image}}" alt="..." style="width: 100%">
-  </div>
-</div>
 <div class="panel panel-default">
   <div class="panel-heading">
     Robot Teleop
@@ -34,8 +26,8 @@
           </a>
         </li>
         <li>
-          <a href="#teleop-ears" role="tab" data-toggle="tab">
-              <icon class="fa fa-microphone"></icon> Ears
+          <a href="#teleop-ed" role="tab" data-toggle="tab">
+              <icon class="fa fa-globe"></icon> ED
           </a>
         </li>
       </ul>
@@ -49,7 +41,7 @@
       </div>
       <div class="tab-pane" id="teleop-speech" ng-include="'views/tabs/teleop_tabs/speech.html'">
       </div>
-      <div class="tab-pane" id="teleop-ears" ng-include="'views/tabs/teleop_tabs/ears.html'">
+      <div class="tab-pane" id="teleop-ed" ng-include="'views/tabs/teleop_tabs/ed.html'">
       </div>
     </div>
   </div>

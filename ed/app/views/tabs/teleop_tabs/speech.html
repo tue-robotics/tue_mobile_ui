@@ -1,21 +1,12 @@
-<h5>Sound board</h5>
-<div>
-  <button type="button" class="btn btn-primary">Apple</button>
-  <button type="button" class="btn btn-primary">Samsung</button>
-  <button type="button" class="btn btn-primary">Sony</button>
-  <button type="button" class="btn btn-primary">Apple</button>
-  <button type="button" class="btn btn-primary">Samsung</button>
-  <button type="button" class="btn btn-primary">Sony</button>
-  <button type="button" class="btn btn-primary">Apple</button>
-  <button type="button" class="btn btn-primary">Samsung</button>
-  <button type="button" class="btn btn-primary">Sony</button>
-  <button type="button" class="btn btn-primary">Apple</button>
-  <button type="button" class="btn btn-primary">Samsung</button>
-  <button type="button" class="btn btn-primary">Sony</button>
-</div>
-<hr />
+<div ng-controller="SpeechCtrl">
 <h5>Text to speech</h5>
-<div class="form-group">
-  <input type="text" class="form-control continue" placeholder="Enter the text and press <enter> ...">
+<form ng-submit="speak(sentence)">
+  <input type="text" ng-model="sentence" name="sentence" placeholder="Enter the text and press <enter> ..."/>
+  <input type="submit" class="btn" id="submit" value="Submit" />
+</form>
+<hr />
+<h5>History</h5>
+<div class="list-group">
+  <a ng-repeat="s in speech_history track by $index" href="#" ng-click="speak(s)" class="list-group-item">{{s}}</a>
 </div>
-<!-- <ul id="hear-log" class="list-group"></ul> -->
+</div>
