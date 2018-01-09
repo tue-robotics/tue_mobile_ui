@@ -55,7 +55,15 @@ module.exports = {
       { test: /angular-[^.]+\.js$/, loader: "imports-loader?angular" },
     ]
   },
-  plugins: [
+  plugins: getPlugins(),
+  output: {
+    filename: "[name]-[chunkhash].js",
+    path: path.resolve(__dirname, 'dist')
+  }
+};
+
+function getPlugins() {
+  var plugins = [
     new CleanWebpackPlugin(['dist']),
     new HtmlWebpackPlugin({
       template: 'app/index.html'
@@ -71,9 +79,17 @@ module.exports = {
       filename: "[name]-[contenthash].css",
       disable: process.env.NODE_ENV !== 'production'
     }),
-  ],
-  output: {
-    filename: "[name]-[chunkhash].js",
-    path: path.resolve(__dirname, 'dist')
+  ];
+  
+  // production specific
+  if (process.env.NODE_ENV === 'production') {
+    plugins.push(new webpack.DefinePlugin({      
+      'process.env.NODE_ENV': JSON.stringify('production'),
+    }));
+    plugins.push(new webpack.optimize.UglifyJsPlugin({
+      mangle: false,
+    }));
   }
-};
+
+  return plugins;
+}
