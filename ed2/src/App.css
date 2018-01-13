@@ -1,0 +1,29 @@
+.App, .App-grid, .App-row, .App-main, .App-aside {
+    height: 100%;
+}
+
+.App {
+    padding: 0;
+}
+
+.App-main {
+    background-color: black;
+}
+
+.App-aside {
+    background-color: darkgray;
+}
+
+.App-FloatingTeleop, .App-FloatingHeadTeleop {
+    height: 200px;
+    width: 200px;
+    z-index: 1;
+    bottom: 0;
+    background: white;
+    opacity: 0.5;
+    position: absolute;
+}
+
+.App-FloatingHeadTeleop {
+    right: 0;
+}

@@ -1,0 +1,30 @@
+{
+  "name": "ed2",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "bootstrap": "^3.3.7",
+    "prop-types": "^15.6.0",
+    "react": "^16.2.0",
+    "react-bootstrap": "^0.32.0",
+    "react-dnd": "^2.5.4",
+    "react-dnd-html5-backend": "^2.5.4",
+    "react-dnd-touch-backend": "^0.3.20",
+    "react-dom": "^16.2.0",
+    "react-scripts": "1.0.17",
+    "react-touch": "^0.4.3",
+    "robot-api": "^0.8.0",
+    "roslib": "^0.20.0"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test --env=jsdom",
+    "eject": "react-scripts eject",
+    "format": "prettier --write **/*.js"
+  },
+  "devDependencies": {
+    "prettier": "^1.10.2",
+    "react-drag-drop-container": "^4.0.1"
+  }
+}
