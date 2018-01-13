@@ -8,15 +8,25 @@ import './styles/main.css';
 
 // import js
 
-import 'angular-circular-navigation/angular-circular-navigation.js'
+import 'angular-circular-navigation/angular-circular-navigation'
 import 'angular-bootstrap-slider';
+import 'ngdraggable';
 
 import './scripts/app'
-import './scripts/controllers/circularmenu'
-import './scripts/controllers/connection'
-import './scripts/controllers/main'
-import './scripts/controllers/sidebar'
-import './scripts/controllers/teleop'
+
+import './scripts/controllers/actions';
+import './scripts/controllers/circularmenu';
+import './scripts/controllers/connection';
+import './scripts/controllers/ed';
+import './scripts/controllers/jointcontroller';
+import './scripts/controllers/main';
+import './scripts/controllers/modellist';
+import './scripts/controllers/sidebar';
+import './scripts/controllers/snapshotlist';
+import './scripts/controllers/speech';
+import './scripts/controllers/teleop';
+import './scripts/controllers/trigger';
+
 import './scripts/directives/ngteleopcanvas'
 import './scripts/directives/ngwebgl'
 import './scripts/orbitControls'
@@ -37,5 +47,6 @@ angular
     $templateCache.put('views/tabs/teleop_tabs/ed.html', require('./views/tabs/teleop_tabs/ed.html'));
     $templateCache.put('views/tabs/teleop.html', require('./views/tabs/teleop.html'));
     $templateCache.put('views/tabs/editor.html', require('./views/tabs/editor.html'));
+    $templateCache.put('views/tabs/actions.html', require('./views/tabs/actions.html'));
     // $templateCache.put('views/main.html', require('./views/main.html'));
 }]);

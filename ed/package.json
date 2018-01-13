@@ -16,6 +16,7 @@
     "fastclick": "^1.0.6",
     "font-awesome": "^4.7.0",
     "jquery": "^3.2.1",
+    "ngdraggable": "^0.1.10",
     "npm": "^5.5.1",
     "robot-api": "^0.8.0",
     "roslib": "^0.19.0",
