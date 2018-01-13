@@ -11,6 +11,7 @@ import './styles/main.css';
 import 'angular-circular-navigation/angular-circular-navigation'
 import 'angular-bootstrap-slider';
 import 'ngdraggable';
+import 'bootstrap/js/tab';
 
 import './scripts/app'
 

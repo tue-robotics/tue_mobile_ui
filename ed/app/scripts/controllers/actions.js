@@ -1,4 +1,4 @@
-import {ActionClient} from 'roslib';
+import {Goal, ActionClient} from 'roslib';
 
 angular.module('EdGuiApp')
   .controller('ActionsCtrl', function($scope, $timeout, robot) {
@@ -49,7 +49,7 @@ angular.module('EdGuiApp')
       }
 
       // Create actionlib goal
-      var goal = new ROSLIB.Goal({
+      var goal = new Goal({
         actionClient,
         goalMessage: {
           recipe: JSON.stringify(recipe)

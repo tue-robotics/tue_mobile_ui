@@ -53,6 +53,7 @@ module.exports = {
         loader: 'exports-loader?window.angular'
       },
       { test: /angular-[^.]+\.js$/, loader: "imports-loader?angular" },
+      { test: /bootstrap\/[^.]+\.js$/, loader: "imports-loader?jQuery=jquery" },
     ]
   },
   plugins: getPlugins(),
