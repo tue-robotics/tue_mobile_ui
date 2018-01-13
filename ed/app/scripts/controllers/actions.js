@@ -50,7 +50,7 @@ angular.module('EdGuiApp')
 
       // Create actionlib goal
       var goal = new Goal({
-        actionClient,
+        actionClient: actionClient,
         goalMessage: {
           recipe: JSON.stringify(recipe)
         }
