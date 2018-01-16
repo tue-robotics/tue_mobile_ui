@@ -90,7 +90,7 @@ angular.module('EdGuiApp')
 
   $scope.showDevTools = function () {
     console.log('showDevtools');
-    require('nw.gui').Window.get().showDevTools();
+    //require('nw.gui').Window.get().showDevTools();
   };
 
   $scope.reload = function () {

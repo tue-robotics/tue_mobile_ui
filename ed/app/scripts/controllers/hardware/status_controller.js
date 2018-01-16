@@ -12,8 +12,8 @@ var app = angular.module('EdGuiApp');
 app.controller('StatusCtrl', function ($scope, robot) {
 
   if (typeof process === 'object') {
-    var gui = require('nw.gui');
-    $scope.title = 'dashboard v' + gui.App.manifest.version + ' @ ' + robot.url;
+    // var gui = require('nw.gui');
+    // $scope.title = 'dashboard v' + gui.App.manifest.version + ' @ ' + robot.url;
   } else {
     $scope.title = 'dashboard @ ' + robot.url;
   }

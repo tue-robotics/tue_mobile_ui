@@ -1,8 +1,11 @@
+import $ from 'jquery';
+import ROSLIB from 'roslib';
+
 $('#presentation').on('click', 'input', function (e) {
   var action = new ROSLIB.ActionClient({
     ros: ros,
     serverName: 'action_server/task',
-    actionName: 'action_server/TaskAction',
+    actionName: 'action_server_msgs/TaskAction',
   });
 
   var lang = e.currentTarget.value;

@@ -2,8 +2,7 @@
 * Draws a graph on a canvas
 **/
 
-// dependencies
-/*global pingHistory:true, ros:true */
+import $ from 'jquery';
 
 // globals
 
@@ -14,10 +13,6 @@ var draw, test;
 var pingHistory;
 
 var historyLength = 10*60*1000; // 10 minutes
-
-// code wrapper
-(function () {
-'use strict';
 
 draw = function () {
 
@@ -150,6 +145,3 @@ function init() {
 
 // when the dom is ready, start the code
 $(document).ready(init);
-
-// end wrapper
-}());

@@ -4,24 +4,27 @@
     <meta charset="utf-8">
     <title>ed_gui_server</title>
     <meta name="description" content="">
-    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <meta name="viewport" content="width=device-width, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
 
     <link rel="shortcut icon" href="favicon.ico">
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
-
-    <!-- build:css({.tmp,app}) styles/vendor.css -->
-    <!-- bower:css -->
-    <link rel="stylesheet" href="bower_components/seiyria-bootstrap-slider/dist/css/bootstrap-slider.css" />
-    <!-- endbower -->
-    <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.css" />
-    <link rel="stylesheet" href="bower_components/angular-circular-navigation/angular-circular-navigation.css">
-    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
-
-    <!-- endbuild -->
-    <!-- build:css({.tmp,app}) styles/main.css -->
-    <link rel="stylesheet" href="styles/main.css">
-    <!-- endbuild -->
+    <script
+    src="https://code.jquery.com/jquery-3.2.1.min.js"
+    integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+    crossorigin="anonymous"></script>
+    <script>
+      $( document ).ready(function() {
+        $(document).on("click","a[data-toggle='tab']", function (e) {
+          console.log(e.target)
+          console.log("resizing ...")
+          window.dispatchEvent(new Event("resize"));
+        });
+      });
+    </script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
   </head>
   <body ng-app="EdGuiApp" class="noselect" ng-controller="TriggerCtrl">
 
@@ -31,7 +34,7 @@
           <a ng-controller="ConnectionCtrl" class="navbar-brand" href="#/">{{connection}}</a>
         </div>
         <div class="container-fluid">
-          <ul class="nav navbar-nav" role="tablist">
+          <ul class="nav navbar-nav" role="tablist" ng-click="console.log('click')">
             <li class="active">
                 <a href="#robot-control" role="tab" data-toggle="tab">
                     <icon class="fa fa-android"></icon> Robot control
@@ -120,7 +123,7 @@
                           ng-drag="true" ng-center-anchor="true" ng-drag-data="id"
                           ng-drag-success="onDragComplete($data,$event)">
                         <div class="model-name">{{model.name}}</div>
-                        <img class="img-responsive" src="{{model.src}}" />
+                        <img class="img-responsive" src="{{model.src}}" draggable="false"/>
                       </button>
                     </div>
 
@@ -130,78 +133,18 @@
 
               </div>
 
-              <div class="footer teleop">
-
-                <div ng-controller="TeleopCtrl">
-                  <div ng-include="'views/tabs/teleop_tabs/base.html'"></div>
-                </div>
-
+              <div class="footer teleop" ng-controller="TeleopCtrl">
+                  <ng-teleop-canvas on-percentage-changed="teleopBase({px: px, py: py})"/>
               </div>
 
-              <div class="footer head">
-
-                <div ng-controller="TeleopCtrl">
-                  <div ng-include="'views/tabs/teleop_tabs/head.html'"></div>
-                </div>
-
+              <div class="footer head" ng-controller="TeleopCtrl">
+                  <ng-teleop-canvas on-percentage-changed="teleopHead({px: px, py: py})"/>                  
               </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-
-    <!-- build:js({.tmp,app}) scripts/vendor.js -->
-    <!-- bower:js -->
-    <script src="bower_components/jquery/dist/jquery.js"></script>
-    <script src="bower_components/console-polyfill/index.js"></script>
-    <script src="bower_components/eventemitter2/lib/eventemitter2.js"></script>
-    <script src="bower_components/bson/browser_build/bson.js"></script>
-    <script src="bower_components/roslib/build/roslib.js"></script>
-    <script src="bower_components/robot-api/dist/bundle.js"></script>
-    <script src="bower_components/bootstrap/dist/js/bootstrap.js"></script>
-    <script src="bower_components/lodash/lodash.js"></script>
-    <script src="bower_components/angular/angular.js"></script>
-    <script src="bower_components/angular-bootstrap/ui-bootstrap-tpls.js"></script>
-    <script src="bower_components/seiyria-bootstrap-slider/dist/bootstrap-slider.js"></script>
-    <script src="bower_components/angular-bootstrap-slider/slider.js"></script>
-    <script src="bower_components/angular-circular-navigation/angular-circular-navigation.js"></script>
-    <script src="bower_components/fastclick/lib/fastclick.js"></script>
-    <script src="bower_components/three.js/build/three.js"></script>
-    <script src="bower_components/ngDraggable/ngDraggable.js"></script>
-    <!-- endbower -->
-    <!-- endbuild -->
-
-    <!-- build:js({.tmp,app}) scripts/scripts.js -->
-    <script src="scripts/orbitControls.js"></script>
-    <script src="scripts/scenerenderer.js"></script>
-
-    <script src="scripts/app.js"></script>
-    <script src="scripts/run.js"></script>
-
-    <script src="scripts/services/robot.js"></script>
-    <script src="scripts/directives/ngwebgl.js"></script>
-    <script src="scripts/directives/ngteleopcanvas.js"></script>
-    <script src="scripts/controllers/main.js"></script>
-    <script src="scripts/controllers/actions.js"></script>
-    <script src="scripts/controllers/connection.js"></script>
-    <script src="scripts/controllers/circularmenu.js"></script>
-    <script src="scripts/controllers/ed.js"></script>
-    <script src="scripts/controllers/hardware/battery.js"></script>
-    <script src="scripts/controllers/hardware/ebuttons.js"></script>
-    <script src="scripts/controllers/hardware/hardware.js"></script>
-    <script src="scripts/controllers/hardware/hardware_button.js"></script>
-    <script src="scripts/controllers/hardware/status_controller.js"></script>
-    <script src="scripts/controllers/hardware/menu.js"></script>
-    <script src="scripts/controllers/sidebar.js"></script>
-    <script src="scripts/controllers/teleop.js"></script>
-    <script src="scripts/controllers/jointcontroller.js"></script>
-    <script src="scripts/controllers/speech.js"></script>
-    <script src="scripts/controllers/snapshotlist.js"></script>
-    <script src="scripts/controllers/modellist.js"></script>
-    <script src="scripts/controllers/jointcontroller.js"></script>
-    <script src="scripts/controllers/trigger.js"></script>
-    <!-- endbuild -->
 
   </body>
 </html>

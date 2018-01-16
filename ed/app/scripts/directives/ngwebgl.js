@@ -1,8 +1,9 @@
 'use strict';
 
+import SceneRenderer from '../scenerenderer';
+
 angular.module('EdGuiApp')
   .directive('ngWebgl', function (robot) {
-    /*globals SceneRenderer*/
     return {
       restrict: 'E',
       template: '<canvas></canvas>',

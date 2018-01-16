@@ -78,11 +78,14 @@
     <ul class="nav navbar-nav navbar-right">
       <li style="width: 100px;">
         <!-- <uib-progressbar value="battery" type="{{batteryType}}" ngCloak ng-class="{'progress-striped': batteryUnknown, active: batteryUnknown}"> -->
-        <uib-progressbar value="battery" type="{{batteryType}}" ng-class="{'progress-striped': batteryUnknown, active: batteryUnknown}"
-        style="margin: 8px; min-height: 32px">
-          <b ng-if="batteryUnknown">Unknown</b>
-          <b ng-if="!batteryUnknown">{{battery}}%</b>
-        </uib-progressbar>
+        <div class="progress" style="margin: 8px; min-height: 32px">
+          <div class="progress-bar" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" style="line-height: 32px"
+               ng-style="{'width': battery + '%'}"
+               ng-class="{'progress-bar-success': battery > 50, 'progress-bar-warning': battery > 25 && battery < 50, 'progress-bar-danger': battery < 25}">
+            <b ng-if="batteryUnknown">Unknown</b>
+            <b ng-if="!batteryUnknown">{{battery}}%</b>
+          </div>
+        </div>
       </li>
     </ul>
   </script>

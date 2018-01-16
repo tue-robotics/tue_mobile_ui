@@ -1,8 +1,5 @@
-/* global ros */
-
-(function () {
-
-'use strict';
+import $ from 'jquery';
+import ROSLIB from 'roslib';
 
 function handleJointState(device,name_arguments,position_arguments) {
 
@@ -156,5 +153,3 @@ $( document ).ready(function() {
     }
   });
 });
-
-})();

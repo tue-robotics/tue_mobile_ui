@@ -1,7 +1,3 @@
-'use strict';
-
-/* global ros */
-
 // globals
 var pager, pagerData;
 var map, mapMode = 'select';

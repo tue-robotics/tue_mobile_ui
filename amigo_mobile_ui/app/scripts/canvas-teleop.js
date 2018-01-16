@@ -6,17 +6,16 @@
 * - initializes a TeleOp
 **/
 
-/* global ros, TELEOP */
+import $ from 'jquery';
+import Hammer from 'hammerjs';
+import Teleop from './teleop.js';
+import ros from './ros-connect-amigo';
 
 // global variables
 
 var teleop;
 
 var cursorImg;
-
-// code wrapper
-(function () {
-'use strict';
 
 // private variables
 var canvas, ctx;
@@ -28,7 +27,7 @@ var currentPos;
 
 function initTeleop() {
   // Initialize the teleop.
-  teleop = new TELEOP.Teleop({
+  teleop = new Teleop({
     ros : ros,
     topic : 'base/references'
   });
@@ -212,6 +211,3 @@ function updateNavigation() {
 
 // when the dom is ready, start the code
 $(document).ready(init);
-
-// end wrapper
-}());

@@ -1,65 +1,41 @@
 {
   "private": true,
-  "devDependencies": {
-    "autoprefixer": "^6.1.0",
-    "cz-conventional-changelog": "^1.1.4",
-    "grunt": "^0.4.5",
-    "grunt-angular-templates": "^0.5.7",
-    "grunt-browser-sync": "^2.2.0",
-    "grunt-concurrent": "^2.1.0",
-    "grunt-contrib-clean": "^0.7.0",
-    "grunt-contrib-concat": "^0.5.1",
-    "grunt-contrib-copy": "^0.8.2",
-    "grunt-contrib-cssmin": "^0.14.0",
-    "grunt-contrib-htmlmin": "^0.6.0",
-    "grunt-contrib-imagemin": "^1.0.0",
-    "grunt-contrib-uglify": "^0.10.1",
-    "grunt-contrib-watch": "^0.6.1",
-    "grunt-eslint": "^17.3.1",
-    "grunt-filerev": "^2.2.0",
-    "grunt-newer": "^1.1.0",
-    "grunt-ng-annotate": "^1.0.1",
-    "grunt-postcss": "^0.7.1",
-    "grunt-svgmin": "^3.1.0",
-    "grunt-usemin": "^3.0.0",
-    "grunt-wiredep": "^2.0.0",
-    "jit-grunt": "^0.9.1",
-    "time-grunt": "^1.1.0"
-  },
-  "engines": {
-    "node": ">=0.10.0"
-  },
   "scripts": {
-    "postinstall": "bower install",
-    "test": "grunt test"
+    "start": "webpack-dev-server --open",
+    "build": "cross-env NODE_ENV=production webpack --progress",
+    "lint": "eslint ."
   },
-  "eslintConfig": {
-    "extends": [
-      "eslint:recommended"
-    ],
-    "env": {
-      "node": true,
-      "browser": true,
-      "mocha": true
-    },
-    "globals": {
-      "angular": true
-    },
-    "rules": {
-      "quotes": [
-        2,
-        "single"
-      ],
-      "indent": [
-        2,
-        2
-      ],
-      "no-console": 0
-    }
+  "dependencies": {
+    "angular": "^1.4.8",
+    "angular-bootstrap-slider": "git+https://github.com/seiyria/angular-bootstrap-slider.git#0.1.28",
+    "angular-circular-navigation": "git+https://github.com/Rayman/angular-circular-navigation.git",
+    "angular-ui-bootstrap": "^0.14.3",
+    "bootstrap": "^3.3.5",
+    "bootstrap-slider": "^10.0.0",
+    "bson": "^1.0.4",
+    "fastclick": "^1.0.6",
+    "font-awesome": "^4.7.0",
+    "jquery": "^3.2.1",
+    "ngdraggable": "^0.1.10",
+    "npm": "^5.5.1",
+    "robot-api": "^0.8.0",
+    "roslib": "^0.19.0",
+    "three": "^0.88.0"
   },
-  "config": {
-    "commitizen": {
-      "path": "./node_modules/cz-conventional-changelog"
-    }
+  "devDependencies": {
+    "clean-webpack-plugin": "^0.1.17",
+    "cross-env": "^5.1.1",
+    "css-loader": "^0.28.7",
+    "eslint": "^4.11.0",
+    "exports-loader": "^0.6.4",
+    "extract-text-webpack-plugin": "^3.0.2",
+    "file-loader": "^1.1.5",
+    "html-loader": "^0.5.1",
+    "html-webpack-plugin": "^2.30.1",
+    "imports-loader": "^0.7.1",
+    "style-loader": "^0.19.0",
+    "url-loader": "^0.6.2",
+    "webpack": "^3.8.1",
+    "webpack-dev-server": "^2.9.4"
   }
 }

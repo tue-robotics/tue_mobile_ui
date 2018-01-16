@@ -1,4 +1,4 @@
-'use strict';
+import {Goal, ActionClient} from 'roslib';
 
 angular.module('EdGuiApp')
   .controller('ActionsCtrl', function($scope, $timeout, robot) {
@@ -10,7 +10,7 @@ angular.module('EdGuiApp')
     });
 
     // Action client
-    var actionClient = new ROSLIB.ActionClient({
+    var actionClient = new ActionClient({
       ros: robot.ros,
       serverName: 'action_server/task',
       actionName: 'action_server_msgs/TaskAction',
@@ -49,8 +49,8 @@ angular.module('EdGuiApp')
       }
 
       // Create actionlib goal
-      var goal = new ROSLIB.Goal({
-        actionClient,
+      var goal = new Goal({
+        actionClient: actionClient,
         goalMessage: {
           recipe: JSON.stringify(recipe)
         }

@@ -1,6 +1,5 @@
-(function (root, factory) {
-  root.SceneRenderer = factory(root.THREE);
-}(this, function (THREE) {
+import * as THREE from 'three';
+const SceneRenderer = (function (THREE) {
 
   function SceneRenderer(options) {
     if (!options || !options.canvas || !options.robot) {
@@ -262,4 +261,6 @@
   }
 
   return SceneRenderer;
-}));
+})(THREE);
+
+export default SceneRenderer;
