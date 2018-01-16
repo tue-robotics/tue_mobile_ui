@@ -44,8 +44,8 @@ angular.module('EdGuiApp')
       var width_pixels = size.width;
       var height_pixels = size.height;
 
-      var x = e.x;
-      var y = e.y - div.offsetTop;
+      var x = x;
+      var y = y - div.offsetTop;
 
       var x_ratio = x / width_pixels;
       var y_ratio = y / height_pixels;

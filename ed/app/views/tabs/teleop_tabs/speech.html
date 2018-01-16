@@ -1,8 +1,12 @@
 <div ng-controller="SpeechCtrl">
 <h5>Text to speech</h5>
 <form ng-submit="speak(sentence)">
-  <input type="text" ng-model="sentence" name="sentence" placeholder="Enter the text and press <enter> ..."/>
-  <input type="submit" class="btn" id="submit" value="Submit" />
+  <div class="input-group">
+    <input type="text" ng-model="sentence" class="form-control" placeholder="Enter the text and press <enter> ...">
+    <span class="input-group-btn">
+      <input type="submit" class="btn btn-primary" value="Go!" />
+    </span>
+  </div><!-- /input-group -->
 </form>
 <hr />
 <h5>History</h5>
