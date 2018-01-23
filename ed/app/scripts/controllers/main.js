@@ -5,7 +5,6 @@ angular.module('EdGuiApp')
 
     $scope.entitySelection = function(entityEvent) {
       $scope.selectedEntityEvent = entityEvent;
-      $scope.$digest();
     }
 
     // query ed with 100 ms interval
