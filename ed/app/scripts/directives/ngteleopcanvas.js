@@ -30,8 +30,8 @@ angular.module('EdGuiApp')
         window.addEventListener('resize', resizeCanvas, false);
 
         function resizeCanvas() {
-          canvas.width = parent.width();
-          canvas.height = parent.width();
+          canvas.width = parent.width(); //parent.prop('offsetWidth');
+          canvas.height = parent.height(); //parent.prop('offsetHeight');
         }
 
         /* LOGIC */
@@ -143,7 +143,9 @@ angular.module('EdGuiApp')
         });
 
         element.on('touchstart', function(e) {
-          start(e.originalEvent.touches[0].offsetX, e.originalEvent.touches[0].offsetY);
+          e.preventDefault();
+          var rect = parent[0].getBoundingClientRect();
+          start(e.touches[0].pageX - rect.left, e.touches[0].pageY - rect.top);
         });
 
         element.on('mousemove', function(e) {
@@ -151,7 +153,9 @@ angular.module('EdGuiApp')
         });
 
         element.on('touchmove', function(e) {
-          move(e.originalEvent.touches[0].offsetX, e.originalEvent.touches[0].offsetY);
+          e.preventDefault();
+          var rect = parent[0].getBoundingClientRect();
+          move(e.touches[0].pageX - rect.left, e.touches[0].pageY - rect.top);
         });
 
         element.on('mouseup', function(e) {

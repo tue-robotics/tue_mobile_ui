@@ -1,0 +1,26 @@
+{
+  "parserOptions": {
+    "sourceType": "module"
+  },
+  "extends": [
+    "eslint:recommended"
+  ],
+  "env": {
+    "browser": true,
+    "node": true
+  },
+  "globals": {
+    "angular": true
+  },
+  "rules": {
+    "indent": [
+      2,
+      2
+    ],
+    "no-console": 0
+  },
+  "overrides": {
+    "files": "webpack.config.js",
+    "env": { "node": true }
+  }
+}

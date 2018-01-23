@@ -4,17 +4,15 @@ angular.module('EdGuiApp')
   .controller('CircularmenuCtrl', function ($scope, robot) {
 
     $scope.actionList = [
-      {name: 'inspect', icon: 'camera', color: 'red'},
-      {name: 'pick-up', icon: 'hand-grab-o', color: 'blue'},
-      {name: 'navigate-to', icon: 'arrows-alt', color: 'green'},
-      {name: 'place', icon: 'hand-lizard-o', color: 'red'}
+      {name: 'inspect', entityDescription: 'entity', icon: 'camera', color: 'red'},
+      {name: 'pick-up', entityDescription: 'object', icon: 'hand-grab-o', color: 'blue'},
+      {name: 'navigate-to', entityDescription: 'object', icon: 'arrows-alt', color: 'green'},
+      {name: 'place', entityDescription: 'object', icon: 'hand-lizard-o', color: 'red'}
     ];
 
     $scope.options = { items: [] };
 
     $scope.$watch('selectedEntityEvent', function (entityEvent) {
-
-      console.log(entityEvent);
 
       var menuElement = document.getElementById('action-menu');
 
@@ -38,7 +36,11 @@ angular.module('EdGuiApp')
           cssClass: 'fa fa-' + action.icon,
           background: action.color,
           onclick: function(event) {
-            robot.actionServer.doAction(action.name, entityEvent.entity.id);
+            // build the recipe
+            var recipe = {'actions': [{'action': action.name}]};
+            recipe['actions'][0][action.entityDescription] = {'id': entityEvent.entity.id};
+
+            robot.actionServer.doAction(recipe);
             $scope.entitySelection({event: event, entity: null});
           }
         };
