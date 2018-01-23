@@ -38,8 +38,8 @@ angular.module('EdGuiApp')
           onclick: function(event) {
             // build the recipe
             var recipe = {'actions': [{'action': action.name}]};
-            recipe[action.entityDescription] = {'id': entityEvent.entity.id};
-            
+            recipe['actions'][0][action.entityDescription] = {'id': entityEvent.entity.id};
+
             robot.actionServer.doAction(recipe);
             $scope.entitySelection({event: event, entity: null});
           }
