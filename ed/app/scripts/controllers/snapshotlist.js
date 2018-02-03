@@ -1,6 +1,4 @@
-'use strict';
-
-/* global _ */
+import {delay} from 'lodash';
 
 angular.module('EdGuiApp')
   .controller('SnapshotlistCtrl', function (robot, $scope) {
@@ -9,7 +7,7 @@ angular.module('EdGuiApp')
     $scope.undo = function () {
       $scope.isUndoing = true;
       robot.ed.undo_fit_model(function () {
-        _.delay(function () {
+        delay(function () {
           $scope.$apply(function () {
             $scope.isUndoing = false;
           });
@@ -23,7 +21,7 @@ angular.module('EdGuiApp')
     $scope.gpsr = function () {
       $scope.isAskingGPSR = true;
 
-      _.delay(function () {
+      delay(function () {
         $scope.$apply(function () {
           $scope.isAskingGPSR = false;
         });

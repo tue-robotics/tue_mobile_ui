@@ -1,6 +1,4 @@
-'use strict';
-
-/* global API */
+import {Robot} from 'robot-api';
 
 angular.module('EdGuiApp')
   .provider('robot', function () {
@@ -12,7 +10,7 @@ angular.module('EdGuiApp')
 
     // Method for instantiating
     this.$get = function () {
-      var robot = window.r = new API.Robot({
+      var robot = window.r = new Robot({
         'ed': true,
         'hardware': true,
         'head': true,

@@ -1,6 +1,4 @@
-'use strict';
-
-/* global _ */
+import {delay} from 'lodash';
 
 angular.module('EdGuiApp')
   .controller('TriggerCtrl', function ($scope, robot) {
@@ -33,7 +31,7 @@ angular.module('EdGuiApp')
     $scope.create_walls = function () {
       $scope.creating = true;
       robot.ed.create_walls(function () {
-        _.delay(function () {
+        delay(function () {
           $scope.$apply(function () {
             $scope.creating = false;
           });

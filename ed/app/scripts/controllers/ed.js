@@ -1,5 +1,3 @@
-'use strict';
-
 angular.module('EdGuiApp')
   .controller('EdCtrl', function($scope, $timeout, robot) {
 

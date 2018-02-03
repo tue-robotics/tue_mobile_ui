@@ -1,6 +1,4 @@
-'use strict';
-
-/* global _ */
+import {delay,last,mapValues,words} from 'lodash';
 
 angular.module('EdGuiApp')
   .controller('ModellistCtrl', function ($scope, robot) {
@@ -11,8 +9,8 @@ angular.module('EdGuiApp')
 
     robot.ed.on('models', function (models) {
       $scope.$apply(function() {
-        $scope.models = _.mapValues(models, function (v, k) {
-          v.name = _.last(_.words(k, /\w+/g))
+        $scope.models = mapValues(models, function (v, k) {
+          v.name = last(words(k, /\w+/g))
             .replace('_', ' ');
           return v;
         });
@@ -28,7 +26,7 @@ angular.module('EdGuiApp')
           waiting_time = 500;
         }
 
-        _.delay(function () {
+        delay(function () {
 
           // console.time('getImage');
           robot.head.getImage(resolution, function (url, _, time_diff) {

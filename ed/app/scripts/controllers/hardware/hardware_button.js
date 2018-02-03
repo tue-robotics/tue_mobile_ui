@@ -1,5 +1,3 @@
-'use strict';
-
 angular.module('EdGuiApp')
 
   .directive('tueHardwareButton', function() {

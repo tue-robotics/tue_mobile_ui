@@ -1,5 +1,25 @@
-import * as THREE from 'three';
-const SceneRenderer = (function (THREE) {
+import {
+  AmbientLight,
+  CanvasRenderer,
+  DirectionalLight,
+  Face3,
+  FlatShading,
+  Geometry,
+  Mesh,
+  MeshPhongMaterial,
+  PerspectiveCamera,
+  Points,
+  Raycaster,
+  Scene,
+  ShaderMaterial,
+  Texture,
+  Vector2,
+  Vector3,
+  WebGLRenderer} from 'three';
+
+import OrbitControls from './orbitControls';
+
+const SceneRenderer = (function () {
 
   function SceneRenderer(options) {
     if (!options || !options.canvas || !options.robot) {
@@ -17,23 +37,23 @@ const SceneRenderer = (function (THREE) {
     var contH = this.canvas.offsetHeight;
 
     // Camera
-    this.camera = new THREE.PerspectiveCamera(75, contW/contH, 0.1, 1000);
+    this.camera = new PerspectiveCamera(75, contW/contH, 0.1, 1000);
 
     // For interaction via click
-    this.raycaster = new THREE.Raycaster();
+    this.raycaster = new Raycaster();
 
     this.camera.position.x = 0;
     this.camera.position.y = -3;
     this.camera.position.z = 3;
 
-    this.camera.up = new THREE.Vector3(0, 0, 1);
+    this.camera.up = new Vector3(0, 0, 1);
 
     // Scene
-    var scene = this.scene = new THREE.Scene();
+    var scene = this.scene = new Scene();
 
     // Lights
-    scene.add(new THREE.AmbientLight(0x404040));
-    var light = new THREE.DirectionalLight(0xffffff);
+    scene.add(new AmbientLight(0x404040));
+    var light = new DirectionalLight(0xffffff);
     light.position.set(3, 12, 8);
     scene.add(light);
 
@@ -51,15 +71,15 @@ const SceneRenderer = (function (THREE) {
 
     var renderer;
     if (webglAvailable()) {
-      renderer = new THREE.WebGLRenderer({canvas: this.canvas, antialias: true});
+      renderer = new WebGLRenderer({canvas: this.canvas, antialias: true});
     } else {
-      renderer = new THREE.CanvasRenderer({canvas: this.canvas});
+      renderer = new CanvasRenderer({canvas: this.canvas});
     }
     this.renderer = renderer;
 
     renderer.setClearColor(0xf0f0f0);
 
-    var cameraControls = new THREE.OrbitControls(this.camera, renderer.domElement);
+    var cameraControls = new OrbitControls(this.camera, renderer.domElement);
     cameraControls.enableDamping = true;
     cameraControls.dampingFactor = 0.25;
     cameraControls.enableZoom = true;
@@ -76,7 +96,7 @@ const SceneRenderer = (function (THREE) {
   };
 
   SceneRenderer.prototype.pickingRay = function(x, y) {
-    this.raycaster.setFromCamera(new THREE.Vector2(x, y), this.camera);
+    this.raycaster.setFromCamera(new Vector2(x, y), this.camera);
     var intersects = this.raycaster.intersectObjects(this.scene.children);
 
     if (intersects.length === 0) {
@@ -94,22 +114,22 @@ const SceneRenderer = (function (THREE) {
 
     /* START RENDER KINECT */
 
-    var texture = new THREE.Texture();
+    var texture = new Texture();
 
-    var geometry = new THREE.Geometry();
+    var geometry = new Geometry();
     var width = 640, height = 480;
     var nearClipping = 850/*850*/, farClipping = 4000/*4000*/;
     for ( var i = 0, l = width * height; i < l; i ++ ) {
 
-      var position = new THREE.Vector3();
+      var position = new Vector3();
       position.x = ( i % width );
       position.y = Math.floor( i / width );
 
-      geometry.vertices.push( new THREE.Vector3( position ) );
+      geometry.vertices.push( new Vector3( position ) );
 
     }
 
-    var material = new THREE.ShaderMaterial( {
+    var material = new ShaderMaterial( {
 
       uniforms: {
 
@@ -126,7 +146,7 @@ const SceneRenderer = (function (THREE) {
 
     } );
 
-    var mesh = new THREE.Points( geometry, material );
+    var mesh = new Points( geometry, material );
     mesh.position.x = 0;
     mesh.position.y = 0;
     mesh.position.z = 10;
@@ -137,7 +157,7 @@ const SceneRenderer = (function (THREE) {
     this.robot.ed.watch({
       add: function (obj) {
         //console.log('add', obj);
-        var geometry = new THREE.Geometry();
+        var geometry = new Geometry();
 
         convertVertices(obj.vertices, geometry.vertices);
         convertFaces(obj.faces, geometry.faces);
@@ -145,14 +165,14 @@ const SceneRenderer = (function (THREE) {
         geometry.computeFaceNormals();
         geometry.computeVertexNormals(true);
 
-        var material = new THREE.MeshPhongMaterial({
+        var material = new MeshPhongMaterial({
           color: stringToColor(obj.id),
-          shading: THREE.FlatShading,
+          shading: FlatShading,
           shininess: 0,
           emissive: 0x020202
         });
 
-        var mesh = new THREE.Mesh(geometry, material);
+        var mesh = new Mesh(geometry, material);
 
         mesh.position.fromArray(obj.position);
         mesh.quaternion.fromArray(obj.quaternion);
@@ -247,7 +267,7 @@ const SceneRenderer = (function (THREE) {
   function convertVertices(vertices, threeVertices) {
     for (var i = 0; i < vertices.length; i++) {
       threeVertices.push(
-        (new THREE.Vector3()).fromArray(vertices[i])
+        (new Vector3()).fromArray(vertices[i])
       );
     }
   }
@@ -255,11 +275,11 @@ const SceneRenderer = (function (THREE) {
   function convertFaces(faces, threeFaces) {
     for (var j = 0; j < faces.length; j++) {
       var face = faces[j];
-      threeFaces.push(new THREE.Face3(face[0], face[1], face[2]));
+      threeFaces.push(new Face3(face[0], face[1], face[2]));
     }
   }
 
   return SceneRenderer;
-})(THREE);
+})();
 
 export default SceneRenderer;
