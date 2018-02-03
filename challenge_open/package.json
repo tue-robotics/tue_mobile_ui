@@ -36,6 +36,7 @@
     "node": ">=0.10.0"
   },
   "scripts": {
+    "postinstall": "bower install",
     "test": "grunt test",
     "bower": "node ./node_modules/.bin/bower",
     "grunt": "node ./node_modules/.bin/grunt",
