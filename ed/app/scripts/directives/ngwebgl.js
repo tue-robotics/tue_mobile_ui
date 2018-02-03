@@ -29,6 +29,8 @@ angular.module('EdGuiApp')
         }, false);
 
         element.on('touchstart', function(e) {
+          console.log('ngwebgl touchstart');
+
           e.preventDefault();
           scope.entitySelection({entity: null, event: e});
         });

@@ -28,6 +28,7 @@ angular.module('EdGuiApp')
         window.addEventListener('resize', resizeCanvas, false);
 
         function resizeCanvas() {
+          console.log('resizeCanvas');
           canvas.width = parent.width(); //parent.prop('offsetWidth');
           canvas.height = parent.height(); //parent.prop('offsetHeight');
         }
@@ -55,12 +56,14 @@ angular.module('EdGuiApp')
         }, 100);
 
         function start(x, y) {
+          console.log('start');
           startPos = {x: x, y: y};
           publishing = true;
           update();
         }
 
         function move(x, y) {
+          console.log('move');
           if (!startPos)
             return;
 
@@ -69,6 +72,7 @@ angular.module('EdGuiApp')
         }
 
         function end() {
+          console.log('end');
           startPos   = false;
           currentPos = false;
 
@@ -141,8 +145,11 @@ angular.module('EdGuiApp')
         });
 
         element.on('touchstart', function(e) {
+          console.log('ngteleop touchstart');
+
           e.preventDefault();
           var rect = parent[0].getBoundingClientRect();
+          console.log('calling start...', start);
           start(e.touches[0].pageX - rect.left, e.touches[0].pageY - rect.top);
         });
 

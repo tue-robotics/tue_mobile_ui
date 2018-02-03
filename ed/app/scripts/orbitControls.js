@@ -669,6 +669,7 @@ export default (function () {
     }
 
     function touchstart(event) {
+      console.log('orbit touchstart');
 
       var longpressEvent = new CustomEvent('onlongpress', { 'detail': event.touches[0] });
       longpressTimer = setTimeout(function() {
