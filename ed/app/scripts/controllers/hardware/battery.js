@@ -1,6 +1,6 @@
 'use strict';
 
-var app = angular.module('EdGuiApp')
+angular.module('EdGuiApp')
   .directive('tueBatteryStatus', function () {
     return {
       restrict: 'E',

@@ -35,17 +35,15 @@ angular.module('EdGuiApp')
     };
 
     $scope.camera_click = function (e) {
-      var x = e.offsetX;
-      var y = e.offsetY;
-
       var div = e.target;
+      
+      var x = e.offsetX;
+      var y = e.offsetY - div.offsetTop;    
+
       var size = getViewSize(div);
 
       var width_pixels = size.width;
       var height_pixels = size.height;
-
-      var x = x;
-      var y = y - div.offsetTop;
 
       var x_ratio = x / width_pixels;
       var y_ratio = y / height_pixels;

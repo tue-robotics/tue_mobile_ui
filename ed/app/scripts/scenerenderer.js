@@ -91,7 +91,6 @@ const SceneRenderer = (function (THREE) {
   SceneRenderer.prototype.start = function () {
     var self = this;
     var scene = this.scene;
-    var robot = this.robot;
 
     /* START RENDER KINECT */
 

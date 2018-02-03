@@ -1,4 +1,4 @@
-'use strict';
+import { map } from 'lodash';
 
 angular.module('EdGuiApp')
 
@@ -56,7 +56,7 @@ angular.module('EdGuiApp')
           if (!ebuttons) {
             return DEFAULT_STATE;
           }
-          return _.map(ebuttons, function (status) {
+          return map(ebuttons, function (status) {
             return {
               name: status.name,
               color: levelToClass(status.level),

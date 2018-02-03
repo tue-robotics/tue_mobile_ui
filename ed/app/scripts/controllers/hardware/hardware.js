@@ -1,4 +1,5 @@
-'use strict';
+import {invert, mapValues, at, merge, clone} from 'lodash';
+import {Hardware} from 'robot-api';
 
 angular.module('EdGuiApp')
   .controller('HardwareCtrl', function($scope, robot, menu) { 	
@@ -18,7 +19,7 @@ angular.module('EdGuiApp')
       ERROR:        'danger',
     };
 
-    var levelMap = _.invert(API.Hardware.levels);
+    var levelMap = invert(Hardware.levels);
 
     $scope.hardware = statusToScope(robot.hardware.status);
     robot.hardware.on('status', function (status) {
@@ -28,8 +29,8 @@ angular.module('EdGuiApp')
     });
 
     function statusToScope(status) {
-      var parts = _.mapValues(status, function (props) {
-        var level = _.at(levelMap, props.level);
+      var parts = mapValues(status, function (props) {
+        var level = at(levelMap, props.level);
         var color = levelColorMap[level];
         props.class = 'btn-' + color;
         return props;
@@ -55,8 +56,8 @@ angular.module('EdGuiApp')
       var actions = robot.hardware.status[part].actions;
 
       // merge the action icons in only when they are defined
-      actions = _.mapValues(actions, function (props, action) {
-        return _.merge(_.clone(props), actionIcons[action]);
+      actions = mapValues(actions, function (props, action) {
+        return merge(clone(props), actionIcons[action]);
       });
 
       menu.popup(e.x, e.y, actions, function (command) {
@@ -68,7 +69,7 @@ angular.module('EdGuiApp')
           actions[warning] = {
             enabled: false,
           };
-          actions = _.merge(actions, {
+          actions = merge(actions, {
             Confirm: {
               icon: 'icons/accepted.png'
             },

@@ -1,4 +1,4 @@
-'use strict';
+import {union} from 'lodash';
 
 angular.module('EdGuiApp')
   .controller('SpeechCtrl', function($scope, $timeout, robot) {
@@ -16,20 +16,7 @@ angular.module('EdGuiApp')
       $scope.sentence = ''
 
       // Remember lines
-      $scope.speech_history.unshift(sentence)
-
-      // Filter out duplicates
-      var unique = [];
-      var lines = $scope.speech_history.filter(function (text) {
-
-        if (unique.indexOf(text) === -1) {
-          unique.push(text);
-          // return true;
-        } else {
-          // return false;
-        }
-      });
-      $scope.speech_history = unique;
+      $scope.speech_history = union([sentence], $scope.speech_history);
 
     }  // End of speak
 
