@@ -8,4 +8,4 @@ angular.module('EdGuiApp')
       robot.ed.reset(true);
     }
 
-});
+  });

@@ -31,6 +31,6 @@ angular.module('EdGuiApp')
       });
       $scope.speech_history = unique;
 
-  }  // End of speak
+    }  // End of speak
 
   });

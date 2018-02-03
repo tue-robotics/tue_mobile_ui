@@ -18,7 +18,7 @@ app.controller('StatusCtrl', function ($scope, robot) {
     $scope.title = 'dashboard @ ' + robot.url;
   }
 
-    $scope.rosStatus = robot.status;
+  $scope.rosStatus = robot.status;
   robot.on('status', function (status) {
     $scope.$apply(function () {
       console.log('setting status', status);

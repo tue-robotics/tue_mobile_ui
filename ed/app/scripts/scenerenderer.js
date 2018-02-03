@@ -16,7 +16,7 @@ const SceneRenderer = (function (THREE) {
     var contW = this.canvas.offsetWidth;
     var contH = this.canvas.offsetHeight;
 
-     // Camera
+    // Camera
     this.camera = new THREE.PerspectiveCamera(75, contW/contH, 0.1, 1000);
 
     // For interaction via click
@@ -226,14 +226,14 @@ const SceneRenderer = (function (THREE) {
    */
 
   var COLORS = [0x999999, 0x999966, 0x999933,
-                0x996699, 0x996666, 0x996633,
-                0x993399, 0x993366, 0x993333,
-                0x669999, 0x669966, 0x669933,
-                0x666699, 0x666666, 0x666633,
-                0x663399, 0x663366, 0x663333,
-                0x339999, 0x339966, 0x339933,
-                0x336699, 0x336666, 0x336633,
-                0x333399, 0x333366, 0x333333];
+    0x996699, 0x996666, 0x996633,
+    0x993399, 0x993366, 0x993333,
+    0x669999, 0x669966, 0x669933,
+    0x666699, 0x666666, 0x666633,
+    0x663399, 0x663366, 0x663333,
+    0x339999, 0x339966, 0x339933,
+    0x336699, 0x336666, 0x336633,
+    0x333399, 0x333366, 0x333333];
 
   function stringToColor(str) {
     for (var i = 0, hash = 5381; i < str.length; hash = ((hash << 5) + hash) + str.charCodeAt(i++)) ;

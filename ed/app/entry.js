@@ -44,8 +44,8 @@ import './scripts/services/robot'
 // preload html
 
 angular
-.module('EdGuiApp')
-.run(['$templateCache', function($templateCache) {
+  .module('EdGuiApp')
+  .run(['$templateCache', function($templateCache) {
     // $templateCache.put('views/main.html', require('./views/main.html'));
     $templateCache.put('views/scene.html', require('./views/scene.html'));
     $templateCache.put('views/hardware.html', require('./views/hardware.html'));
@@ -58,4 +58,4 @@ angular
     $templateCache.put('views/tabs/editor.html', require('./views/tabs/editor.html'));
     $templateCache.put('views/tabs/actions.html', require('./views/tabs/actions.html'));
     // $templateCache.put('views/main.html', require('./views/main.html'));
-}]);
+  }]);
