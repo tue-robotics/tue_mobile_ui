@@ -19,13 +19,6 @@ angular.module('EdGuiApp')
       $scope.camera_src = null;
 
       function update(time_diff) {
-        var waiting_time = time_diff;
-        if (time_diff < 66) {
-          waiting_time = 66;
-        } else if (time_diff > 500) {
-          waiting_time = 500;
-        }
-
         delay(function () {
 
           // console.time('getImage');
