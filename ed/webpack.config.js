@@ -71,6 +71,7 @@ function getPlugins() {
       template: 'app/index.html'
     }),
     new webpack.ProvidePlugin({
+      'window.jQuery': 'jquery', // needed for angular
       angular: 'angular',
     }),
     new ExtractTextPlugin({
