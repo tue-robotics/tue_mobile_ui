@@ -1,8 +1,9 @@
 import $ from 'jquery';
-import ROSLIB from 'roslib';
+import {ActionClient, Goal} from 'roslib';
+import ros from './ros-connect-amigo';
 
 $('#presentation').on('click', 'input', function (e) {
-  var action = new ROSLIB.ActionClient({
+  var action = new ActionClient({
     ros: ros,
     serverName: 'action_server/task',
     actionName: 'action_server_msgs/TaskAction',
@@ -10,14 +11,14 @@ $('#presentation').on('click', 'input', function (e) {
 
   var lang = e.currentTarget.value;
   switch (lang) {
-    case 'English':
-      lang = 'en';
-      break;
-    case 'Dutch':
-      lang = 'nl';
-      break;
-    default:
-      console.error('Unknown language');
+  case 'English':
+    lang = 'en';
+    break;
+  case 'Dutch':
+    lang = 'nl';
+    break;
+  default:
+    console.error('Unknown language');
   }
 
   var recipe = {
@@ -27,7 +28,7 @@ $('#presentation').on('click', 'input', function (e) {
     }]
   }
 
-  var goal = new ROSLIB.Goal({
+  var goal = new Goal({
     actionClient: action,
     goalMessage: {
       recipe: JSON.stringify(recipe)

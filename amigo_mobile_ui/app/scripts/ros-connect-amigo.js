@@ -8,7 +8,7 @@
 **/
 
 import $ from 'jquery';
-import ROSLIB from 'roslib';
+import {Ros, Service, ServiceRequest} from 'roslib';
 import 'bootstrap/js/button.js';
 import 'bootstrap/js/modal.js';
 
@@ -18,7 +18,7 @@ var pingInterval = 5000;  // ms. The time between pings
 var pingTimeout = 2000;     // ms. If ros doesn't respond within this period of time, close the connection
 
 // Connecting to ROS.
-const ros = window.ros = new ROSLIB.Ros();
+const ros = new Ros();
 export default ros;
 
 // initialize the connection to rosbridge
@@ -71,7 +71,7 @@ var pingClient;
 
 function initPingService() {
   // initialize the ping service to node_alive
-  pingClient = new ROSLIB.Service({
+  pingClient = new Service({
     ros : ros,
     name : 'get_alive_nodes',
     serviceType : 'node_alive/ListNodesAlive'
@@ -89,7 +89,7 @@ function initPingService() {
 
 function pingNodesAlive() {
 
-  var request = new ROSLIB.ServiceRequest({});
+  var request = new ServiceRequest({});
   var start = new Date();
 
   setTimeout(function() {
@@ -98,7 +98,7 @@ function pingNodesAlive() {
     }
   }, pingTimeout);
 
-  pingClient.callService(request, function(result) {
+  pingClient.callService(request, function() {
     //console.log('Result for service call: ', result);
     var diff = new Date() - start;
     start = -1;

@@ -1,3 +1,9 @@
+import $ from 'jquery';
+import {ServiceRequest, Service, Topic} from 'roslib';
+import ros from './ros-connect-amigo';
+import {keys, values} from 'lodash';
+import Handlebars from 'handlebars';
+
 // globals
 var pager, pagerData;
 var map, mapMode = 'select';
@@ -36,7 +42,7 @@ var getMeasurementsService;
 function getMeasurements() {
   // handle the incoming data
 
-  var req = new ROSLIB.ServiceRequest({});
+  var req = new ServiceRequest({});
 
   getMeasurementsService.callService(req, function(result) {
     handleMeasurements(result);
@@ -78,11 +84,11 @@ function getPixelPosition (e) {
 function raiseEvent (e) {
   var data = {
     name: e.name,
-    param_names: _.keys(e.params),
-    param_values: _.values(e.params).map(function (v) { return ''+v; }),
+    param_names: keys(e.params),
+    param_values: values(e.params).map(function (v) { return ''+v; }),
   };
 
-  var req = new ROSLIB.ServiceRequest(data);
+  var req = new ServiceRequest(data);
   raiseEventService.callService(req, function (result) {
     console.log(result);
   });
@@ -93,7 +99,7 @@ function handleClick (e) {
 
   console.log('click on ', pos);
 
-  var req = new ROSLIB.ServiceRequest({
+  var req = new ServiceRequest({
     name: 'click',
     param_names:  [      'x',      'y', 'type'],
     param_values: [''+pos.x, ''+pos.y,  mapMode],
@@ -110,7 +116,7 @@ function handleClick (e) {
 function setLabel(label) {
   console.log('set label: ', label);
 
-  var req = new ROSLIB.ServiceRequest({
+  var req = new ServiceRequest({
     id: '',
     label: label,
   });
@@ -127,15 +133,15 @@ $(document).ready(function () {
   pagerTemplate = Handlebars.compile(source);
 
   // get the last measurements for an object
-  getMeasurementsService = new ROSLIB.Service({
-      ros : ros,
-      name : 'ed/gui/get_measurements',
-      serviceType : 'ed_msgs/GetMeasurements'
+  getMeasurementsService = new Service({
+    ros : ros,
+    name : 'ed/gui/get_measurements',
+    serviceType : 'ed_msgs/GetMeasurements'
   });
   getMeasurements();
 
   // Get the map
-  var mapListener = new ROSLIB.Topic({
+  var mapListener = new Topic({
     ros : ros,
     name : 'ed/gui/map_image',
     messageType : 'tue_serialization/Binary'
@@ -151,18 +157,18 @@ $(document).ready(function () {
     console.log(panMode);
     var params;
     switch (panMode) {
-      case 'left':
-        params = { dx: -1, dy:  0 };
-        break;
-      case 'right':
-        params = { dx:  1, dy:  0 };
-        break;
-      case 'up':
-        params = { dx:  0, dy:  1 };
-        break;
-      case 'down':
-        params = { dx:  0, dy: -1 };
-        break;
+    case 'left':
+      params = { dx: -1, dy:  0 };
+      break;
+    case 'right':
+      params = { dx:  1, dy:  0 };
+      break;
+    case 'up':
+      params = { dx:  0, dy:  1 };
+      break;
+    case 'down':
+      params = { dx:  0, dy: -1 };
+      break;
     }
     raiseEvent({
       name: 'pan',
@@ -211,17 +217,17 @@ $(document).ready(function () {
   });
 
   // click service
-  raiseEventService = new ROSLIB.Service({
-      ros : ros,
-      name : 'ed/gui/raise_event',
-      serviceType : 'ed_msgs/RaiseEvent'
+  raiseEventService = new Service({
+    ros : ros,
+    name : 'ed/gui/raise_event',
+    serviceType : 'ed_msgs/RaiseEvent'
   });
 
   // label service
-  setLabelService = new ROSLIB.Service({
-      ros : ros,
-      name : 'ed/gui/set_label',
-      serviceType : 'ed_msgs/SetLabel'
+  setLabelService = new Service({
+    ros : ros,
+    name : 'ed/gui/set_label',
+    serviceType : 'ed_msgs/SetLabel'
   });
   $('#set-label-form').on('submit', function (e) {
     e.preventDefault();

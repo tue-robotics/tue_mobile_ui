@@ -1,5 +1,6 @@
 import $ from 'jquery';
-import ROSLIB from 'roslib';
+import {ActionClient, Goal, Message, Topic} from 'roslib';
+import ros from './ros-connect-amigo';
 
 function handleJointState(device,name_arguments,position_arguments) {
 
@@ -17,14 +18,14 @@ function handleJointState(device,name_arguments,position_arguments) {
   console.log('name_arguments: ', name_arguments);
   console.log('position_arguments: ', position_arguments);
 
-  var action = new ROSLIB.ActionClient({
+  var action = new ActionClient({
     ros: ros,
     serverName: 'body/joint_trajectory_action',
     actionName: 'control_msgs/FollowJointTrajectoryAction',
     timeout: 10,
   });
 
-  var goal = new ROSLIB.Goal({
+  var goal = new Goal({
     actionClient: action,
     goalMessage: {
       trajectory: {
@@ -40,7 +41,7 @@ function handleJointState(device,name_arguments,position_arguments) {
 }
 
 function handleAmigoGripperCommand(device,argument) {
-  var action = new ROSLIB.ActionClient({
+  var action = new ActionClient({
     ros: ros,
     serverName: device + '/action',
     actionName: 'tue_manipulation_msgs/GripperCommandAction',
@@ -48,7 +49,7 @@ function handleAmigoGripperCommand(device,argument) {
   });
 
 
-  var goal = new ROSLIB.Goal({
+  var goal = new Goal({
     actionClient: action,
     goalMessage: {
       command: {
@@ -62,7 +63,7 @@ function handleAmigoGripperCommand(device,argument) {
 }
 
 function handleHeadRef(argument) {
-  var action = new ROSLIB.ActionClient({
+  var action = new ActionClient({
     ros: ros,
     serverName: 'head_ref/action_server',
     actionName: 'head_ref/HeadReferenceAction',
@@ -74,7 +75,7 @@ function handleHeadRef(argument) {
     argument[i] = parseFloat(argument[i]);
   }
 
-  var goal = new ROSLIB.Goal({
+  var goal = new Goal({
     actionClient: action,
     goalMessage: {
       goal_type: 1,
@@ -87,13 +88,13 @@ function handleHeadRef(argument) {
 }
 
 function handleSpeech(speech) {
-  var topic = new ROSLIB.Topic({
+  var topic = new Topic({
     ros: ros,
     name: 'text_to_speech/input',
     messageType: 'std_msgs/String'
   });
 
-  var message = new ROSLIB.Message({
+  var message = new Message({
     data : speech
   });
 
@@ -101,13 +102,13 @@ function handleSpeech(speech) {
 }
 
 function handleActionlib(skill_command) {
-  var actionlib = new ROSLIB.ActionClient({
+  var actionlib = new ActionClient({
     ros : ros,
     serverName: 'execute_command',
     actionName: 'amigo_skill_server/ExecuteAction'
   });
 
-  var goal = new ROSLIB.Goal({
+  var goal = new Goal({
     actionClient : actionlib,
     goalMessage : {
       command : skill_command
@@ -135,21 +136,21 @@ $( document ).ready(function() {
     }
 
     switch (req[0]) {
-      case 'sensor_msgs/JointState':
-        handleJointState(req[1],req[2],req[3]);
-        break;
-      case 'head_ref/HeadReferenceAction':
-        handleHeadRef(req[1], req[2]);
-        break;
-      case 'amigo_msgs/AmigoGripperCommand':
-        handleAmigoGripperCommand(req[1],req[2]);
-        break;
-      case 'Sound':
-        handleSpeech(req[1]);
-        break;
-      case 'SkillCommand':
-        handleActionlib(req[1]);
-        break;
+    case 'sensor_msgs/JointState':
+      handleJointState(req[1],req[2],req[3]);
+      break;
+    case 'head_ref/HeadReferenceAction':
+      handleHeadRef(req[1], req[2]);
+      break;
+    case 'amigo_msgs/AmigoGripperCommand':
+      handleAmigoGripperCommand(req[1],req[2]);
+      break;
+    case 'Sound':
+      handleSpeech(req[1]);
+      break;
+    case 'SkillCommand':
+      handleActionlib(req[1]);
+      break;
     }
   });
 });

@@ -15,12 +15,8 @@ import ros from './ros-connect-amigo';
 
 var teleop;
 
-var cursorImg;
-
 // private variables
 var canvas, ctx;
-
-var offset; // position of the canvas relative to the document
 
 var startPos;
 var currentPos;
@@ -103,9 +99,6 @@ function loadAssets() {
 }
 
 function resizeCanvas() {
-
-  offset = $(canvas).offset();
-
   canvas.width = $(window).width();
   canvas.height = $(window).height() - 50; // for the nav bar
 
@@ -116,11 +109,6 @@ function resizeCanvas() {
 
 function convertPageXY(x, y) {
   return {x: x, y: y - 50};
-}
-
-function drawImageCentered(img, x, y, w, h)
-{
-  ctx.drawImage(img, x - w/2, y - h/2, w, h);
 }
 
 function drawController(pos, thumbPos)
@@ -199,9 +187,9 @@ function sendCmdVel() {
 var publishing = false;
 var speed, theta;
 function updateVelocity() {
-    if (publishing) {
-        sendCmdVel();
-    }
+  if (publishing) {
+    sendCmdVel();
+  }
 }
 
 function updateNavigation() {

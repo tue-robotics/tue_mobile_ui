@@ -3,12 +3,11 @@
 **/
 
 import $ from 'jquery';
-
-// globals
+import ros from './ros-connect-amigo';
 
 var canvas, ctx;
 
-var draw, test;
+var draw;
 
 var pingHistory;
 
@@ -94,17 +93,17 @@ draw = function () {
   ctx.fillText('min/avg/max = ' + min + '/' + avg + '/' + max, 4, height - 4);
 };
 
-test = function() {
-  // fill the array with mock data;
-  var d = +new Date() - 100;
-  while (d < +new Date()) {
-    var diff = Math.random()*2 + 4;
-    var ping = Math.floor(Math.random()*15+30);
-    pingHistory.push({t:Math.floor(d), p:ping});
-    d += diff;
-  }
-  draw();
-};
+// test = function() {
+//   // fill the array with mock data;
+//   var d = +new Date() - 100;
+//   while (d < +new Date()) {
+//     var diff = Math.random()*2 + 4;
+//     var ping = Math.floor(Math.random()*15+30);
+//     pingHistory.push({t:Math.floor(d), p:ping});
+//     d += diff;
+//   }
+//   draw();
+// };
 
 function init() {
   if (typeof(ros) !== 'undefined') {

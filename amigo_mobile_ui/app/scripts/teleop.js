@@ -1,13 +1,12 @@
 import EventEmitter2 from 'eventemitter2';
-import $ from 'jquery';
-import ROSLIB from 'roslib';
+import {Topic, Message} from 'roslib';
 
 export default function Teleop(options) {
   options = options || {};
   var ros = options.ros;
   var topic = options.topic || 'cmd_vel';
 
-  var cmdVel = new ROSLIB.Topic({
+  var cmdVel = new Topic({
     ros : ros,
     name : topic,
     messageType : 'geometry_msgs/Twist'
@@ -17,7 +16,7 @@ export default function Teleop(options) {
   this.sendTwist = function(x, y, theta) {
 
     // publish the command
-    var twist = new ROSLIB.Message({
+    var twist = new Message({
       angular : {
         x : 0,
         y : 0,
@@ -31,5 +30,5 @@ export default function Teleop(options) {
     });
     cmdVel.publish(twist);
   };
-};
+}
 Teleop.prototype.__proto__ = EventEmitter2.prototype;
