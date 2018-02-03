@@ -22,7 +22,6 @@ import './scripts/controllers/ed';
 import './scripts/controllers/jointcontroller';
 import './scripts/controllers/main';
 import './scripts/controllers/modellist';
-import './scripts/controllers/sidebar';
 import './scripts/controllers/snapshotlist';
 import './scripts/controllers/speech';
 import './scripts/controllers/teleop';
