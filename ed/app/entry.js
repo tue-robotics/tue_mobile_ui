@@ -26,7 +26,6 @@ import './scripts/controllers/sidebar';
 import './scripts/controllers/snapshotlist';
 import './scripts/controllers/speech';
 import './scripts/controllers/teleop';
-import './scripts/controllers/trigger';
 
 import './scripts/controllers/hardware/battery.js'
 import './scripts/controllers/hardware/ebuttons.js'
