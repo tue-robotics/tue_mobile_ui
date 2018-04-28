@@ -52,16 +52,24 @@ class App extends Component {
       }, RECONNECT_TIMEOUT);
     });
 
-    this.topic = this.ros.Topic({
-      name: 'trigger',
+    this.tts_topic = this.ros.Topic({
+      name: 'text_to_speech/input',
+      messageType: 'std_msgs/String',
+    });
+
+    this.telegram_topic = this.ros.Topic({
+      name: 'message_to_telegram',
       messageType: 'std_msgs/String',
     });
   }
 
   handleClick = () => {
     console.log('doorbell');
-    this.topic.publish({
+    this.tts_topic.publish({
       data: 'doorbell',
+    });
+    this.telegram_topic.publish({
+      data: 'There is someone at your door',
     });
   };
 
