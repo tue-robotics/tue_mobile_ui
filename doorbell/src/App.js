@@ -23,6 +23,20 @@ class App extends Component {
       url: defaultUrl,
     });
 
+    this.ros.on('connection', () => {
+      console.log('connection');
+      this.setState({
+        status: 'connected',
+      });
+    });
+
+    this.ros.on('error', () => {
+      console.log('error');
+      this.setState({
+        status: 'error',
+      });
+    });
+
     this.ros.on('close', () => {
       console.log('close');
       this.setState({
@@ -30,14 +44,12 @@ class App extends Component {
       });
 
       // reconnect behavior
-      setTimeout(() => this.ros.connect(defaultUrl), RECONNECT_TIMEOUT);
-    });
-
-    this.ros.on('connection', () => {
-      console.log('connection');
-      this.setState({
-        status: 'connected',
-      });
+      setTimeout(() => {
+        this.setState({
+          status: 'connected',
+        });
+        this.ros.connect(defaultUrl);
+      }, RECONNECT_TIMEOUT);
     });
 
     this.topic = this.ros.Topic({
@@ -47,7 +59,7 @@ class App extends Component {
   }
 
   handleClick = () => {
-    console.log('this is:', this);
+    console.log('doorbell');
     this.topic.publish({
       data: 'doorbell',
     });
