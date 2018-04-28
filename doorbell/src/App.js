@@ -11,19 +11,33 @@ const host = hostname() || 'localhost';
 const defaultUrl = `ws://${host}:9090`;
 
 class App extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      status: 'connecting',
+    };
+  }
   componentWillMount() {
     this.ros = new Ros({
       encoding: 'ascii',
       url: defaultUrl,
     });
 
-    // reconnect behavior
-    this.ros.on('error', () =>
-      setTimeout(() => this.ros.connect(defaultUrl), RECONNECT_TIMEOUT),
-    );
+    this.ros.on('close', () => {
+      console.log('close');
+      this.setState({
+        status: 'error',
+      });
+
+      // reconnect behavior
+      setTimeout(() => this.ros.connect(defaultUrl), RECONNECT_TIMEOUT);
+    });
 
     this.ros.on('connection', () => {
       console.log('connection');
+      this.setState({
+        status: 'connected',
+      });
     });
 
     this.topic = this.ros.Topic({
@@ -42,6 +56,7 @@ class App extends Component {
   render() {
     return (
       <div className="App">
+        <div className={'App-status ' + this.state.status} />
         <p className="App-intro">
           <Doorbell onClick={this.handleClick} />
         </p>

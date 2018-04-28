@@ -22,3 +22,28 @@
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 }
+
+.App-status {
+  background-color: yellow;
+}
+
+.App-status::before {
+  content: 'connecting';
+}
+
+
+.App-status.connected {
+  background-color: green;
+}
+
+.App-status.connected::before {
+  content: 'connected';
+}
+
+.App-status.error {
+  background-color: red;
+}
+
+.App-status.error::before {
+  content: 'error';
+}
