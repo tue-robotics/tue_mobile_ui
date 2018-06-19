@@ -1,6 +1,6 @@
 .doorbell {
     width: 300px;
     height: 500px;
-    background-image: url("/doorbell.png");
+    background-image: url("../public/doorbell.png");
     background-size: cover;
 }
