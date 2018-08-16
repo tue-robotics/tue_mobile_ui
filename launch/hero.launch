@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<launch>
+
+    <!-- Launch the text to speech (Should not be here but just for debugging) -->
+    <!--include file="$(find hero_launch_files)/launch/interaction/text_to_speech.launch" /-->
+
+    <!-- Launch the websocket server (communication via roslib) -->
+    <remap from="/cmd_vel" to="/hsrb/command_velocity" />
+    <include file="$(find rosbridge_server)/launch/rosbridge_websocket.launch" />
+
+    <!-- Start the simple webserver to handle static files -->
+    <node pkg="tue_mobile_ui" type="webserver.py" name="tue_mobile_webserver" output="screen">
+        <param name="port" value="8000" />
+        <rosparam param="index_names">
+            - hero.html
+            - index.html
+        </rosparam>
+    </node>
+
+</launch>
