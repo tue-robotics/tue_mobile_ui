@@ -1,11 +1,10 @@
 import React, { Component } from 'react';
+import "./Doorbell.css"
 
 class Doorbell extends Component {
   render() {
     return (
-      <button {...this.props}>
-        <img src="doorbell.png" alt="Doorbell" />
-      </button>
+      <button className="doorbell" {...this.props}></button>
     );
   }
 }
