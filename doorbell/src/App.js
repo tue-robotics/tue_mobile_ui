@@ -57,8 +57,8 @@ class App extends Component {
       messageType: 'std_msgs/String',
     });
 
-    this.telegram_topic = this.ros.Topic({
-      name: 'message_to_telegram',
+    this.message_topic = this.ros.Topic({
+      name: 'message_from_ros',
       messageType: 'std_msgs/String',
     });
   }
@@ -68,7 +68,7 @@ class App extends Component {
     this.tts_topic.publish({
       data: 'doorbell',
     });
-    this.telegram_topic.publish({
+    this.message_topic.publish({
       data: 'There is someone at your door',
     });
   };
