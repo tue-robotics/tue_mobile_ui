@@ -17,18 +17,10 @@ angular.module('EdGuiApp')
         3: 'default', // unavailable
       };
 
-      var nameIconMap = {
-        'Wired': 'glyphicon glyphicon-ban-circle',
-        'Wireless': 'glyphicon glyphicon-signal',
-        'Endswitch': 'glyphicon glyphicon-resize-vertical',
-        'Reset': 'glyphicon glyphicon-play-circle',
-        'default': 'glyphicon glyphicon-question-sign'
-      };
-
       // The state where the buttons will go on start and on timeout
       var DEFAULT_STATE = [
         {
-          icon: nameIconMap['default'],
+          icon: 'glyphicon glyphicon-question-sign',
           class: levelColorMap[0],
         }
       ];
@@ -46,31 +38,27 @@ angular.module('EdGuiApp')
         }
       }
 
-      robot.hardware.on('ebuttons', function (ebuttons) {
-        setEbuttons(ebuttonsToScope(ebuttons));
-      });
+      const runStopTopic = robot.ros.Topic({
+        name: 'runstop_button',
+        messageType: 'std_msgs/Bool'
+      }).subscribe(function (msg) {
+        setEbuttons(ebuttonToScope(msg.data));
+      })
 
       // Functions to convert between messages and models
 
-      function ebuttonsToScope(ebuttons) {
-        if (!ebuttons) {
-          return DEFAULT_STATE;
-        }
-        return _.map(ebuttons, function (status) {
-          return {
-            name: status.name,
-            color: levelToClass(status.level),
-            icon: nameToIcon(status.name)
-          };
-        });
+      function ebuttonToScope(value) {
+        return [
+          {
+            name: "Blaat",
+            color: levelToClass(value ? 1 : 0),
+            icon: 'glyphicon glyphicon-ban-circle'
+          }
+        ]
       }
 
       function levelToClass(level) {
         return levelColorMap[level] ? 'btn-' + levelColorMap[level] : '';
-      }
-
-      function nameToIcon(name) {
-        return nameIconMap[name] || nameIconMap['default'];
       }
     }
   };

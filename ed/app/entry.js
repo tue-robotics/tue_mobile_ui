@@ -29,10 +29,6 @@ import './scripts/controllers/teleop';
 
 import './scripts/controllers/hardware/battery.js'
 import './scripts/controllers/hardware/ebuttons.js'
-import './scripts/controllers/hardware/hardware_button.js'
-import './scripts/controllers/hardware/hardware.js'
-import './scripts/controllers/hardware/menu.js'
-import './scripts/controllers/hardware/status_controller.js'
 
 import './scripts/directives/ngteleopcanvas'
 import './scripts/directives/ngwebgl'
