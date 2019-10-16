@@ -24,8 +24,8 @@
           </div>
           <div id="collapseArm" class="panel-collapse collapse">
             <ul class="list-group">
-                <a href="#" class="list-group-item" ng-repeat="(key, value) in default_configurations['rightArm']"
-                type="button"  ng-click="sendJointCommand({body_part: 'rightArm', configuration: key});">
+                <a href="#" class="list-group-item" ng-repeat="(key, value) in default_configurations['leftArm']"
+                type="button"  ng-click="sendJointCommand({body_part: 'leftArm', configuration: key});">
                 {{key | makeNice}}</a>
             </ul>
           </div>
