@@ -16,7 +16,7 @@ const SceneRenderer = (function (THREE) {
     var contW = this.canvas.offsetWidth;
     var contH = this.canvas.offsetHeight;
 
-     // Camera
+    // Camera
     this.camera = new THREE.PerspectiveCamera(75, contW/contH, 0.1, 1000);
 
     // For interaction via click
@@ -135,7 +135,7 @@ const SceneRenderer = (function (THREE) {
 
     /* END RENDER KINECT */
 
-    this.robot.ed.watch({
+    robot.ed.watch({
       add: function (obj) {
         //console.log('add', obj);
         var geometry = new THREE.Geometry();
@@ -225,6 +225,7 @@ const SceneRenderer = (function (THREE) {
    * Private functions
    */
 
+  /* eslint indent:0 */
   var COLORS = [0x999999, 0x999966, 0x999933,
                 0x996699, 0x996666, 0x996633,
                 0x993399, 0x993366, 0x993333,

@@ -7,7 +7,7 @@ var app = angular
 
 app.filter('makeNice', function () {
   return function (item) {
-    var item = item.charAt(0).toUpperCase() + item.slice(1);
+    item = item.charAt(0).toUpperCase() + item.slice(1);
     return item.replace(/_/g, " ");
   };
 });

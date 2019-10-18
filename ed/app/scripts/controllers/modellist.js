@@ -21,6 +21,7 @@ angular.module('EdGuiApp')
       $scope.camera_src = null;
 
       function update(time_diff) {
+        /* eslint-disable-next-line no-unused-vars */
         var waiting_time = time_diff;
         if (time_diff < 66) {
           waiting_time = 66;
