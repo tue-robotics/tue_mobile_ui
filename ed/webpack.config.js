@@ -81,14 +81,18 @@ function getPlugins() {
       disable: process.env.NODE_ENV !== 'production'
     }),
   ];
-  
+
   // production specific
   if (process.env.NODE_ENV === 'production') {
-    plugins.push(new webpack.DefinePlugin({      
+    plugins.push(new webpack.DefinePlugin({
       'process.env.NODE_ENV': JSON.stringify('production'),
     }));
     plugins.push(new webpack.optimize.UglifyJsPlugin({
       mangle: false,
+      output: {
+        beautify: true,
+      },
+      parallel: true,
     }));
   }
 

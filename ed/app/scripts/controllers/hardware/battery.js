@@ -15,8 +15,8 @@ var app = angular.module('EdGuiApp')
           name: 'battery',
           messageType: 'sensor_msgs/BatteryState'
         }).subscribe(function (msg) {
-          var value = parseInt(msg.percentage * 100)
-          var type = 'secondary'
+          var value = parseInt(msg.percentage)
+          var type = 'info'
           if (value > 40) {
             type = 'success';
           } else if (value > 20) {
@@ -28,6 +28,11 @@ var app = angular.module('EdGuiApp')
             value: value,
             type: type
           }
+          var ordered = {};
+          Object.keys($scope.batteries).sort().forEach(function(key) {
+            ordered[key] = $scope.batteries[key];
+          })
+          $scope.batteries = ordered
           $scope.$digest()
         })
       },  // End of controller

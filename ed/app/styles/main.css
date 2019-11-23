@@ -89,6 +89,21 @@ html, body {
     user-select: none;
 }
 
+/**
+ * Progress bars with centered text
+ */
+
+.progress {
+    background-color: #d0d0d0;
+    position: relative;
+}
+
+.progress span {
+    position: absolute;
+    display: block;
+    width: 100%;
+ }
+
 /* Table buttons */
 
 table.buttons {

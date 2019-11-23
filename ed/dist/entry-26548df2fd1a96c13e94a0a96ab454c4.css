@@ -7645,6 +7645,21 @@ html, body {
     user-select: none;
 }
 
+/**
+ * Progress bars with centered text
+ */
+
+.progress {
+    background-color: #d0d0d0;
+    position: relative;
+}
+
+.progress span {
+    position: absolute;
+    display: block;
+    width: 100%;
+ }
+
 /* Table buttons */
 
 table.buttons {
@@ -7901,4 +7916,5 @@ table.buttons .btn {
 #body-tab {
   padding-bottom: 100px;
 }
-/*# sourceMappingURL=entry-001c32b75f33c357d3ce9b0c0691cadd.css.map*/
+
+/*# sourceMappingURL=entry-26548df2fd1a96c13e94a0a96ab454c4.css.map*/
