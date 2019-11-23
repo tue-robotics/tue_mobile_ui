@@ -28,6 +28,11 @@ var app = angular.module('EdGuiApp')
             value: value,
             type: type
           }
+          var ordered = {};
+          Object.keys($scope.batteries).sort().forEach(function(key) {
+            ordered[key] = $scope.batteries[key];
+          })
+          $scope.batteries = ordered
           $scope.$digest()
         })
       },  // End of controller
