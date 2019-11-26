@@ -158,14 +158,17 @@ angular.module('EdGuiApp')
           move(e.touches[0].pageX - rect.left, e.touches[0].pageY - rect.top);
         });
 
+        /* eslint-disable-next-line no-unused-vars */
         element.on('mouseup', function(e) {
           end();
         });
 
+        /* eslint-disable-next-line no-unused-vars */
         element.on('mouseleave', function(e) {
           end();
         });
 
+        /* eslint-disable-next-line no-unused-vars */
         element.on('touchend', function(e) {
           end();
         });

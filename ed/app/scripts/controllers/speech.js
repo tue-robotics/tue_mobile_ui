@@ -20,7 +20,7 @@ angular.module('EdGuiApp')
 
       // Filter out duplicates
       var unique = [];
-      var lines = $scope.speech_history.filter(function (text) {
+      $scope.speech_history.filter(function (text) {
 
         if (unique.indexOf(text) === -1) {
           unique.push(text);
@@ -31,6 +31,6 @@ angular.module('EdGuiApp')
       });
       $scope.speech_history = unique;
 
-  }  // End of speak
+    }  // End of speak
 
   });

@@ -44,8 +44,7 @@ angular.module('EdGuiApp')
       var width_pixels = size.width;
       var height_pixels = size.height;
 
-      var x = x;
-      var y = y - div.offsetTop;
+      y = y - div.offsetTop;
 
       var x_ratio = x / width_pixels;
       var y_ratio = y / height_pixels;
@@ -61,8 +60,6 @@ angular.module('EdGuiApp')
         $scope.update_time = t;
       });
     });
-
-    $scope.onDragComplete = function (data, e) {};
 
     $scope.onDropComplete = function (data, e) {
       var div = e.element.parent()[0].parentElement;
