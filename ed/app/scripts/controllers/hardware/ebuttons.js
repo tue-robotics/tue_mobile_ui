@@ -21,7 +21,7 @@ angular.module('EdGuiApp')
         var DEFAULT_STATE = [
           {
             icon: 'glyphicon glyphicon-question-sign',
-            class: levelColorMap[0],
+            class: levelColorMap[3],
           }
         ];
 
