@@ -15,7 +15,7 @@ var app = angular.module('EdGuiApp')
           name: 'battery',
           messageType: 'sensor_msgs/BatteryState'
         }).subscribe(function (msg) {
-          var value = parseInt(msg.percentage)
+          var value = parseInt(msg.percentage*100)
           var type = 'info'
           if (value > 40) {
             type = 'success';
