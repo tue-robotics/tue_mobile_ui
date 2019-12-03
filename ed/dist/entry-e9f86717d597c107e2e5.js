@@ -29897,7 +29897,7 @@ object-assign
                         name: "battery",
                         messageType: "sensor_msgs/BatteryState"
                     }).subscribe(function(msg) {
-                        var value = parseInt(msg.percentage), type = "info";
+                        var value = parseInt(100 * msg.percentage), type = "info";
                         type = value > 40 ? "success" : value > 20 ? "warning" : "danger", $scope.batteries[msg.location] = {
                             value: value,
                             type: type
@@ -29942,7 +29942,7 @@ object-assign
                         3: "default"
                     }, DEFAULT_STATE = [ {
                         icon: "glyphicon glyphicon-question-sign",
-                        class: levelColorMap[0]
+                        class: levelColorMap[3]
                     } ];
                     $scope.ebuttons = DEFAULT_STATE;
                     var oldEbuttons;
