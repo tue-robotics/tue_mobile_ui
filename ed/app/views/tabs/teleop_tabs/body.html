@@ -5,20 +5,6 @@
         <div class="panel panel-primary">
           <div class="panel-heading">
             <h4 class="panel-title">
-              <a data-toggle="collapse" data-parent="#accordion" href="#collapseTorso">Torso</a>
-            </h4>
-          </div>
-          <div id="collapseTorso" class="panel-collapse collapse">
-            <ul class="list-group">
-                <a href="#" class="list-group-item" ng-repeat="(key, value) in default_configurations['torso']"
-                type="button"  ng-click="sendJointCommand({body_part: 'torso', configuration: key});">
-                {{key | makeNice}}</a>
-            </ul>
-          </div>
-        </div>
-        <div class="panel panel-primary">
-          <div class="panel-heading">
-            <h4 class="panel-title">
               <a data-toggle="collapse" data-parent="#accordion" href="#collapseArm">Arm</a>
             </h4>
           </div>
