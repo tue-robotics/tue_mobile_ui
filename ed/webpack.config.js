@@ -3,6 +3,7 @@ const webpack = require('webpack'); //to access built-in plugins
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
+const WebpackShellPlugin = require('webpack-shell-plugin');
 
 module.exports = {
   entry: {
@@ -93,6 +94,9 @@ function getPlugins() {
         beautify: true,
       },
       parallel: true,
+    }));
+    plugins.push(new WebpackShellPlugin({
+      onBuildEnd: ['./strip_trailing_spaces.bash']
     }));
   }
 
