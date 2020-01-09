@@ -665,7 +665,7 @@
       var longpressEvent = new CustomEvent('onlongpress', { 'detail': event.touches[0] });
       longpressTimer = setTimeout(function() {
         window.dispatchEvent(longpressEvent);
-      }, longpressDuration); 
+      }, longpressDuration);
 
       if (scope.enabled === false) return;
 
@@ -713,7 +713,7 @@
 
     function touchmove(event) {
 
-      if (longpressTimer) clearTimeout(longpressTimer); 
+      if (longpressTimer) clearTimeout(longpressTimer);
 
       if (scope.enabled === false) return;
 
@@ -794,7 +794,7 @@
 
     function touchend( /* event */ ) {
 
-      if (longpressTimer) clearTimeout(longpressTimer); 
+      if (longpressTimer) clearTimeout(longpressTimer);
 
       if (scope.enabled === false) return;
 
