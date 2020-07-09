@@ -1,5 +1,6 @@
 {
   "parserOptions": {
+    "ecmaVersion": 2015,
     "sourceType": "module"
   },
   "extends": [
@@ -19,8 +20,10 @@
     ],
     "no-console": 0
   },
-  "overrides": {
-    "files": "webpack.config.js",
-    "env": { "node": true }
-  }
+  "overrides": [
+    {
+      "files": "webpack.config.js",
+      "env": { "node": true }
+    }
+  ]
 }

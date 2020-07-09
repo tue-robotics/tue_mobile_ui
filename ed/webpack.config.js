@@ -1,11 +1,41 @@
 const path = require('path');
 const webpack = require('webpack'); //to access built-in plugins
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const CleanWebpackPlugin = require('clean-webpack-plugin');
-const ExtractTextPlugin = require('extract-text-webpack-plugin');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const TerserPlugin = require('terser-webpack-plugin');
 const WebpackShellPlugin = require('webpack-shell-plugin');
 
 module.exports = {
+  optimization: {
+    minimize: false,
+    minimizer: [
+      new TerserPlugin({
+        parallel: true,
+        terserOptions: {
+          mangle: false
+        },
+        minify: (file, sourceMap) => {
+          // https://github.com/mishoo/UglifyJS2#minify-options
+          const uglifyJsOptions = {
+            mangle: false,
+            output: {
+              beautify: true,
+            },
+            parallel: true,
+          };
+
+          if (sourceMap) {
+            uglifyJsOptions.sourceMap = {
+              content: sourceMap,
+            };
+          }
+
+          return require('uglify-js').minify(file, uglifyJsOptions);
+        },
+      })
+    ]
+  },
   entry: {
     entry: './app/entry.js',
   },
@@ -20,16 +50,24 @@ module.exports = {
         use: {
           loader: 'html-loader',
           options: {
-            attrs: ['img:src', 'link:href', 'source:src']
-          }
+            minimize: false,
+          },
         }
       },
       {
-        test: /\.css$/,
-        use: ExtractTextPlugin.extract({
-          fallback: "style-loader",
-          use: "css-loader"
-        })
+        test: /\.css$/i,
+        use: [
+          {
+            loader: MiniCssExtractPlugin.loader,
+            options: {
+              filename: "[name]-[contenthash].css",
+              chunkFilename: '[id]-[contenthash].css',
+              hmr: process.env.NODE_ENV !== 'production',
+              reloadAll: true,
+            }
+          },
+          'css-loader',
+        ],
       },
       {
         test: /\.woff($|\?)|\.woff2($|\?)|\.ttf($|\?)|\.eot($|\?)|\.svg($|\?)/,
@@ -66,10 +104,12 @@ module.exports = {
 
 function getPlugins() {
   var plugins = [
-    new CleanWebpackPlugin(['dist']),
+    new CleanWebpackPlugin(),
     new HtmlWebpackPlugin({
-      template: 'app/index.html'
+      template: 'app/index.html',
+      minify: false,
     }),
+    new MiniCssExtractPlugin(),
     new webpack.ProvidePlugin({
       'window.jQuery': 'jquery',
       angular: 'angular',
@@ -77,23 +117,12 @@ function getPlugins() {
       FastClick: 'fastclick',
       API: 'robot-api',
     }),
-    new ExtractTextPlugin({
-      filename: "[name]-[contenthash].css",
-      disable: process.env.NODE_ENV !== 'production'
-    }),
   ];
 
   // production specific
   if (process.env.NODE_ENV === 'production') {
     plugins.push(new webpack.DefinePlugin({
       'process.env.NODE_ENV': JSON.stringify('production'),
-    }));
-    plugins.push(new webpack.optimize.UglifyJsPlugin({
-      mangle: false,
-      output: {
-        beautify: true,
-      },
-      parallel: true,
     }));
     plugins.push(new WebpackShellPlugin({
       onBuildEnd: ['./strip_trailing_spaces.bash']
