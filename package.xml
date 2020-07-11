@@ -1,5 +1,8 @@
 <?xml version="1.0"?>
-<package>
+<?xml-model
+  href="http://download.ros.org/schema/package_format3.xsd"
+  schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
   <name>tue_mobile_ui</name>
   <version>0.0.0</version>
   <description>The tue_mobile_ui package</description>
@@ -13,21 +16,21 @@
 
   <buildtool_depend>catkin</buildtool_depend>
 
-  <run_depend>action_server_msgs</run_depend>
-  <run_depend>cb_planner_msgs_srvs</run_depend>
-  <run_depend>control_msgs</run_depend>
-  <run_depend>diagnostic_msgs</run_depend>
-  <run_depend>ed_msgs</run_depend>
-  <run_depend>ed_gui_server_msgs</run_depend>
-  <run_depend>ed_robocup_msgs</run_depend>
-  <run_depend>ed_sensor_integration_msgs</run_depend>
-  <run_depend>geometry_msgs</run_depend>
-  <run_depend>head_ref_msgs</run_depend>
-  <run_depend>rgbd_msgs</run_depend>
-  <run_depend>rosbridge_server</run_depend>
-  <run_depend>sensor_msgs</run_depend>
-  <run_depend>std_msgs</run_depend>
-  <run_depend>tue_manipulation_msgs</run_depend>
+  <exec_depend>action_server_msgs</exec_depend>
+  <exec_depend>cb_base_navigation_msgs</exec_depend>
+  <exec_depend>control_msgs</exec_depend>
+  <exec_depend>diagnostic_msgs</exec_depend>
+  <exec_depend>ed_msgs</exec_depend>
+  <exec_depend>ed_gui_server_msgs</exec_depend>
+  <exec_depend>ed_robocup_msgs</exec_depend>
+  <exec_depend>ed_sensor_integration_msgs</exec_depend>
+  <exec_depend>geometry_msgs</exec_depend>
+  <exec_depend>head_ref_msgs</exec_depend>
+  <exec_depend>rgbd_msgs</exec_depend>
+  <exec_depend>rosbridge_server</exec_depend>
+  <exec_depend>sensor_msgs</exec_depend>
+  <exec_depend>std_msgs</exec_depend>
+  <exec_depend>tue_manipulation_msgs</exec_depend>
 
 
 </package>

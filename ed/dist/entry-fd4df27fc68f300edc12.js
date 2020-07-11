@@ -32,11 +32,11 @@
     }).call(exports, __webpack_require__(0));
 }, function(module, exports, __webpack_require__) {
     var ROSLIB = this.ROSLIB || {
-        REVISION: "1.0.1"
+        REVISION: "1.1.0"
     }, assign = __webpack_require__(2);
-    assign(ROSLIB, __webpack_require__(75)), assign(ROSLIB, __webpack_require__(82)),
-    assign(ROSLIB, __webpack_require__(85)), assign(ROSLIB, __webpack_require__(86)),
-    assign(ROSLIB, __webpack_require__(88)), module.exports = ROSLIB;
+    assign(ROSLIB, __webpack_require__(77)), assign(ROSLIB, __webpack_require__(87)),
+    assign(ROSLIB, __webpack_require__(90)), assign(ROSLIB, __webpack_require__(91)),
+    assign(ROSLIB, __webpack_require__(93)), module.exports = ROSLIB;
 }, function(module, exports, __webpack_require__) {
     "use strict";
     function toObject(val) {
@@ -397,7 +397,7 @@ object-assign
                 return EventEmitter;
             }.call(exports, __webpack_require__, exports, module)) !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__);
         }();
-    }).call(exports, __webpack_require__(19));
+    }).call(exports, __webpack_require__(14));
 }, function(module, exports) {
     function Vector3(options) {
         options = options || {}, this.x = options.x || 0, this.y = options.y || 0, this.z = options.z || 0;
@@ -414,18 +414,18 @@ object-assign
         return new Vector3(this);
     }, module.exports = Vector3;
 }, function(module, exports, __webpack_require__) {
-    (function(process) {
+    (function(process, setImmediate) {
         var __WEBPACK_AMD_DEFINE_RESULT__;
         !function(undefined) {
             function init() {
                 this._events = {}, this._conf && configure.call(this, this._conf);
             }
             function configure(conf) {
-                conf ? (this._conf = conf, conf.delimiter && (this.delimiter = conf.delimiter),
-                this._maxListeners = conf.maxListeners !== undefined ? conf.maxListeners : defaultMaxListeners,
-                conf.wildcard && (this.wildcard = conf.wildcard), conf.newListener && (this._newListener = conf.newListener),
-                conf.removeListener && (this._removeListener = conf.removeListener), conf.verboseMemoryLeak && (this.verboseMemoryLeak = conf.verboseMemoryLeak),
-                this.wildcard && (this.listenerTree = {})) : this._maxListeners = defaultMaxListeners;
+                conf && (this._conf = conf, conf.delimiter && (this.delimiter = conf.delimiter),
+                conf.maxListeners !== undefined && (this._maxListeners = conf.maxListeners), conf.wildcard && (this.wildcard = conf.wildcard),
+                conf.newListener && (this._newListener = conf.newListener), conf.removeListener && (this._removeListener = conf.removeListener),
+                conf.verboseMemoryLeak && (this.verboseMemoryLeak = conf.verboseMemoryLeak), conf.ignoreErrors && (this.ignoreErrors = conf.ignoreErrors),
+                this.wildcard && (this.listenerTree = {}));
             }
             function logPossibleMemoryLeak(count, eventName) {
                 var errorMsg = "(node) warning: possible EventEmitter memory leak detected. " + count + " listeners added. Use emitter.setMaxListeners() to increase limit.";
@@ -434,106 +434,376 @@ object-assign
                     e.name = "MaxListenersExceededWarning", e.emitter = this, e.count = count, process.emitWarning(e);
                 } else console.error(errorMsg), console.trace && console.trace();
             }
+            function toObject(keys, values) {
+                for (var key, obj = {}, len = keys.length, valuesCount = values ? value.length : 0, i = 0; i < len; i++) key = keys[i],
+                obj[key] = i < valuesCount ? values[i] : undefined;
+                return obj;
+            }
+            function TargetObserver(emitter, target, options) {
+                this._emitter = emitter, this._target = target, this._listeners = {}, this._listenersCount = 0;
+                var on, off;
+                if ((options.on || options.off) && (on = options.on, off = options.off), target.addEventListener ? (on = target.addEventListener,
+                off = target.removeEventListener) : target.addListener ? (on = target.addListener,
+                off = target.removeListener) : target.on && (on = target.on, off = target.off),
+                !on && !off) throw Error("target does not implement any known event API");
+                if ("function" != typeof on) throw TypeError("on method must be a function");
+                if ("function" != typeof off) throw TypeError("off method must be a function");
+                this._on = on, this._off = off;
+                var _observers = emitter._observers;
+                _observers ? _observers.push(this) : emitter._observers = [ this ];
+            }
+            function resolveOptions(options, schema, reducers, allowUnknown) {
+                function reject(reason) {
+                    throw Error('Invalid "' + option + '" option value' + (reason ? ". Reason: " + reason : ""));
+                }
+                var computedOptions = Object.assign({}, schema);
+                if (!options) return computedOptions;
+                if ("object" != typeof options) throw TypeError("options must be an object");
+                for (var option, value, reducer, keys = Object.keys(options), length = keys.length, i = 0; i < length; i++) {
+                    if (option = keys[i], !allowUnknown && !hasOwnProperty.call(schema, option)) throw Error('Unknown "' + option + '" option');
+                    value = options[option], value !== undefined && (reducer = reducers[option], computedOptions[option] = reducer ? reducer(value, reject) : value);
+                }
+                return computedOptions;
+            }
+            function constructorReducer(value, reject) {
+                return "function" == typeof value && value.hasOwnProperty("prototype") || reject("value must be a constructor"),
+                value;
+            }
+            function makeTypeReducer(types) {
+                var message = "value must be type of " + types.join("|"), len = types.length, firstType = types[0], secondType = types[1];
+                return 1 === len ? function(v, reject) {
+                    if (typeof v === firstType) return v;
+                    reject(message);
+                } : 2 === len ? function(v, reject) {
+                    var kind = typeof v;
+                    if (kind === firstType || kind === secondType) return v;
+                    reject(message);
+                } : function(v, reject) {
+                    for (var kind = typeof v, i = len; i-- > 0; ) if (kind === types[i]) return v;
+                    reject(message);
+                };
+            }
+            function makeCancelablePromise(Promise, executor, options) {
+                var isCancelable, callbacks, subscriptionClosed, timer = 0, promise = new Promise(function(resolve, reject, onCancel) {
+                    function cleanup() {
+                        callbacks && (callbacks = null), timer && (clearTimeout(timer), timer = 0);
+                    }
+                    options = resolveOptions(options, {
+                        timeout: 0,
+                        overload: !1
+                    }, {
+                        timeout: function(value, reject) {
+                            return value *= 1, ("number" != typeof value || value < 0 || !Number.isFinite(value)) && reject("timeout must be a positive number"),
+                            value;
+                        }
+                    }), isCancelable = !options.overload && "function" == typeof Promise.prototype.cancel && "function" == typeof onCancel;
+                    var _resolve = function(value) {
+                        cleanup(), resolve(value);
+                    }, _reject = function(err) {
+                        cleanup(), reject(err);
+                    };
+                    isCancelable ? executor(_resolve, _reject, onCancel) : (callbacks = [ function(reason) {
+                        _reject(reason || Error("canceled"));
+                    } ], executor(_resolve, _reject, function(cb) {
+                        if (subscriptionClosed) throw Error("Unable to subscribe on cancel event asynchronously");
+                        if ("function" != typeof cb) throw TypeError("onCancel callback must be a function");
+                        callbacks.push(cb);
+                    }), subscriptionClosed = !0), options.timeout > 0 && (timer = setTimeout(function() {
+                        var reason = Error("timeout");
+                        timer = 0, promise.cancel(reason), reject(reason);
+                    }, options.timeout));
+                });
+                return isCancelable || (promise.cancel = function(reason) {
+                    if (callbacks) {
+                        for (var length = callbacks.length, i = 1; i < length; i++) callbacks[i](reason);
+                        callbacks[0](reason), callbacks = null;
+                    }
+                }), promise;
+            }
+            function findTargetIndex(observer) {
+                var observers = this._observers;
+                if (!observers) return -1;
+                for (var len = observers.length, i = 0; i < len; i++) if (observers[i]._target === observer) return i;
+                return -1;
+            }
+            function searchListenerTree(handlers, type, tree, i, typeLength) {
+                if (!tree) return null;
+                if (0 === i) {
+                    var kind = typeof type;
+                    if ("string" === kind) {
+                        var ns, n, l = 0, j = 0, delimiter = this.delimiter, dl = delimiter.length;
+                        if (-1 !== (n = type.indexOf(delimiter))) {
+                            ns = new Array(5);
+                            do {
+                                ns[l++] = type.slice(j, n), j = n + dl;
+                            } while (-1 !== (n = type.indexOf(delimiter, j)));
+                            ns[l++] = type.slice(j), type = ns, typeLength = l;
+                        } else type = [ type ], typeLength = 1;
+                    } else "object" === kind ? typeLength = type.length : (type = [ type ], typeLength = 1);
+                }
+                var branch, xTree, xxTree, isolatedBranch, endReached, branches, _listeners, listeners = null, currentType = type[i], nextType = type[i + 1];
+                if (i === typeLength && tree._listeners) return "function" == typeof tree._listeners ? (handlers && handlers.push(tree._listeners),
+                [ tree ]) : (handlers && handlers.push.apply(handlers, tree._listeners), [ tree ]);
+                if ("*" === currentType) {
+                    for (branches = ownKeys(tree), n = branches.length; n-- > 0; ) "_listeners" !== (branch = branches[n]) && (_listeners = searchListenerTree(handlers, type, tree[branch], i + 1, typeLength)) && (listeners ? listeners.push.apply(listeners, _listeners) : listeners = _listeners);
+                    return listeners;
+                }
+                if ("**" === currentType) {
+                    for (endReached = i + 1 === typeLength || i + 2 === typeLength && "*" === nextType,
+                    endReached && tree._listeners && (listeners = searchListenerTree(handlers, type, tree, typeLength, typeLength)),
+                    branches = ownKeys(tree), n = branches.length; n-- > 0; ) "_listeners" !== (branch = branches[n]) && ("*" === branch || "**" === branch ? (tree[branch]._listeners && !endReached && (_listeners = searchListenerTree(handlers, type, tree[branch], typeLength, typeLength)) && (listeners ? listeners.push.apply(listeners, _listeners) : listeners = _listeners),
+                    _listeners = searchListenerTree(handlers, type, tree[branch], i, typeLength)) : _listeners = branch === nextType ? searchListenerTree(handlers, type, tree[branch], i + 2, typeLength) : searchListenerTree(handlers, type, tree[branch], i, typeLength),
+                    _listeners && (listeners ? listeners.push.apply(listeners, _listeners) : listeners = _listeners));
+                    return listeners;
+                }
+                if (tree[currentType] && (listeners = searchListenerTree(handlers, type, tree[currentType], i + 1, typeLength)),
+                xTree = tree["*"], xTree && searchListenerTree(handlers, type, xTree, i + 1, typeLength),
+                xxTree = tree["**"]) if (i < typeLength) for (xxTree._listeners && searchListenerTree(handlers, type, xxTree, typeLength, typeLength),
+                branches = ownKeys(xxTree), n = branches.length; n-- > 0; ) "_listeners" !== (branch = branches[n]) && (branch === nextType ? searchListenerTree(handlers, type, xxTree[branch], i + 2, typeLength) : branch === currentType ? searchListenerTree(handlers, type, xxTree[branch], i + 1, typeLength) : (isolatedBranch = {},
+                isolatedBranch[branch] = xxTree[branch], searchListenerTree(handlers, type, {
+                    "**": isolatedBranch
+                }, i + 1, typeLength))); else xxTree._listeners ? searchListenerTree(handlers, type, xxTree, typeLength, typeLength) : xxTree["*"] && xxTree["*"]._listeners && searchListenerTree(handlers, type, xxTree["*"], typeLength, typeLength);
+                return listeners;
+            }
+            function growListenerTree(type, listener) {
+                var i, ns, len = 0, j = 0, delimiter = this.delimiter, dl = delimiter.length;
+                if ("string" == typeof type) if (-1 !== (i = type.indexOf(delimiter))) {
+                    ns = new Array(5);
+                    do {
+                        ns[len++] = type.slice(j, i), j = i + dl;
+                    } while (-1 !== (i = type.indexOf(delimiter, j)));
+                    ns[len++] = type.slice(j);
+                } else ns = [ type ], len = 1; else ns = type, len = type.length;
+                if (len > 1) for (i = 0; i + 1 < len; i++) if ("**" === ns[i] && "**" === ns[i + 1]) return;
+                var name, tree = this.listenerTree;
+                for (i = 0; i < len; i++) if (name = ns[i], tree = tree[name] || (tree[name] = {}),
+                i === len - 1) return tree._listeners ? ("function" == typeof tree._listeners && (tree._listeners = [ tree._listeners ]),
+                tree._listeners.push(listener), !tree._listeners.warned && this._maxListeners > 0 && tree._listeners.length > this._maxListeners && (tree._listeners.warned = !0,
+                logPossibleMemoryLeak.call(this, tree._listeners.length, name))) : tree._listeners = listener,
+                !0;
+                return !0;
+            }
+            function collectTreeEvents(tree, events, root, asArray) {
+                for (var branch, branchName, path, isArrayPath, branches = ownKeys(tree), i = branches.length, hasListeners = tree._listeners; i-- > 0; ) branchName = branches[i],
+                branch = tree[branchName], path = "_listeners" === branchName ? root : root ? root.concat(branchName) : [ branchName ],
+                isArrayPath = asArray || "symbol" == typeof branchName, hasListeners && events.push(isArrayPath ? path : path.join(this.delimiter)),
+                "object" == typeof branch && collectTreeEvents.call(this, branch, events, path, isArrayPath);
+                return events;
+            }
+            function recursivelyGarbageCollect(root) {
+                for (var obj, key, flag, keys = ownKeys(root), i = keys.length; i-- > 0; ) key = keys[i],
+                (obj = root[key]) && (flag = !0, "_listeners" === key || recursivelyGarbageCollect(obj) || delete root[key]);
+                return flag;
+            }
+            function Listener(emitter, event, listener) {
+                this.emitter = emitter, this.event = event, this.listener = listener;
+            }
+            function setupListener(event, listener, options) {
+                if (!0 === options) promisify = !0; else if (!1 === options) async = !0; else {
+                    if (!options || "object" != typeof options) throw TypeError("options should be an object or true");
+                    var async = options.async, promisify = options.promisify, nextTick = options.nextTick, objectify = options.objectify;
+                }
+                if (async || nextTick || promisify) {
+                    var _listener = listener, _origin = listener._origin || listener;
+                    if (nextTick && !nextTickSupported) throw Error("process.nextTick is not supported");
+                    promisify === undefined && (promisify = "AsyncFunction" === listener.constructor.name),
+                    listener = function() {
+                        var args = arguments, context = this, event = this.event;
+                        return promisify ? nextTick ? Promise.resolve() : new Promise(function(resolve) {
+                            _setImmediate(resolve);
+                        }).then(function() {
+                            return context.event = event, _listener.apply(context, args);
+                        }) : (nextTick ? process.nextTick : _setImmediate)(function() {
+                            context.event = event, _listener.apply(context, args);
+                        });
+                    }, listener._async = !0, listener._origin = _origin;
+                }
+                return [ listener, objectify ? new Listener(this, event, listener) : this ];
+            }
             function EventEmitter(conf) {
                 this._events = {}, this._newListener = !1, this._removeListener = !1, this.verboseMemoryLeak = !1,
                 configure.call(this, conf);
             }
-            function searchListenerTree(handlers, type, tree, i) {
-                if (!tree) return [];
-                var leaf, len, branch, xTree, xxTree, isolatedBranch, endReached, listeners = [], typeLength = type.length, currentType = type[i], nextType = type[i + 1];
-                if (i === typeLength && tree._listeners) {
-                    if ("function" == typeof tree._listeners) return handlers && handlers.push(tree._listeners),
-                    [ tree ];
-                    for (leaf = 0, len = tree._listeners.length; leaf < len; leaf++) handlers && handlers.push(tree._listeners[leaf]);
-                    return [ tree ];
-                }
-                if ("*" === currentType || "**" === currentType || tree[currentType]) {
-                    if ("*" === currentType) {
-                        for (branch in tree) "_listeners" !== branch && tree.hasOwnProperty(branch) && (listeners = listeners.concat(searchListenerTree(handlers, type, tree[branch], i + 1)));
-                        return listeners;
-                    }
-                    if ("**" === currentType) {
-                        endReached = i + 1 === typeLength || i + 2 === typeLength && "*" === nextType, endReached && tree._listeners && (listeners = listeners.concat(searchListenerTree(handlers, type, tree, typeLength)));
-                        for (branch in tree) "_listeners" !== branch && tree.hasOwnProperty(branch) && ("*" === branch || "**" === branch ? (tree[branch]._listeners && !endReached && (listeners = listeners.concat(searchListenerTree(handlers, type, tree[branch], typeLength))),
-                        listeners = listeners.concat(searchListenerTree(handlers, type, tree[branch], i))) : listeners = branch === nextType ? listeners.concat(searchListenerTree(handlers, type, tree[branch], i + 2)) : listeners.concat(searchListenerTree(handlers, type, tree[branch], i)));
-                        return listeners;
-                    }
-                    listeners = listeners.concat(searchListenerTree(handlers, type, tree[currentType], i + 1));
-                }
-                if (xTree = tree["*"], xTree && searchListenerTree(handlers, type, xTree, i + 1),
-                xxTree = tree["**"]) if (i < typeLength) {
-                    xxTree._listeners && searchListenerTree(handlers, type, xxTree, typeLength);
-                    for (branch in xxTree) "_listeners" !== branch && xxTree.hasOwnProperty(branch) && (branch === nextType ? searchListenerTree(handlers, type, xxTree[branch], i + 2) : branch === currentType ? searchListenerTree(handlers, type, xxTree[branch], i + 1) : (isolatedBranch = {},
-                    isolatedBranch[branch] = xxTree[branch], searchListenerTree(handlers, type, {
-                        "**": isolatedBranch
-                    }, i + 1)));
-                } else xxTree._listeners ? searchListenerTree(handlers, type, xxTree, typeLength) : xxTree["*"] && xxTree["*"]._listeners && searchListenerTree(handlers, type, xxTree["*"], typeLength);
-                return listeners;
+            function once(emitter, name, options) {
+                return options = resolveOptions(options, {
+                    Promise: Promise,
+                    timeout: 0,
+                    overload: !1
+                }, {
+                    Promise: constructorReducer
+                }), makeCancelablePromise(options.Promise, function(resolve, reject, onCancel) {
+                    var handler;
+                    if ("function" == typeof emitter.addEventListener) return handler = function() {
+                        resolve(toArray.apply(null, arguments));
+                    }, onCancel(function() {
+                        emitter.removeEventListener(name, handler);
+                    }), void emitter.addEventListener(name, handler, {
+                        once: !0
+                    });
+                    var errorListener, eventListener = function() {
+                        errorListener && emitter.removeListener("error", errorListener), resolve(toArray.apply(null, arguments));
+                    };
+                    "error" !== name && (errorListener = function(err) {
+                        emitter.removeListener(name, eventListener), reject(err);
+                    }, emitter.once("error", errorListener)), onCancel(function() {
+                        errorListener && emitter.removeListener("error", errorListener), emitter.removeListener(name, eventListener);
+                    }), emitter.once(name, eventListener);
+                }, {
+                    timeout: options.timeout,
+                    overload: options.overload
+                });
             }
-            function growListenerTree(type, listener) {
-                type = "string" == typeof type ? type.split(this.delimiter) : type.slice();
-                for (var i = 0, len = type.length; i + 1 < len; i++) if ("**" === type[i] && "**" === type[i + 1]) return;
-                for (var tree = this.listenerTree, name = type.shift(); name !== undefined; ) {
-                    if (tree[name] || (tree[name] = {}), tree = tree[name], 0 === type.length) return tree._listeners ? ("function" == typeof tree._listeners && (tree._listeners = [ tree._listeners ]),
-                    tree._listeners.push(listener), !tree._listeners.warned && this._maxListeners > 0 && tree._listeners.length > this._maxListeners && (tree._listeners.warned = !0,
-                    logPossibleMemoryLeak.call(this, tree._listeners.length, name))) : tree._listeners = listener,
-                    !0;
-                    name = type.shift();
-                }
-                return !0;
-            }
-            var isArray = Array.isArray ? Array.isArray : function(obj) {
+            var hasOwnProperty = Object.hasOwnProperty, isArray = Array.isArray ? Array.isArray : function(obj) {
                 return "[object Array]" === Object.prototype.toString.call(obj);
-            }, defaultMaxListeners = 10;
-            EventEmitter.EventEmitter2 = EventEmitter, EventEmitter.prototype.delimiter = ".",
-            EventEmitter.prototype.setMaxListeners = function(n) {
+            }, nextTickSupported = "object" == typeof process && "function" == typeof process.nextTick, symbolsSupported = "function" == typeof Symbol, reflectSupported = "object" == typeof Reflect, setImmediateSupported = "function" == typeof setImmediate, _setImmediate = setImmediateSupported ? setImmediate : setTimeout, ownKeys = symbolsSupported ? reflectSupported && "function" == typeof Reflect.ownKeys ? Reflect.ownKeys : function(obj) {
+                var arr = Object.getOwnPropertyNames(obj);
+                return arr.push.apply(arr, Object.getOwnPropertySymbols(obj)), arr;
+            } : Object.keys, toArray = function(a, b, c) {
+                var n = arguments.length;
+                switch (n) {
+                  case 0:
+                    return [];
+
+                  case 1:
+                    return [ a ];
+
+                  case 2:
+                    return [ a, b ];
+
+                  case 3:
+                    return [ a, b, c ];
+
+                  default:
+                    for (var arr = new Array(n); n--; ) arr[n] = arguments[n];
+                    return arr;
+                }
+            };
+            Object.assign(TargetObserver.prototype, {
+                subscribe: function(event, localEvent, reducer) {
+                    var observer = this, target = this._target, emitter = this._emitter, listeners = this._listeners, handler = function() {
+                        var args = toArray.apply(null, arguments), eventObj = {
+                            data: args,
+                            name: localEvent,
+                            original: event
+                        };
+                        if (reducer) {
+                            return void (!1 !== reducer.call(target, eventObj) && emitter.emit.apply(emitter, [ eventObj.name ].concat(args)));
+                        }
+                        emitter.emit.apply(emitter, [ localEvent ].concat(args));
+                    };
+                    if (listeners[event]) throw Error("Event '" + event + "' is already listening");
+                    this._listenersCount++, emitter._newListener && emitter._removeListener && !observer._onNewListener ? (this._onNewListener = function(_event) {
+                        _event === localEvent && null === listeners[event] && (listeners[event] = handler,
+                        observer._on.call(target, event, handler));
+                    }, emitter.on("newListener", this._onNewListener), this._onRemoveListener = function(_event) {
+                        _event === localEvent && !emitter.hasListeners(_event) && listeners[event] && (listeners[event] = null,
+                        observer._off.call(target, event, handler));
+                    }, listeners[event] = null, emitter.on("removeListener", this._onRemoveListener)) : (listeners[event] = handler,
+                    observer._on.call(target, event, handler));
+                },
+                unsubscribe: function(event) {
+                    function clearRefs() {
+                        observer._onNewListener && (emitter.off("newListener", observer._onNewListener),
+                        emitter.off("removeListener", observer._onRemoveListener), observer._onNewListener = null,
+                        observer._onRemoveListener = null);
+                        var index = findTargetIndex.call(emitter, observer);
+                        emitter._observers.splice(index, 1);
+                    }
+                    var handler, events, i, observer = this, listeners = this._listeners, emitter = this._emitter, off = this._off, target = this._target;
+                    if (event && "string" != typeof event) throw TypeError("event must be a string");
+                    if (event) {
+                        if (!(handler = listeners[event])) return;
+                        off.call(target, event, handler), delete listeners[event], --this._listenersCount || clearRefs();
+                    } else {
+                        for (events = ownKeys(listeners), i = events.length; i-- > 0; ) event = events[i],
+                        off.call(target, event, listeners[event]);
+                        this._listeners = {}, this._listenersCount = 0, clearRefs();
+                    }
+                }
+            });
+            var functionReducer = makeTypeReducer([ "function" ]), objectFunctionReducer = makeTypeReducer([ "object", "function" ]);
+            Listener.prototype.off = function() {
+                return this.emitter.off(this.event, this.listener), this;
+            }, EventEmitter.EventEmitter2 = EventEmitter, EventEmitter.prototype.listenTo = function(target, events, options) {
+                function listen(events) {
+                    if ("object" != typeof events) throw TypeError("events must be an object");
+                    var observer, reducers = options.reducers, index = findTargetIndex.call(emitter, target);
+                    observer = -1 === index ? new TargetObserver(emitter, target, options) : emitter._observers[index];
+                    for (var event, keys = ownKeys(events), len = keys.length, isSingleReducer = "function" == typeof reducers, i = 0; i < len; i++) event = keys[i],
+                    observer.subscribe(event, events[event] || event, isSingleReducer ? reducers : reducers && reducers[event]);
+                }
+                if ("object" != typeof target) throw TypeError("target musts be an object");
+                var emitter = this;
+                return options = resolveOptions(options, {
+                    on: undefined,
+                    off: undefined,
+                    reducers: undefined
+                }, {
+                    on: functionReducer,
+                    off: functionReducer,
+                    reducers: objectFunctionReducer
+                }), listen(isArray(events) ? toObject(events) : "string" == typeof events ? toObject(events.split(/\s+/)) : events),
+                this;
+            }, EventEmitter.prototype.stopListeningTo = function(target, event) {
+                var observers = this._observers;
+                if (!observers) return !1;
+                var observer, i = observers.length, matched = !1;
+                if (target && "object" != typeof target) throw TypeError("target should be an object");
+                for (;i-- > 0; ) observer = observers[i], target && observer._target !== target || (observer.unsubscribe(event),
+                matched = !0);
+                return matched;
+            }, EventEmitter.prototype.delimiter = ".", EventEmitter.prototype.setMaxListeners = function(n) {
                 n !== undefined && (this._maxListeners = n, this._conf || (this._conf = {}), this._conf.maxListeners = n);
-            }, EventEmitter.prototype.event = "", EventEmitter.prototype.once = function(event, fn) {
-                return this._once(event, fn, !1);
-            }, EventEmitter.prototype.prependOnceListener = function(event, fn) {
-                return this._once(event, fn, !0);
-            }, EventEmitter.prototype._once = function(event, fn, prepend) {
-                return this._many(event, 1, fn, prepend), this;
-            }, EventEmitter.prototype.many = function(event, ttl, fn) {
-                return this._many(event, ttl, fn, !1);
-            }, EventEmitter.prototype.prependMany = function(event, ttl, fn) {
-                return this._many(event, ttl, fn, !0);
-            }, EventEmitter.prototype._many = function(event, ttl, fn, prepend) {
+            }, EventEmitter.prototype.getMaxListeners = function() {
+                return this._maxListeners;
+            }, EventEmitter.prototype.event = "", EventEmitter.prototype.once = function(event, fn, options) {
+                return this._once(event, fn, !1, options);
+            }, EventEmitter.prototype.prependOnceListener = function(event, fn, options) {
+                return this._once(event, fn, !0, options);
+            }, EventEmitter.prototype._once = function(event, fn, prepend, options) {
+                return this._many(event, 1, fn, prepend, options);
+            }, EventEmitter.prototype.many = function(event, ttl, fn, options) {
+                return this._many(event, ttl, fn, !1, options);
+            }, EventEmitter.prototype.prependMany = function(event, ttl, fn, options) {
+                return this._many(event, ttl, fn, !0, options);
+            }, EventEmitter.prototype._many = function(event, ttl, fn, prepend, options) {
                 function listener() {
                     return 0 == --ttl && self.off(event, listener), fn.apply(this, arguments);
                 }
                 var self = this;
                 if ("function" != typeof fn) throw new Error("many only accepts instances of Function");
-                return listener._origin = fn, this._on(event, listener, prepend), self;
+                return listener._origin = fn, this._on(event, listener, prepend, options);
             }, EventEmitter.prototype.emit = function() {
+                if (!this._events && !this._all) return !1;
                 this._events || init.call(this);
-                var type = arguments[0];
+                var ns, args, l, i, j, containsSymbol, type = arguments[0], wildcard = this.wildcard;
                 if ("newListener" === type && !this._newListener && !this._events.newListener) return !1;
-                var args, l, i, j, handler, al = arguments.length;
-                if (this._all && this._all.length) {
-                    if (handler = this._all.slice(), al > 3) for (args = new Array(al), j = 0; j < al; j++) args[j] = arguments[j];
-                    for (i = 0, l = handler.length; i < l; i++) switch (this.event = type, al) {
-                      case 1:
-                        handler[i].call(this, type);
+                if (wildcard && (ns = type, "newListener" !== type && "removeListener" !== type && "object" == typeof type)) {
+                    if (l = type.length, symbolsSupported) for (i = 0; i < l; i++) if ("symbol" == typeof type[i]) {
+                        containsSymbol = !0;
                         break;
-
-                      case 2:
-                        handler[i].call(this, type, arguments[1]);
-                        break;
-
-                      case 3:
-                        handler[i].call(this, type, arguments[1], arguments[2]);
-                        break;
-
-                      default:
-                        handler[i].apply(this, args);
                     }
+                    containsSymbol || (type = type.join(this.delimiter));
                 }
-                if (this.wildcard) {
-                    handler = [];
-                    var ns = "string" == typeof type ? type.split(this.delimiter) : type.slice();
-                    searchListenerTree.call(this, handler, ns, this.listenerTree, 0);
-                } else {
+                var handler, al = arguments.length;
+                if (this._all && this._all.length) for (handler = this._all.slice(), i = 0, l = handler.length; i < l; i++) switch (this.event = type,
+                al) {
+                  case 1:
+                    handler[i].call(this, type);
+                    break;
+
+                  case 2:
+                    handler[i].call(this, type, arguments[1]);
+                    break;
+
+                  case 3:
+                    handler[i].call(this, type, arguments[1], arguments[2]);
+                    break;
+
+                  default:
+                    handler[i].apply(this, arguments);
+                }
+                if (wildcard) handler = [], searchListenerTree.call(this, handler, ns, this.listenerTree, 0, l); else {
                     if ("function" == typeof (handler = this._events[type])) {
                         switch (this.event = type, al) {
                           case 1:
@@ -576,38 +846,40 @@ object-assign
                     }
                     return !0;
                 }
-                if (!this._all && "error" === type) throw arguments[1] instanceof Error ? arguments[1] : new Error("Uncaught, unspecified 'error' event.");
+                if (!this.ignoreErrors && !this._all && "error" === type) throw arguments[1] instanceof Error ? arguments[1] : new Error("Uncaught, unspecified 'error' event.");
                 return !!this._all;
             }, EventEmitter.prototype.emitAsync = function() {
+                if (!this._events && !this._all) return !1;
                 this._events || init.call(this);
-                var type = arguments[0];
+                var ns, containsSymbol, args, l, i, j, type = arguments[0], wildcard = this.wildcard;
                 if ("newListener" === type && !this._newListener && !this._events.newListener) return Promise.resolve([ !1 ]);
-                var args, l, i, j, handler, promises = [], al = arguments.length;
-                if (this._all) {
-                    if (al > 3) for (args = new Array(al), j = 1; j < al; j++) args[j] = arguments[j];
-                    for (i = 0, l = this._all.length; i < l; i++) switch (this.event = type, al) {
-                      case 1:
-                        promises.push(this._all[i].call(this, type));
+                if (wildcard && (ns = type, "newListener" !== type && "removeListener" !== type && "object" == typeof type)) {
+                    if (l = type.length, symbolsSupported) for (i = 0; i < l; i++) if ("symbol" == typeof type[i]) {
+                        containsSymbol = !0;
                         break;
-
-                      case 2:
-                        promises.push(this._all[i].call(this, type, arguments[1]));
-                        break;
-
-                      case 3:
-                        promises.push(this._all[i].call(this, type, arguments[1], arguments[2]));
-                        break;
-
-                      default:
-                        promises.push(this._all[i].apply(this, args));
                     }
+                    containsSymbol || (type = type.join(this.delimiter));
                 }
-                if (this.wildcard) {
-                    handler = [];
-                    var ns = "string" == typeof type ? type.split(this.delimiter) : type.slice();
-                    searchListenerTree.call(this, handler, ns, this.listenerTree, 0);
-                } else handler = this._events[type];
-                if ("function" == typeof handler) switch (this.event = type, al) {
+                var handler, promises = [], al = arguments.length;
+                if (this._all) for (i = 0, l = this._all.length; i < l; i++) switch (this.event = type,
+                al) {
+                  case 1:
+                    promises.push(this._all[i].call(this, type));
+                    break;
+
+                  case 2:
+                    promises.push(this._all[i].call(this, type, arguments[1]));
+                    break;
+
+                  case 3:
+                    promises.push(this._all[i].call(this, type, arguments[1], arguments[2]));
+                    break;
+
+                  default:
+                    promises.push(this._all[i].apply(this, arguments));
+                }
+                if (wildcard ? (handler = [], searchListenerTree.call(this, handler, ns, this.listenerTree, 0)) : handler = this._events[type],
+                "function" == typeof handler) switch (this.event = type, al) {
                   case 1:
                     promises.push(handler.call(this));
                     break;
@@ -641,12 +913,12 @@ object-assign
                       default:
                         promises.push(handler[i].apply(this, args));
                     }
-                } else if (!this._all && "error" === type) return arguments[1] instanceof Error ? Promise.reject(arguments[1]) : Promise.reject("Uncaught, unspecified 'error' event.");
+                } else if (!this.ignoreErrors && !this._all && "error" === type) return arguments[1] instanceof Error ? Promise.reject(arguments[1]) : Promise.reject("Uncaught, unspecified 'error' event.");
                 return Promise.all(promises);
-            }, EventEmitter.prototype.on = function(type, listener) {
-                return this._on(type, listener, !1);
-            }, EventEmitter.prototype.prependListener = function(type, listener) {
-                return this._on(type, listener, !0);
+            }, EventEmitter.prototype.on = function(type, listener, options) {
+                return this._on(type, listener, !1, options);
+            }, EventEmitter.prototype.prependListener = function(type, listener, options) {
+                return this._on(type, listener, !0, options);
             }, EventEmitter.prototype.onAny = function(fn) {
                 return this._onAny(fn, !1);
             }, EventEmitter.prototype.prependAny = function(fn) {
@@ -655,31 +927,24 @@ object-assign
                 if ("function" != typeof fn) throw new Error("onAny only accepts instances of Function");
                 return this._all || (this._all = []), prepend ? this._all.unshift(fn) : this._all.push(fn),
                 this;
-            }, EventEmitter.prototype._on = function(type, listener, prepend) {
+            }, EventEmitter.prototype._on = function(type, listener, prepend, options) {
                 if ("function" == typeof type) return this._onAny(type, listener), this;
                 if ("function" != typeof listener) throw new Error("on only accepts instances of Function");
-                return this._events || init.call(this), this._newListener && this.emit("newListener", type, listener),
-                this.wildcard ? (growListenerTree.call(this, type, listener), this) : (this._events[type] ? ("function" == typeof this._events[type] && (this._events[type] = [ this._events[type] ]),
+                this._events || init.call(this);
+                var temp, returnValue = this;
+                return options !== undefined && (temp = setupListener.call(this, type, listener, options),
+                listener = temp[0], returnValue = temp[1]), this._newListener && this.emit("newListener", type, listener),
+                this.wildcard ? (growListenerTree.call(this, type, listener), returnValue) : (this._events[type] ? ("function" == typeof this._events[type] && (this._events[type] = [ this._events[type] ]),
                 prepend ? this._events[type].unshift(listener) : this._events[type].push(listener),
                 !this._events[type].warned && this._maxListeners > 0 && this._events[type].length > this._maxListeners && (this._events[type].warned = !0,
                 logPossibleMemoryLeak.call(this, this._events[type].length, type))) : this._events[type] = listener,
-                this);
+                returnValue);
             }, EventEmitter.prototype.off = function(type, listener) {
-                function recursivelyGarbageCollect(root) {
-                    if (root !== undefined) {
-                        var keys = Object.keys(root);
-                        for (var i in keys) {
-                            var key = keys[i], obj = root[key];
-                            obj instanceof Function || "object" != typeof obj || null === obj || (Object.keys(obj).length > 0 && recursivelyGarbageCollect(root[key]),
-                            0 === Object.keys(obj).length && delete root[key]);
-                        }
-                    }
-                }
                 if ("function" != typeof listener) throw new Error("removeListener only takes instances of Function");
                 var handlers, leafs = [];
                 if (this.wildcard) {
                     var ns = "string" == typeof type ? type.split(this.delimiter) : type.slice();
-                    leafs = searchListenerTree.call(this, null, ns, this.listenerTree, 0);
+                    if (!(leafs = searchListenerTree.call(this, null, ns, this.listenerTree, 0))) return this;
                 } else {
                     if (!this._events[type]) return this;
                     handlers = this._events[type], leafs.push({
@@ -701,7 +966,7 @@ object-assign
                     (handlers === listener || handlers.listener && handlers.listener === listener || handlers._origin && handlers._origin === listener) && (this.wildcard ? delete leaf._listeners : delete this._events[type],
                     this._removeListener && this.emit("removeListener", type, listener));
                 }
-                return recursivelyGarbageCollect(this.listenerTree), this;
+                return this.listenerTree && recursivelyGarbageCollect(this.listenerTree), this;
             }, EventEmitter.prototype.offAny = function(fn) {
                 var fns, i = 0, l = 0;
                 if (fn && this._all && this._all.length > 0) {
@@ -714,29 +979,107 @@ object-assign
                 return this;
             }, EventEmitter.prototype.removeListener = EventEmitter.prototype.off, EventEmitter.prototype.removeAllListeners = function(type) {
                 if (type === undefined) return !this._events || init.call(this), this;
-                if (this.wildcard) for (var ns = "string" == typeof type ? type.split(this.delimiter) : type.slice(), leafs = searchListenerTree.call(this, null, ns, this.listenerTree, 0), iLeaf = 0; iLeaf < leafs.length; iLeaf++) {
-                    var leaf = leafs[iLeaf];
-                    leaf._listeners = null;
+                if (this.wildcard) {
+                    var leaf, i, leafs = searchListenerTree.call(this, null, type, this.listenerTree, 0);
+                    if (!leafs) return this;
+                    for (i = 0; i < leafs.length; i++) leaf = leafs[i], leaf._listeners = null;
+                    this.listenerTree && recursivelyGarbageCollect(this.listenerTree);
                 } else this._events && (this._events[type] = null);
                 return this;
             }, EventEmitter.prototype.listeners = function(type) {
-                if (this.wildcard) {
-                    var handlers = [], ns = "string" == typeof type ? type.split(this.delimiter) : type.slice();
-                    return searchListenerTree.call(this, handlers, ns, this.listenerTree, 0), handlers;
+                var keys, listeners, allListeners, i, listenerTree, _events = this._events;
+                if (type === undefined) {
+                    if (this.wildcard) throw Error("event name required for wildcard emitter");
+                    if (!_events) return [];
+                    for (keys = ownKeys(_events), i = keys.length, allListeners = []; i-- > 0; ) listeners = _events[keys[i]],
+                    "function" == typeof listeners ? allListeners.push(listeners) : allListeners.push.apply(allListeners, listeners);
+                    return allListeners;
                 }
-                return this._events || init.call(this), this._events[type] || (this._events[type] = []),
-                isArray(this._events[type]) || (this._events[type] = [ this._events[type] ]), this._events[type];
-            }, EventEmitter.prototype.eventNames = function() {
-                return Object.keys(this._events);
+                if (this.wildcard) {
+                    if (!(listenerTree = this.listenerTree)) return [];
+                    var handlers = [], ns = "string" == typeof type ? type.split(this.delimiter) : type.slice();
+                    return searchListenerTree.call(this, handlers, ns, listenerTree, 0), handlers;
+                }
+                return _events ? (listeners = _events[type], listeners ? "function" == typeof listeners ? [ listeners ] : listeners : []) : [];
+            }, EventEmitter.prototype.eventNames = function(nsAsArray) {
+                var _events = this._events;
+                return this.wildcard ? collectTreeEvents.call(this, this.listenerTree, [], null, nsAsArray) : _events ? ownKeys(_events) : [];
             }, EventEmitter.prototype.listenerCount = function(type) {
                 return this.listeners(type).length;
+            }, EventEmitter.prototype.hasListeners = function(type) {
+                if (this.wildcard) {
+                    var handlers = [], ns = "string" == typeof type ? type.split(this.delimiter) : type.slice();
+                    return searchListenerTree.call(this, handlers, ns, this.listenerTree, 0), handlers.length > 0;
+                }
+                var _events = this._events, _all = this._all;
+                return !!(_all && _all.length || _events && (type === undefined ? ownKeys(_events).length : _events[type]));
             }, EventEmitter.prototype.listenersAny = function() {
                 return this._all ? this._all : [];
-            }, (__WEBPACK_AMD_DEFINE_RESULT__ = function() {
+            }, EventEmitter.prototype.waitFor = function(event, options) {
+                var self = this, type = typeof options;
+                return "number" === type ? options = {
+                    timeout: options
+                } : "function" === type && (options = {
+                    filter: options
+                }), options = resolveOptions(options, {
+                    timeout: 0,
+                    filter: undefined,
+                    handleError: !1,
+                    Promise: Promise,
+                    overload: !1
+                }, {
+                    filter: functionReducer,
+                    Promise: constructorReducer
+                }), makeCancelablePromise(options.Promise, function(resolve, reject, onCancel) {
+                    function listener() {
+                        var filter = options.filter;
+                        if (!filter || filter.apply(self, arguments)) if (self.off(event, listener), options.handleError) {
+                            var err = arguments[0];
+                            err ? reject(err) : resolve(toArray.apply(null, arguments).slice(1));
+                        } else resolve(toArray.apply(null, arguments));
+                    }
+                    onCancel(function() {
+                        self.off(event, listener);
+                    }), self._on(event, listener, !1);
+                }, {
+                    timeout: options.timeout,
+                    overload: options.overload
+                });
+            };
+            var prototype = EventEmitter.prototype;
+            Object.defineProperties(EventEmitter, {
+                defaultMaxListeners: {
+                    get: function() {
+                        return prototype._maxListeners;
+                    },
+                    set: function(n) {
+                        if ("number" != typeof n || n < 0 || Number.isNaN(n)) throw TypeError("n must be a non-negative number");
+                        prototype._maxListeners = n;
+                    },
+                    enumerable: !0
+                },
+                once: {
+                    value: once,
+                    writable: !0,
+                    configurable: !0
+                }
+            }), Object.defineProperties(prototype, {
+                _maxListeners: {
+                    value: 10,
+                    writable: !0,
+                    configurable: !0
+                },
+                _observers: {
+                    value: null,
+                    writable: !0,
+                    configurable: !0
+                }
+            });
+            (__WEBPACK_AMD_DEFINE_RESULT__ = function() {
                 return EventEmitter;
             }.call(exports, __webpack_require__, exports, module)) !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__);
         }();
-    }).call(exports, __webpack_require__(19));
+    }).call(exports, __webpack_require__(14), __webpack_require__(75).setImmediate);
 }, function(module, exports, __webpack_require__) {
     function Message(values) {
         assign(this, values);
@@ -749,83 +1092,13 @@ object-assign
     }
     var assign = __webpack_require__(2);
     module.exports = ServiceRequest;
-}, function(module, exports) {
-    function Quaternion(options) {
-        options = options || {}, this.x = options.x || 0, this.y = options.y || 0, this.z = options.z || 0,
-        this.w = "number" == typeof options.w ? options.w : 1;
-    }
-    Quaternion.prototype.conjugate = function() {
-        this.x *= -1, this.y *= -1, this.z *= -1;
-    }, Quaternion.prototype.norm = function() {
-        return Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z + this.w * this.w);
-    }, Quaternion.prototype.normalize = function() {
-        var l = Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z + this.w * this.w);
-        0 === l ? (this.x = 0, this.y = 0, this.z = 0, this.w = 1) : (l = 1 / l, this.x = this.x * l,
-        this.y = this.y * l, this.z = this.z * l, this.w = this.w * l);
-    }, Quaternion.prototype.invert = function() {
-        this.conjugate(), this.normalize();
-    }, Quaternion.prototype.multiply = function(q) {
-        var newX = this.x * q.w + this.y * q.z - this.z * q.y + this.w * q.x, newY = -this.x * q.z + this.y * q.w + this.z * q.x + this.w * q.y, newZ = this.x * q.y - this.y * q.x + this.z * q.w + this.w * q.z, newW = -this.x * q.x - this.y * q.y - this.z * q.z + this.w * q.w;
-        this.x = newX, this.y = newY, this.z = newZ, this.w = newW;
-    }, Quaternion.prototype.clone = function() {
-        return new Quaternion(this);
-    }, module.exports = Quaternion;
-}, function(module, exports) {
-    module.exports = {
-        URDF_SPHERE: 0,
-        URDF_BOX: 1,
-        URDF_CYLINDER: 2,
-        URDF_MESH: 3
-    };
-}, function(module, exports, __webpack_require__) {
-    function Service(options) {
-        options = options || {}, this.ros = options.ros, this.name = options.name, this.serviceType = options.serviceType,
-        this.isAdvertised = !1, this._serviceCallback = null;
-    }
-    var ServiceResponse = __webpack_require__(21), EventEmitter2 = (__webpack_require__(7),
-    __webpack_require__(3).EventEmitter2);
-    Service.prototype.__proto__ = EventEmitter2.prototype, Service.prototype.callService = function(request, callback, failedCallback) {
-        if (!this.isAdvertised) {
-            var serviceCallId = "call_service:" + this.name + ":" + ++this.ros.idCounter;
-            (callback || failedCallback) && this.ros.once(serviceCallId, function(message) {
-                void 0 !== message.result && !1 === message.result ? "function" == typeof failedCallback && failedCallback(message.values) : "function" == typeof callback && callback(new ServiceResponse(message.values));
-            });
-            var call = {
-                op: "call_service",
-                id: serviceCallId,
-                service: this.name,
-                type: this.serviceType,
-                args: request
-            };
-            this.ros.callOnConnection(call);
-        }
-    }, Service.prototype.advertise = function(callback) {
-        this.isAdvertised || "function" != typeof callback || (this._serviceCallback = callback,
-        this.ros.on(this.name, this._serviceResponse.bind(this)), this.ros.callOnConnection({
-            op: "advertise_service",
-            type: this.serviceType,
-            service: this.name
-        }), this.isAdvertised = !0);
-    }, Service.prototype.unadvertise = function() {
-        this.isAdvertised && (this.ros.callOnConnection({
-            op: "unadvertise_service",
-            service: this.name
-        }), this.isAdvertised = !1);
-    }, Service.prototype._serviceResponse = function(rosbridgeRequest) {
-        var response = {}, success = this._serviceCallback(rosbridgeRequest.args, response), call = {
-            op: "service_response",
-            service: this.name,
-            values: new ServiceResponse(response),
-            result: success
-        };
-        rosbridgeRequest.id && (call.id = rosbridgeRequest.id), this.ros.callOnConnection(call);
-    }, module.exports = Service;
 }, function(module, exports, __webpack_require__) {
     function Topic(options) {
         options = options || {}, this.ros = options.ros, this.name = options.name, this.messageType = options.messageType,
         this.isAdvertised = !1, this.compression = options.compression || "none", this.throttle_rate = options.throttle_rate || 0,
         this.latch = options.latch || !1, this.queue_size = options.queue_size || 100, this.queue_length = options.queue_length || 0,
-        this.reconnect_on_close = options.reconnect_on_close || !0, this.compression && "png" !== this.compression && "cbor" !== this.compression && "none" !== this.compression && (this.emit("warning", this.compression + " compression is not supported. No compression will be used."),
+        this.reconnect_on_close = void 0 === options.reconnect_on_close || options.reconnect_on_close,
+        this.compression && "png" !== this.compression && "cbor" !== this.compression && "cbor-raw" !== this.compression && "none" !== this.compression && (this.emit("warning", this.compression + " compression is not supported. No compression will be used."),
         this.compression = "none"), this.throttle_rate < 0 && (this.emit("warning", this.throttle_rate + " is not allowed. Set to 0"),
         this.throttle_rate = 0);
         var that = this;
@@ -893,6 +1166,88 @@ object-assign
         };
         this.ros.callOnConnection(call);
     }, module.exports = Topic;
+}, function(module, exports) {
+    function Quaternion(options) {
+        options = options || {}, this.x = options.x || 0, this.y = options.y || 0, this.z = options.z || 0,
+        this.w = "number" == typeof options.w ? options.w : 1;
+    }
+    Quaternion.prototype.conjugate = function() {
+        this.x *= -1, this.y *= -1, this.z *= -1;
+    }, Quaternion.prototype.norm = function() {
+        return Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z + this.w * this.w);
+    }, Quaternion.prototype.normalize = function() {
+        var l = Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z + this.w * this.w);
+        0 === l ? (this.x = 0, this.y = 0, this.z = 0, this.w = 1) : (l = 1 / l, this.x = this.x * l,
+        this.y = this.y * l, this.z = this.z * l, this.w = this.w * l);
+    }, Quaternion.prototype.invert = function() {
+        this.conjugate(), this.normalize();
+    }, Quaternion.prototype.multiply = function(q) {
+        var newX = this.x * q.w + this.y * q.z - this.z * q.y + this.w * q.x, newY = -this.x * q.z + this.y * q.w + this.z * q.x + this.w * q.y, newZ = this.x * q.y - this.y * q.x + this.z * q.w + this.w * q.z, newW = -this.x * q.x - this.y * q.y - this.z * q.z + this.w * q.w;
+        this.x = newX, this.y = newY, this.z = newZ, this.w = newW;
+    }, Quaternion.prototype.clone = function() {
+        return new Quaternion(this);
+    }, module.exports = Quaternion;
+}, function(module, exports) {
+    module.exports = {
+        URDF_SPHERE: 0,
+        URDF_BOX: 1,
+        URDF_CYLINDER: 2,
+        URDF_MESH: 3
+    };
+}, function(module, exports) {
+    var g;
+    g = function() {
+        return this;
+    }();
+    try {
+        g = g || Function("return this")() || (0, eval)("this");
+    } catch (e) {
+        "object" == typeof window && (g = window);
+    }
+    module.exports = g;
+}, function(module, exports, __webpack_require__) {
+    function Service(options) {
+        options = options || {}, this.ros = options.ros, this.name = options.name, this.serviceType = options.serviceType,
+        this.isAdvertised = !1, this._serviceCallback = null;
+    }
+    var ServiceResponse = __webpack_require__(22), EventEmitter2 = (__webpack_require__(7),
+    __webpack_require__(3).EventEmitter2);
+    Service.prototype.__proto__ = EventEmitter2.prototype, Service.prototype.callService = function(request, callback, failedCallback) {
+        if (!this.isAdvertised) {
+            var serviceCallId = "call_service:" + this.name + ":" + ++this.ros.idCounter;
+            (callback || failedCallback) && this.ros.once(serviceCallId, function(message) {
+                void 0 !== message.result && !1 === message.result ? "function" == typeof failedCallback && failedCallback(message.values) : "function" == typeof callback && callback(new ServiceResponse(message.values));
+            });
+            var call = {
+                op: "call_service",
+                id: serviceCallId,
+                service: this.name,
+                type: this.serviceType,
+                args: request
+            };
+            this.ros.callOnConnection(call);
+        }
+    }, Service.prototype.advertise = function(callback) {
+        this.isAdvertised || "function" != typeof callback || (this._serviceCallback = callback,
+        this.ros.on(this.name, this._serviceResponse.bind(this)), this.ros.callOnConnection({
+            op: "advertise_service",
+            type: this.serviceType,
+            service: this.name
+        }), this.isAdvertised = !0);
+    }, Service.prototype.unadvertise = function() {
+        this.isAdvertised && (this.ros.callOnConnection({
+            op: "unadvertise_service",
+            service: this.name
+        }), this.isAdvertised = !1);
+    }, Service.prototype._serviceResponse = function(rosbridgeRequest) {
+        var response = {}, success = this._serviceCallback(rosbridgeRequest.args, response), call = {
+            op: "service_response",
+            service: this.name,
+            values: new ServiceResponse(response),
+            result: success
+        };
+        rosbridgeRequest.id && (call.id = rosbridgeRequest.id), this.ros.callOnConnection(call);
+    }, module.exports = Service;
 }, function(module, exports, __webpack_require__) {
     var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;
     /*!
@@ -4000,6 +4355,95 @@ object-assign
         }, noGlobal || (window.jQuery = window.$ = jQuery), jQuery;
     });
 }, function(module, exports) {
+    function defaultSetTimout() {
+        throw new Error("setTimeout has not been defined");
+    }
+    function defaultClearTimeout() {
+        throw new Error("clearTimeout has not been defined");
+    }
+    function runTimeout(fun) {
+        if (cachedSetTimeout === setTimeout) return setTimeout(fun, 0);
+        if ((cachedSetTimeout === defaultSetTimout || !cachedSetTimeout) && setTimeout) return cachedSetTimeout = setTimeout,
+        setTimeout(fun, 0);
+        try {
+            return cachedSetTimeout(fun, 0);
+        } catch (e) {
+            try {
+                return cachedSetTimeout.call(null, fun, 0);
+            } catch (e) {
+                return cachedSetTimeout.call(this, fun, 0);
+            }
+        }
+    }
+    function runClearTimeout(marker) {
+        if (cachedClearTimeout === clearTimeout) return clearTimeout(marker);
+        if ((cachedClearTimeout === defaultClearTimeout || !cachedClearTimeout) && clearTimeout) return cachedClearTimeout = clearTimeout,
+        clearTimeout(marker);
+        try {
+            return cachedClearTimeout(marker);
+        } catch (e) {
+            try {
+                return cachedClearTimeout.call(null, marker);
+            } catch (e) {
+                return cachedClearTimeout.call(this, marker);
+            }
+        }
+    }
+    function cleanUpNextTick() {
+        draining && currentQueue && (draining = !1, currentQueue.length ? queue = currentQueue.concat(queue) : queueIndex = -1,
+        queue.length && drainQueue());
+    }
+    function drainQueue() {
+        if (!draining) {
+            var timeout = runTimeout(cleanUpNextTick);
+            draining = !0;
+            for (var len = queue.length; len; ) {
+                for (currentQueue = queue, queue = []; ++queueIndex < len; ) currentQueue && currentQueue[queueIndex].run();
+                queueIndex = -1, len = queue.length;
+            }
+            currentQueue = null, draining = !1, runClearTimeout(timeout);
+        }
+    }
+    function Item(fun, array) {
+        this.fun = fun, this.array = array;
+    }
+    function noop() {}
+    var cachedSetTimeout, cachedClearTimeout, process = module.exports = {};
+    !function() {
+        try {
+            cachedSetTimeout = "function" == typeof setTimeout ? setTimeout : defaultSetTimout;
+        } catch (e) {
+            cachedSetTimeout = defaultSetTimout;
+        }
+        try {
+            cachedClearTimeout = "function" == typeof clearTimeout ? clearTimeout : defaultClearTimeout;
+        } catch (e) {
+            cachedClearTimeout = defaultClearTimeout;
+        }
+    }();
+    var currentQueue, queue = [], draining = !1, queueIndex = -1;
+    process.nextTick = function(fun) {
+        var args = new Array(arguments.length - 1);
+        if (arguments.length > 1) for (var i = 1; i < arguments.length; i++) args[i - 1] = arguments[i];
+        queue.push(new Item(fun, args)), 1 !== queue.length || draining || runTimeout(drainQueue);
+    }, Item.prototype.run = function() {
+        this.fun.apply(null, this.array);
+    }, process.title = "browser", process.browser = !0, process.env = {}, process.argv = [],
+    process.version = "", process.versions = {}, process.on = noop, process.addListener = noop,
+    process.once = noop, process.off = noop, process.removeListener = noop, process.removeAllListeners = noop,
+    process.emit = noop, process.prependListener = noop, process.prependOnceListener = noop,
+    process.listeners = function(name) {
+        return [];
+    }, process.binding = function(name) {
+        throw new Error("process.binding is not supported");
+    }, process.cwd = function() {
+        return "/";
+    }, process.chdir = function(dir) {
+        throw new Error("process.chdir is not supported");
+    }, process.umask = function() {
+        return 0;
+    };
+}, function(module, exports) {
     module.exports = function(Ros, classes, features) {
         classes.forEach(function(className) {
             var Class = features[className];
@@ -4015,14 +4459,19 @@ object-assign
         void 0 === options.groovyCompatibility ? this.groovyCompatibility = !0 : this.groovyCompatibility = options.groovyCompatibility,
         this.setMaxListeners(0), options.url && this.connect(options.url);
     }
-    var WebSocket = __webpack_require__(20), socketAdapter = __webpack_require__(76), Service = __webpack_require__(10), ServiceRequest = __webpack_require__(7), assign = __webpack_require__(2), EventEmitter2 = __webpack_require__(3).EventEmitter2;
+    var WebSocket = __webpack_require__(21), WorkerSocket = __webpack_require__(78), socketAdapter = __webpack_require__(81), Service = __webpack_require__(12), ServiceRequest = __webpack_require__(7), assign = __webpack_require__(2), EventEmitter2 = __webpack_require__(3).EventEmitter2;
     Ros.prototype.__proto__ = EventEmitter2.prototype, Ros.prototype.connect = function(url) {
         if ("socket.io" === this.transportLibrary) this.socket = assign(io(url, {
             "force new connection": !0
         }), socketAdapter(this)), this.socket.on("connect", this.socket.onopen), this.socket.on("data", this.socket.onmessage),
-        this.socket.on("close", this.socket.onclose), this.socket.on("error", this.socket.onerror); else if ("RTCPeerConnection" === this.transportLibrary.constructor.name) this.socket = assign(this.transportLibrary.createDataChannel(url, this.transportOptions), socketAdapter(this)); else if (!this.socket || this.socket.readyState === WebSocket.CLOSED) {
-            var sock = new WebSocket(url);
-            sock.binaryType = "arraybuffer", this.socket = assign(sock, socketAdapter(this));
+        this.socket.on("close", this.socket.onclose), this.socket.on("error", this.socket.onerror); else if ("RTCPeerConnection" === this.transportLibrary.constructor.name) this.socket = assign(this.transportLibrary.createDataChannel(url, this.transportOptions), socketAdapter(this)); else if ("websocket" === this.transportLibrary) {
+            if (!this.socket || this.socket.readyState === WebSocket.CLOSED) {
+                var sock = new WebSocket(url);
+                sock.binaryType = "arraybuffer", this.socket = assign(sock, socketAdapter(this));
+            }
+        } else {
+            if ("workersocket" !== this.transportLibrary) throw "Unknown transportLibrary: " + this.transportLibrary.toString();
+            this.socket = assign(new WorkerSocket(url), socketAdapter(this));
         }
     }, Ros.prototype.close = function() {
         this.socket && this.socket.close();
@@ -4257,12 +4706,25 @@ object-assign
             return typeDefDict;
         };
         return decodeTypeDefsRec(defs[0], defs);
+    }, Ros.prototype.getTopicsAndRawTypes = function(callback, failedCallback) {
+        var topicsAndRawTypesClient = new Service({
+            ros: this,
+            name: "/rosapi/topics_and_raw_types",
+            serviceType: "rosapi/TopicsAndRawTypes"
+        }), request = new ServiceRequest();
+        "function" == typeof failedCallback ? topicsAndRawTypesClient.callService(request, function(result) {
+            callback(result);
+        }, function(message) {
+            failedCallback(message);
+        }) : topicsAndRawTypesClient.callService(request, function(result) {
+            callback(result);
+        });
     }, module.exports = Ros;
 }, function(module, exports, __webpack_require__) {
     function Pose(options) {
         options = options || {}, this.position = new Vector3(options.position), this.orientation = new Quaternion(options.orientation);
     }
-    var Vector3 = __webpack_require__(4), Quaternion = __webpack_require__(8);
+    var Vector3 = __webpack_require__(4), Quaternion = __webpack_require__(9);
     Pose.prototype.applyTransform = function(tf) {
         this.position.multiplyQuaternion(tf.rotation), this.position.add(tf.translation);
         var tmp = tf.rotation.clone();
@@ -4290,7 +4752,7 @@ object-assign
             xml: colors[0]
         }));
     }
-    var UrdfColor = __webpack_require__(26);
+    var UrdfColor = __webpack_require__(27);
     UrdfMaterial.prototype.isLink = function() {
         return null === this.color && null === this.textureFilename;
     };
@@ -19162,49 +19624,93 @@ object-assign
     };
 }, function(module, __webpack_exports__, __webpack_require__) {
     "use strict";
+    function _typeof(obj) {
+        "@babel/helpers - typeof";
+        return (_typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function(obj) {
+            return typeof obj;
+        } : function(obj) {
+            return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
+        })(obj);
+    }
     function _classCallCheck(instance, Constructor) {
         if (!(instance instanceof Constructor)) throw new TypeError("Cannot call a class as a function");
     }
-    function _possibleConstructorReturn(self, call) {
-        if (!self) throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
-        return !call || "object" != typeof call && "function" != typeof call ? self : call;
+    function _defineProperties(target, props) {
+        for (var i = 0; i < props.length; i++) {
+            var descriptor = props[i];
+            descriptor.enumerable = descriptor.enumerable || !1, descriptor.configurable = !0,
+            "value" in descriptor && (descriptor.writable = !0), Object.defineProperty(target, descriptor.key, descriptor);
+        }
+    }
+    function _createClass(Constructor, protoProps, staticProps) {
+        return protoProps && _defineProperties(Constructor.prototype, protoProps), staticProps && _defineProperties(Constructor, staticProps),
+        Constructor;
     }
     function _inherits(subClass, superClass) {
-        if ("function" != typeof superClass && null !== superClass) throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
+        if ("function" != typeof superClass && null !== superClass) throw new TypeError("Super expression must either be null or a function");
         subClass.prototype = Object.create(superClass && superClass.prototype, {
             constructor: {
                 value: subClass,
-                enumerable: !1,
                 writable: !0,
                 configurable: !0
             }
-        }), superClass && (Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass);
+        }), superClass && _setPrototypeOf(subClass, superClass);
+    }
+    function _setPrototypeOf(o, p) {
+        return (_setPrototypeOf = Object.setPrototypeOf || function(o, p) {
+            return o.__proto__ = p, o;
+        })(o, p);
+    }
+    function _createSuper(Derived) {
+        var hasNativeReflectConstruct = _isNativeReflectConstruct();
+        return function() {
+            var result, Super = _getPrototypeOf(Derived);
+            if (hasNativeReflectConstruct) {
+                var NewTarget = _getPrototypeOf(this).constructor;
+                result = Reflect.construct(Super, arguments, NewTarget);
+            } else result = Super.apply(this, arguments);
+            return _possibleConstructorReturn(this, result);
+        };
+    }
+    function _possibleConstructorReturn(self, call) {
+        return !call || "object" !== _typeof(call) && "function" != typeof call ? _assertThisInitialized(self) : call;
+    }
+    function _assertThisInitialized(self) {
+        if (void 0 === self) throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+        return self;
+    }
+    function _isNativeReflectConstruct() {
+        if ("undefined" == typeof Reflect || !Reflect.construct) return !1;
+        if (Reflect.construct.sham) return !1;
+        if ("function" == typeof Proxy) return !0;
+        try {
+            return Date.prototype.toString.call(Reflect.construct(Date, [], function() {})),
+            !0;
+        } catch (e) {
+            return !1;
+        }
+    }
+    function _getPrototypeOf(o) {
+        return (_getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function(o) {
+            return o.__proto__ || Object.getPrototypeOf(o);
+        })(o);
     }
     var __WEBPACK_IMPORTED_MODULE_0_eventemitter2__ = __webpack_require__(5), __WEBPACK_IMPORTED_MODULE_1_roslib__ = (__webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_eventemitter2__),
-    __webpack_require__(1)), _createClass = (__webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_roslib__),
-    function() {
-        function defineProperties(target, props) {
-            for (var i = 0; i < props.length; i++) {
-                var descriptor = props[i];
-                descriptor.enumerable = descriptor.enumerable || !1, descriptor.configurable = !0,
-                "value" in descriptor && (descriptor.writable = !0), Object.defineProperty(target, descriptor.key, descriptor);
-            }
-        }
-        return function(Constructor, protoProps, staticProps) {
-            return protoProps && defineProperties(Constructor.prototype, protoProps), staticProps && defineProperties(Constructor, staticProps),
-            Constructor;
-        };
-    }()), ActionServer = function(_EventEmitter) {
+    __webpack_require__(1)), ActionServer = (__webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_roslib__),
+    function(_EventEmitter) {
         function ActionServer(robot) {
-            _classCallCheck(this, ActionServer);
-            var _this = _possibleConstructorReturn(this, (ActionServer.__proto__ || Object.getPrototypeOf(ActionServer)).call(this)), ros = robot.ros;
+            var _this;
+            _classCallCheck(this, ActionServer), _this = _super.call(this);
+            var ros = robot.ros;
             return _this.actionClient = new __WEBPACK_IMPORTED_MODULE_1_roslib__.ActionClient({
                 ros: ros,
                 serverName: "action_server/task",
                 actionName: "action_server_msgs/TaskAction"
             }), _this;
         }
-        return _inherits(ActionServer, _EventEmitter), _createClass(ActionServer, [ {
+        _inherits(ActionServer, _EventEmitter);
+        var _super = _createSuper(ActionServer);
+        return _createClass(ActionServer, [ {
             key: "doAction",
             value: function(recipe) {
                 var that = this, goal = new __WEBPACK_IMPORTED_MODULE_1_roslib__.Goal({
@@ -19225,99 +19731,10 @@ object-assign
                 this.actionClient.cancel();
             }
         } ]), ActionServer;
-    }(__WEBPACK_IMPORTED_MODULE_0_eventemitter2__.EventEmitter2);
+    }(__WEBPACK_IMPORTED_MODULE_0_eventemitter2__.EventEmitter2));
     __webpack_exports__.a = ActionServer;
 }, function(module, exports) {
-    function defaultSetTimout() {
-        throw new Error("setTimeout has not been defined");
-    }
-    function defaultClearTimeout() {
-        throw new Error("clearTimeout has not been defined");
-    }
-    function runTimeout(fun) {
-        if (cachedSetTimeout === setTimeout) return setTimeout(fun, 0);
-        if ((cachedSetTimeout === defaultSetTimout || !cachedSetTimeout) && setTimeout) return cachedSetTimeout = setTimeout,
-        setTimeout(fun, 0);
-        try {
-            return cachedSetTimeout(fun, 0);
-        } catch (e) {
-            try {
-                return cachedSetTimeout.call(null, fun, 0);
-            } catch (e) {
-                return cachedSetTimeout.call(this, fun, 0);
-            }
-        }
-    }
-    function runClearTimeout(marker) {
-        if (cachedClearTimeout === clearTimeout) return clearTimeout(marker);
-        if ((cachedClearTimeout === defaultClearTimeout || !cachedClearTimeout) && clearTimeout) return cachedClearTimeout = clearTimeout,
-        clearTimeout(marker);
-        try {
-            return cachedClearTimeout(marker);
-        } catch (e) {
-            try {
-                return cachedClearTimeout.call(null, marker);
-            } catch (e) {
-                return cachedClearTimeout.call(this, marker);
-            }
-        }
-    }
-    function cleanUpNextTick() {
-        draining && currentQueue && (draining = !1, currentQueue.length ? queue = currentQueue.concat(queue) : queueIndex = -1,
-        queue.length && drainQueue());
-    }
-    function drainQueue() {
-        if (!draining) {
-            var timeout = runTimeout(cleanUpNextTick);
-            draining = !0;
-            for (var len = queue.length; len; ) {
-                for (currentQueue = queue, queue = []; ++queueIndex < len; ) currentQueue && currentQueue[queueIndex].run();
-                queueIndex = -1, len = queue.length;
-            }
-            currentQueue = null, draining = !1, runClearTimeout(timeout);
-        }
-    }
-    function Item(fun, array) {
-        this.fun = fun, this.array = array;
-    }
-    function noop() {}
-    var cachedSetTimeout, cachedClearTimeout, process = module.exports = {};
-    !function() {
-        try {
-            cachedSetTimeout = "function" == typeof setTimeout ? setTimeout : defaultSetTimout;
-        } catch (e) {
-            cachedSetTimeout = defaultSetTimout;
-        }
-        try {
-            cachedClearTimeout = "function" == typeof clearTimeout ? clearTimeout : defaultClearTimeout;
-        } catch (e) {
-            cachedClearTimeout = defaultClearTimeout;
-        }
-    }();
-    var currentQueue, queue = [], draining = !1, queueIndex = -1;
-    process.nextTick = function(fun) {
-        var args = new Array(arguments.length - 1);
-        if (arguments.length > 1) for (var i = 1; i < arguments.length; i++) args[i - 1] = arguments[i];
-        queue.push(new Item(fun, args)), 1 !== queue.length || draining || runTimeout(drainQueue);
-    }, Item.prototype.run = function() {
-        this.fun.apply(null, this.array);
-    }, process.title = "browser", process.browser = !0, process.env = {}, process.argv = [],
-    process.version = "", process.versions = {}, process.on = noop, process.addListener = noop,
-    process.once = noop, process.off = noop, process.removeListener = noop, process.removeAllListeners = noop,
-    process.emit = noop, process.prependListener = noop, process.prependOnceListener = noop,
-    process.listeners = function(name) {
-        return [];
-    }, process.binding = function(name) {
-        throw new Error("process.binding is not supported");
-    }, process.cwd = function() {
-        return "/";
-    }, process.chdir = function(dir) {
-        throw new Error("process.chdir is not supported");
-    }, process.umask = function() {
-        return 0;
-    };
-}, function(module, exports) {
-    module.exports = window.WebSocket;
+    module.exports = "undefined" != typeof window ? window.WebSocket : WebSocket;
 }, function(module, exports, __webpack_require__) {
     function ServiceResponse(values) {
         assign(this, values);
@@ -19366,7 +19783,7 @@ object-assign
             receivedStatus || that.emit("timeout");
         }, this.timeout);
     }
-    var Topic = __webpack_require__(11), Message = __webpack_require__(6), EventEmitter2 = __webpack_require__(3).EventEmitter2;
+    var Topic = __webpack_require__(8), Message = __webpack_require__(6), EventEmitter2 = __webpack_require__(3).EventEmitter2;
     ActionClient.prototype.__proto__ = EventEmitter2.prototype, ActionClient.prototype.cancel = function() {
         var cancelMessage = new Message();
         this.cancelTopic.publish(cancelMessage);
@@ -19413,7 +19830,7 @@ object-assign
     function Transform(options) {
         options = options || {}, this.translation = new Vector3(options.translation), this.rotation = new Quaternion(options.rotation);
     }
-    var Vector3 = __webpack_require__(4), Quaternion = __webpack_require__(8);
+    var Vector3 = __webpack_require__(4), Quaternion = __webpack_require__(9);
     Transform.prototype.clone = function() {
         return new Transform(this);
     }, module.exports = Transform;
@@ -19427,7 +19844,7 @@ object-assign
             z: parseFloat(xyz[2])
         });
     }
-    var Vector3 = __webpack_require__(4), UrdfTypes = __webpack_require__(9);
+    var Vector3 = __webpack_require__(4), UrdfTypes = __webpack_require__(10);
     module.exports = UrdfBox;
 }, function(module, exports) {
     function UrdfColor(options) {
@@ -19441,7 +19858,7 @@ object-assign
         this.type = UrdfTypes.URDF_CYLINDER, this.length = parseFloat(options.xml.getAttribute("length")),
         this.radius = parseFloat(options.xml.getAttribute("radius"));
     }
-    var UrdfTypes = __webpack_require__(9);
+    var UrdfTypes = __webpack_require__(10);
     module.exports = UrdfCylinder;
 }, function(module, exports, __webpack_require__) {
     function UrdfLink(options) {
@@ -19450,12 +19867,12 @@ object-assign
             xml: visuals[i]
         }));
     }
-    var UrdfVisual = __webpack_require__(29);
+    var UrdfVisual = __webpack_require__(30);
     module.exports = UrdfLink;
 }, function(module, exports, __webpack_require__) {
     function UrdfVisual(options) {
         var xml = options.xml;
-        this.origin = null, this.geometry = null, this.material = null;
+        this.origin = null, this.geometry = null, this.material = null, this.name = options.xml.getAttribute("name");
         var origins = xml.getElementsByTagName("origin");
         if (0 === origins.length) this.origin = new Pose(); else {
             var xyz = origins[0].getAttribute("xyz"), position = new Vector3();
@@ -19505,7 +19922,7 @@ object-assign
             xml: materials[0]
         }));
     }
-    var Pose = __webpack_require__(15), Vector3 = __webpack_require__(4), Quaternion = __webpack_require__(8), UrdfCylinder = __webpack_require__(27), UrdfBox = __webpack_require__(25), UrdfMaterial = __webpack_require__(16), UrdfMesh = __webpack_require__(30), UrdfSphere = __webpack_require__(31);
+    var Pose = __webpack_require__(17), Vector3 = __webpack_require__(4), Quaternion = __webpack_require__(9), UrdfCylinder = __webpack_require__(28), UrdfBox = __webpack_require__(26), UrdfMaterial = __webpack_require__(18), UrdfMesh = __webpack_require__(31), UrdfSphere = __webpack_require__(32);
     module.exports = UrdfVisual;
 }, function(module, exports, __webpack_require__) {
     function UrdfMesh(options) {
@@ -19520,61 +19937,105 @@ object-assign
             });
         }
     }
-    var Vector3 = __webpack_require__(4), UrdfTypes = __webpack_require__(9);
+    var Vector3 = __webpack_require__(4), UrdfTypes = __webpack_require__(10);
     module.exports = UrdfMesh;
 }, function(module, exports, __webpack_require__) {
     function UrdfSphere(options) {
         this.type = UrdfTypes.URDF_SPHERE, this.radius = parseFloat(options.xml.getAttribute("radius"));
     }
-    var UrdfTypes = __webpack_require__(9);
+    var UrdfTypes = __webpack_require__(10);
     module.exports = UrdfSphere;
 }, function(module, __webpack_exports__, __webpack_require__) {
     "use strict";
+    function _typeof(obj) {
+        "@babel/helpers - typeof";
+        return (_typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function(obj) {
+            return typeof obj;
+        } : function(obj) {
+            return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
+        })(obj);
+    }
     function _classCallCheck(instance, Constructor) {
         if (!(instance instanceof Constructor)) throw new TypeError("Cannot call a class as a function");
     }
-    function _possibleConstructorReturn(self, call) {
-        if (!self) throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
-        return !call || "object" != typeof call && "function" != typeof call ? self : call;
+    function _defineProperties(target, props) {
+        for (var i = 0; i < props.length; i++) {
+            var descriptor = props[i];
+            descriptor.enumerable = descriptor.enumerable || !1, descriptor.configurable = !0,
+            "value" in descriptor && (descriptor.writable = !0), Object.defineProperty(target, descriptor.key, descriptor);
+        }
+    }
+    function _createClass(Constructor, protoProps, staticProps) {
+        return protoProps && _defineProperties(Constructor.prototype, protoProps), staticProps && _defineProperties(Constructor, staticProps),
+        Constructor;
     }
     function _inherits(subClass, superClass) {
-        if ("function" != typeof superClass && null !== superClass) throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
+        if ("function" != typeof superClass && null !== superClass) throw new TypeError("Super expression must either be null or a function");
         subClass.prototype = Object.create(superClass && superClass.prototype, {
             constructor: {
                 value: subClass,
-                enumerable: !1,
                 writable: !0,
                 configurable: !0
             }
-        }), superClass && (Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass);
+        }), superClass && _setPrototypeOf(subClass, superClass);
+    }
+    function _setPrototypeOf(o, p) {
+        return (_setPrototypeOf = Object.setPrototypeOf || function(o, p) {
+            return o.__proto__ = p, o;
+        })(o, p);
+    }
+    function _createSuper(Derived) {
+        var hasNativeReflectConstruct = _isNativeReflectConstruct();
+        return function() {
+            var result, Super = _getPrototypeOf(Derived);
+            if (hasNativeReflectConstruct) {
+                var NewTarget = _getPrototypeOf(this).constructor;
+                result = Reflect.construct(Super, arguments, NewTarget);
+            } else result = Super.apply(this, arguments);
+            return _possibleConstructorReturn(this, result);
+        };
+    }
+    function _possibleConstructorReturn(self, call) {
+        return !call || "object" !== _typeof(call) && "function" != typeof call ? _assertThisInitialized(self) : call;
+    }
+    function _assertThisInitialized(self) {
+        if (void 0 === self) throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+        return self;
+    }
+    function _isNativeReflectConstruct() {
+        if ("undefined" == typeof Reflect || !Reflect.construct) return !1;
+        if (Reflect.construct.sham) return !1;
+        if ("function" == typeof Proxy) return !0;
+        try {
+            return Date.prototype.toString.call(Reflect.construct(Date, [], function() {})),
+            !0;
+        } catch (e) {
+            return !1;
+        }
+    }
+    function _getPrototypeOf(o) {
+        return (_getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function(o) {
+            return o.__proto__ || Object.getPrototypeOf(o);
+        })(o);
     }
     var __WEBPACK_IMPORTED_MODULE_0_eventemitter2__ = __webpack_require__(5), __WEBPACK_IMPORTED_MODULE_1_roslib__ = (__webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_eventemitter2__),
-    __webpack_require__(1)), _createClass = (__webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_roslib__),
-    function() {
-        function defineProperties(target, props) {
-            for (var i = 0; i < props.length; i++) {
-                var descriptor = props[i];
-                descriptor.enumerable = descriptor.enumerable || !1, descriptor.configurable = !0,
-                "value" in descriptor && (descriptor.writable = !0), Object.defineProperty(target, descriptor.key, descriptor);
-            }
-        }
-        return function(Constructor, protoProps, staticProps) {
-            return protoProps && defineProperties(Constructor.prototype, protoProps), staticProps && defineProperties(Constructor, staticProps),
-            Constructor;
-        };
-    }()), Base = function(_EventEmitter) {
+    __webpack_require__(1)), Base = (__webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_roslib__),
+    function(_EventEmitter) {
         function Base(robot) {
-            _classCallCheck(this, Base);
-            var _this = _possibleConstructorReturn(this, (Base.__proto__ || Object.getPrototypeOf(Base)).call(this)), ros = robot.ros;
+            var _this;
+            _classCallCheck(this, Base), _this = _super.call(this);
+            var ros = robot.ros;
             return _this.cmdVelTopic = ros.Topic({
                 name: "base/references",
                 messageType: "geometry_msgs/Twist"
             }), _this.localPlannerTopic = ros.Topic({
                 name: "local_planner/action_server/goal",
-                messageType: "cb_planner_msgs_srvs/LocalPlannerActionGoal"
+                messageType: "cb_base_navigation_msgs/LocalPlannerActionGoal"
             }), _this;
         }
-        return _inherits(Base, _EventEmitter), _createClass(Base, [ {
+        _inherits(Base, _EventEmitter);
+        var _super = _createSuper(Base);
+        return _createClass(Base, [ {
             key: "sendTwist",
             value: function(vx, vy, vth) {
                 var twist = new __WEBPACK_IMPORTED_MODULE_1_roslib__.Message({
@@ -19589,7 +20050,7 @@ object-assign
                         z: 0
                     }
                 });
-                this.cmdVelTopic.publish(twist), console.log("sendTwist: " + vx + ", " + vy + ", " + vth);
+                this.cmdVelTopic.publish(twist), console.log("sendTwist: ".concat(vx, ", ").concat(vy, ", ").concat(vth));
             }
         }, {
             key: "sendLocalPlannerGoal",
@@ -19606,37 +20067,152 @@ object-assign
                         }
                     }
                 });
-                this.localPlannerTopic.publish(goal), console.log("sendGoal to local planner: " + goal);
+                this.localPlannerTopic.publish(goal), console.log("sendGoal to local planner: ".concat(goal));
             }
         } ]), Base;
-    }(__WEBPACK_IMPORTED_MODULE_0_eventemitter2__.EventEmitter2);
+    }(__WEBPACK_IMPORTED_MODULE_0_eventemitter2__.EventEmitter2));
     __webpack_exports__.a = Base;
 }, function(module, __webpack_exports__, __webpack_require__) {
     "use strict";
+    function _typeof(obj) {
+        "@babel/helpers - typeof";
+        return (_typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function(obj) {
+            return typeof obj;
+        } : function(obj) {
+            return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
+        })(obj);
+    }
     function _toConsumableArray(arr) {
-        if (Array.isArray(arr)) {
-            for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) arr2[i] = arr[i];
-            return arr2;
+        return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread();
+    }
+    function _nonIterableSpread() {
+        throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
+    }
+    function _iterableToArray(iter) {
+        if ("undefined" != typeof Symbol && Symbol.iterator in Object(iter)) return Array.from(iter);
+    }
+    function _arrayWithoutHoles(arr) {
+        if (Array.isArray(arr)) return _arrayLikeToArray(arr);
+    }
+    function _createForOfIteratorHelper(o, allowArrayLike) {
+        var it;
+        if ("undefined" == typeof Symbol || null == o[Symbol.iterator]) {
+            if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && "number" == typeof o.length) {
+                it && (o = it);
+                var i = 0, F = function() {};
+                return {
+                    s: F,
+                    n: function() {
+                        return i >= o.length ? {
+                            done: !0
+                        } : {
+                            done: !1,
+                            value: o[i++]
+                        };
+                    },
+                    e: function(_e) {
+                        throw _e;
+                    },
+                    f: F
+                };
+            }
+            throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
         }
-        return Array.from(arr);
+        var err, normalCompletion = !0, didErr = !1;
+        return {
+            s: function() {
+                it = o[Symbol.iterator]();
+            },
+            n: function() {
+                var step = it.next();
+                return normalCompletion = step.done, step;
+            },
+            e: function(_e2) {
+                didErr = !0, err = _e2;
+            },
+            f: function() {
+                try {
+                    normalCompletion || null == it.return || it.return();
+                } finally {
+                    if (didErr) throw err;
+                }
+            }
+        };
+    }
+    function _unsupportedIterableToArray(o, minLen) {
+        if (o) {
+            if ("string" == typeof o) return _arrayLikeToArray(o, minLen);
+            var n = Object.prototype.toString.call(o).slice(8, -1);
+            return "Object" === n && o.constructor && (n = o.constructor.name), "Map" === n || "Set" === n ? Array.from(o) : "Arguments" === n || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n) ? _arrayLikeToArray(o, minLen) : void 0;
+        }
+    }
+    function _arrayLikeToArray(arr, len) {
+        (null == len || len > arr.length) && (len = arr.length);
+        for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i];
+        return arr2;
     }
     function _classCallCheck(instance, Constructor) {
         if (!(instance instanceof Constructor)) throw new TypeError("Cannot call a class as a function");
     }
-    function _possibleConstructorReturn(self, call) {
-        if (!self) throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
-        return !call || "object" != typeof call && "function" != typeof call ? self : call;
+    function _defineProperties(target, props) {
+        for (var i = 0; i < props.length; i++) {
+            var descriptor = props[i];
+            descriptor.enumerable = descriptor.enumerable || !1, descriptor.configurable = !0,
+            "value" in descriptor && (descriptor.writable = !0), Object.defineProperty(target, descriptor.key, descriptor);
+        }
+    }
+    function _createClass(Constructor, protoProps, staticProps) {
+        return protoProps && _defineProperties(Constructor.prototype, protoProps), staticProps && _defineProperties(Constructor, staticProps),
+        Constructor;
     }
     function _inherits(subClass, superClass) {
-        if ("function" != typeof superClass && null !== superClass) throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
+        if ("function" != typeof superClass && null !== superClass) throw new TypeError("Super expression must either be null or a function");
         subClass.prototype = Object.create(superClass && superClass.prototype, {
             constructor: {
                 value: subClass,
-                enumerable: !1,
                 writable: !0,
                 configurable: !0
             }
-        }), superClass && (Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass);
+        }), superClass && _setPrototypeOf(subClass, superClass);
+    }
+    function _setPrototypeOf(o, p) {
+        return (_setPrototypeOf = Object.setPrototypeOf || function(o, p) {
+            return o.__proto__ = p, o;
+        })(o, p);
+    }
+    function _createSuper(Derived) {
+        var hasNativeReflectConstruct = _isNativeReflectConstruct();
+        return function() {
+            var result, Super = _getPrototypeOf(Derived);
+            if (hasNativeReflectConstruct) {
+                var NewTarget = _getPrototypeOf(this).constructor;
+                result = Reflect.construct(Super, arguments, NewTarget);
+            } else result = Super.apply(this, arguments);
+            return _possibleConstructorReturn(this, result);
+        };
+    }
+    function _possibleConstructorReturn(self, call) {
+        return !call || "object" !== _typeof(call) && "function" != typeof call ? _assertThisInitialized(self) : call;
+    }
+    function _assertThisInitialized(self) {
+        if (void 0 === self) throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+        return self;
+    }
+    function _isNativeReflectConstruct() {
+        if ("undefined" == typeof Reflect || !Reflect.construct) return !1;
+        if (Reflect.construct.sham) return !1;
+        if ("function" == typeof Proxy) return !0;
+        try {
+            return Date.prototype.toString.call(Reflect.construct(Date, [], function() {})),
+            !0;
+        } catch (e) {
+            return !1;
+        }
+    }
+    function _getPrototypeOf(o) {
+        return (_getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function(o) {
+            return o.__proto__ || Object.getPrototypeOf(o);
+        })(o);
     }
     function parseEdPosition(pose) {
         return {
@@ -19645,28 +20221,24 @@ object-assign
         };
     }
     function parseEdConvexHull(chull) {
-        var vertices = [], _iteratorNormalCompletion5 = !0, _didIteratorError5 = !1, _iteratorError5 = void 0;
+        var _step2, vertices = [], _iterator2 = _createForOfIteratorHelper(chull.points);
         try {
-            for (var _step5, _iterator5 = chull.points[Symbol.iterator](); !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = !0) {
-                var point = _step5.value;
+            for (_iterator2.s(); !(_step2 = _iterator2.n()).done; ) {
+                var point = _step2.value;
                 vertices.push([ point.x, point.y, chull.z_min ]), vertices.push([ point.x, point.y, chull.z_max ]);
             }
         } catch (err) {
-            _didIteratorError5 = !0, _iteratorError5 = err;
+            _iterator2.e(err);
         } finally {
-            try {
-                !_iteratorNormalCompletion5 && _iterator5.return && _iterator5.return();
-            } finally {
-                if (_didIteratorError5) throw _iteratorError5;
-            }
+            _iterator2.f();
         }
         for (var faces = [], i = 1; i < chull.points.length - 1; i++) {
             var i2 = 2 * i;
             faces.push([ i2 + 2, i2, 0 ]), faces.push([ i2 + 1, i2 + 3, 1 ]);
         }
-        for (var _i = 0; _i < chull.points.length; _i++) {
-            var j = (_i + 1) % chull.points.length;
-            faces.push([ 2 * j, 2 * _i + 1, 2 * _i ]), faces.push([ 2 * j, 2 * j + 1, 2 * _i + 1 ]);
+        for (var _i4 = 0; _i4 < chull.points.length; _i4++) {
+            var j = (_i4 + 1) % chull.points.length;
+            faces.push([ 2 * j, 2 * _i4 + 1, 2 * _i4 ]), faces.push([ 2 * j, 2 * j + 1, 2 * _i4 + 1 ]);
         }
         return {
             vertices: vertices,
@@ -19674,35 +20246,27 @@ object-assign
         };
     }
     function parseEdMesh(mesh) {
-        var vertices = [], _iteratorNormalCompletion6 = !0, _didIteratorError6 = !1, _iteratorError6 = void 0;
+        var _step3, vertices = [], _iterator3 = _createForOfIteratorHelper(mesh.vertices);
         try {
-            for (var _step6, _iterator6 = mesh.vertices[Symbol.iterator](); !(_iteratorNormalCompletion6 = (_step6 = _iterator6.next()).done); _iteratorNormalCompletion6 = !0) {
-                var vertex = _step6.value;
+            for (_iterator3.s(); !(_step3 = _iterator3.n()).done; ) {
+                var vertex = _step3.value;
                 vertices.push([ vertex.x, vertex.y, vertex.z ]);
             }
         } catch (err) {
-            _didIteratorError6 = !0, _iteratorError6 = err;
+            _iterator3.e(err);
         } finally {
-            try {
-                !_iteratorNormalCompletion6 && _iterator6.return && _iterator6.return();
-            } finally {
-                if (_didIteratorError6) throw _iteratorError6;
-            }
+            _iterator3.f();
         }
-        var faces = [], _iteratorNormalCompletion7 = !0, _didIteratorError7 = !1, _iteratorError7 = void 0;
+        var _step4, faces = [], _iterator4 = _createForOfIteratorHelper(mesh.triangles);
         try {
-            for (var _step7, _iterator7 = mesh.triangles[Symbol.iterator](); !(_iteratorNormalCompletion7 = (_step7 = _iterator7.next()).done); _iteratorNormalCompletion7 = !0) {
-                var triangle = _step7.value;
+            for (_iterator4.s(); !(_step4 = _iterator4.n()).done; ) {
+                var triangle = _step4.value;
                 faces.push([ triangle.i1, triangle.i2, triangle.i3 ]);
             }
         } catch (err) {
-            _didIteratorError7 = !0, _iteratorError7 = err;
+            _iterator4.e(err);
         } finally {
-            try {
-                !_iteratorNormalCompletion7 && _iterator7.return && _iterator7.return();
-            } finally {
-                if (_didIteratorError7) throw _iteratorError7;
-            }
+            _iterator4.f();
         }
         return {
             vertices: vertices,
@@ -19710,23 +20274,12 @@ object-assign
         };
     }
     var __WEBPACK_IMPORTED_MODULE_0_eventemitter2__ = __webpack_require__(5), __WEBPACK_IMPORTED_MODULE_1_roslib__ = (__webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_eventemitter2__),
-    __webpack_require__(1)), _createClass = (__webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_roslib__),
-    function() {
-        function defineProperties(target, props) {
-            for (var i = 0; i < props.length; i++) {
-                var descriptor = props[i];
-                descriptor.enumerable = descriptor.enumerable || !1, descriptor.configurable = !0,
-                "value" in descriptor && (descriptor.writable = !0), Object.defineProperty(target, descriptor.key, descriptor);
-            }
-        }
-        return function(Constructor, protoProps, staticProps) {
-            return protoProps && defineProperties(Constructor.prototype, protoProps), staticProps && defineProperties(Constructor, staticProps),
-            Constructor;
-        };
-    }()), Ed = function(_EventEmitter) {
+    __webpack_require__(1)), Ed = (__webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_roslib__),
+    function(_EventEmitter) {
         function Ed(robot) {
-            _classCallCheck(this, Ed);
-            var _this = _possibleConstructorReturn(this, (Ed.__proto__ || Object.getPrototypeOf(Ed)).call(this)), ros = robot.ros;
+            var _this;
+            _classCallCheck(this, Ed), _this = _super.call(this);
+            var ros = robot.ros;
             return _this.queryService = ros.Service({
                 name: "ed/query",
                 serviceType: "ed_msgs/Query"
@@ -19735,7 +20288,9 @@ object-assign
                 serviceType: "ed_msgs/Reset"
             }), _this.entities = new Map(), _this.revision = 0, _this;
         }
-        return _inherits(Ed, _EventEmitter), _createClass(Ed, [ {
+        _inherits(Ed, _EventEmitter);
+        var _super = _createSuper(Ed);
+        return _createClass(Ed, [ {
             key: "query",
             value: function(callback) {
                 var _this2 = this, request = new __WEBPACK_IMPORTED_MODULE_1_roslib__.ServiceRequest({
@@ -19748,7 +20303,7 @@ object-assign
                     var data = JSON.parse(response.human_readable);
                     _this2._updateEntities(data.entities), callback && callback();
                 }, function(error) {
-                    console.error("ed:query callService " + _this2.queryService.name + " failed:", error);
+                    console.error("ed:query callService ".concat(_this2.queryService.name, " failed:"), error);
                 });
             }
         }, {
@@ -19768,162 +20323,225 @@ object-assign
         }, {
             key: "_updateEntities",
             value: function(entities) {
-                var _this3 = this, add = [], update = [], remove = [], _iteratorNormalCompletion = !0, _didIteratorError = !1, _iteratorError = void 0;
+                var _step, _this3 = this, add = [], update = [], remove = [], _iterator = _createForOfIteratorHelper(entities);
                 try {
-                    for (var _step, _iterator = entities[Symbol.iterator](); !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = !0) {
-                        var entity = _step.value;
-                        !function(entity) {
-                            var id = entity.id, newObj = {
-                                id: id
-                            };
-                            if (_this3.entities.has(id)) {
-                                var oldObj = _this3.entities.get(id);
-                                if (Object.prototype.hasOwnProperty.call(entity, "pose")) {
-                                    var _parseEdPosition = parseEdPosition(entity.pose), position = _parseEdPosition.position, quaternion = _parseEdPosition.quaternion;
-                                    newObj.position = position, newObj.quaternion = quaternion;
-                                } else oldObj.position && (newObj.position = oldObj.position), oldObj.quaternion && (newObj.quaternion = oldObj.quaternion);
-                                if (Object.prototype.hasOwnProperty.call(entity, "mesh")) {
-                                    var _parseEdMesh = parseEdMesh(entity.mesh), vertices = _parseEdMesh.vertices, faces = _parseEdMesh.faces;
-                                    newObj.vertices = vertices, newObj.faces = faces;
-                                } else if (Object.prototype.hasOwnProperty.call(entity, "convex_hull")) {
-                                    var _parseEdConvexHull = parseEdConvexHull(entity.convex_hull), _vertices = _parseEdConvexHull.vertices, _faces = _parseEdConvexHull.faces;
-                                    newObj.vertices = _vertices, newObj.faces = _faces;
-                                } else oldObj.vertices && (newObj.vertices = oldObj.vertices), oldObj.faces && (newObj.faces = oldObj.faces);
-                                _this3.entities.set(id, newObj);
-                                [ "position", "quaternion", "vertices", "faces" ].every(function(key) {
-                                    return key in newObj;
-                                }) && update.push([ newObj, oldObj ]);
-                            } else {
-                                if (Object.prototype.hasOwnProperty.call(entity, "pose")) {
-                                    var _parseEdPosition2 = parseEdPosition(entity.pose), _position = _parseEdPosition2.position, _quaternion = _parseEdPosition2.quaternion;
-                                    newObj.position = _position, newObj.quaternion = _quaternion;
-                                }
-                                if (Object.prototype.hasOwnProperty.call(entity, "mesh")) {
-                                    var _parseEdMesh2 = parseEdMesh(entity.mesh), _vertices2 = _parseEdMesh2.vertices, _faces2 = _parseEdMesh2.faces;
-                                    newObj.vertices = _vertices2, newObj.faces = _faces2;
-                                } else if (Object.prototype.hasOwnProperty.call(entity, "convex_hull")) {
-                                    var _parseEdConvexHull2 = parseEdConvexHull(entity.convex_hull), _vertices3 = _parseEdConvexHull2.vertices, _faces3 = _parseEdConvexHull2.faces;
-                                    newObj.vertices = _vertices3, newObj.faces = _faces3;
-                                }
-                                _this3.entities.set(id, newObj);
-                                [ "position", "quaternion", "vertices", "faces" ].every(function(key) {
-                                    return key in newObj;
-                                }) && add.push(newObj);
+                    for (_iterator.s(); !(_step = _iterator.n()).done; ) !function() {
+                        var entity = _step.value, id = entity.id, newObject = {
+                            id: id
+                        };
+                        if (_this3.entities.has(id)) {
+                            var oldObject = _this3.entities.get(id);
+                            if (Object.prototype.hasOwnProperty.call(entity, "pose")) {
+                                var _parseEdPosition = parseEdPosition(entity.pose), position = _parseEdPosition.position, quaternion = _parseEdPosition.quaternion;
+                                newObject.position = position, newObject.quaternion = quaternion;
+                            } else oldObject.position && (newObject.position = oldObject.position), oldObject.quaternion && (newObject.quaternion = oldObject.quaternion);
+                            if (Object.prototype.hasOwnProperty.call(entity, "mesh")) {
+                                var _parseEdMesh = parseEdMesh(entity.mesh), vertices = _parseEdMesh.vertices, faces = _parseEdMesh.faces;
+                                newObject.vertices = vertices, newObject.faces = faces;
+                            } else if (Object.prototype.hasOwnProperty.call(entity, "convex_hull")) {
+                                var _parseEdConvexHull = parseEdConvexHull(entity.convex_hull), _vertices = _parseEdConvexHull.vertices, _faces = _parseEdConvexHull.faces;
+                                newObject.vertices = _vertices, newObject.faces = _faces;
+                            } else oldObject.vertices && (newObject.vertices = oldObject.vertices), oldObject.faces && (newObject.faces = oldObject.faces);
+                            _this3.entities.set(id, newObject);
+                            [ "position", "quaternion", "vertices", "faces" ].every(function(key) {
+                                return key in newObject;
+                            }) && update.push([ newObject, oldObject ]);
+                        } else {
+                            if (Object.prototype.hasOwnProperty.call(entity, "pose")) {
+                                var _parseEdPosition2 = parseEdPosition(entity.pose), _position = _parseEdPosition2.position, _quaternion = _parseEdPosition2.quaternion;
+                                newObject.position = _position, newObject.quaternion = _quaternion;
                             }
-                        }(entity);
-                    }
+                            if (Object.prototype.hasOwnProperty.call(entity, "mesh")) {
+                                var _parseEdMesh2 = parseEdMesh(entity.mesh), _vertices2 = _parseEdMesh2.vertices, _faces2 = _parseEdMesh2.faces;
+                                newObject.vertices = _vertices2, newObject.faces = _faces2;
+                            } else if (Object.prototype.hasOwnProperty.call(entity, "convex_hull")) {
+                                var _parseEdConvexHull2 = parseEdConvexHull(entity.convex_hull), _vertices3 = _parseEdConvexHull2.vertices, _faces3 = _parseEdConvexHull2.faces;
+                                newObject.vertices = _vertices3, newObject.faces = _faces3;
+                            }
+                            _this3.entities.set(id, newObject);
+                            [ "position", "quaternion", "vertices", "faces" ].every(function(key) {
+                                return key in newObject;
+                            }) && add.push(newObject);
+                        }
+                    }();
                 } catch (err) {
-                    _didIteratorError = !0, _iteratorError = err;
+                    _iterator.e(err);
                 } finally {
-                    try {
-                        !_iteratorNormalCompletion && _iterator.return && _iterator.return();
-                    } finally {
-                        if (_didIteratorError) throw _iteratorError;
-                    }
+                    _iterator.f();
                 }
-                var _iteratorNormalCompletion2 = !0, _didIteratorError2 = !1, _iteratorError2 = void 0;
-                try {
-                    for (var _step2, _iterator2 = add[Symbol.iterator](); !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = !0) {
-                        var data = _step2.value;
-                        this.emit("entities.add", data);
-                    }
-                } catch (err) {
-                    _didIteratorError2 = !0, _iteratorError2 = err;
-                } finally {
-                    try {
-                        !_iteratorNormalCompletion2 && _iterator2.return && _iterator2.return();
-                    } finally {
-                        if (_didIteratorError2) throw _iteratorError2;
-                    }
+                for (var _i = 0, _add = add; _i < _add.length; _i++) {
+                    var data = _add[_i];
+                    this.emit("entities.add", data);
                 }
-                var _iteratorNormalCompletion3 = !0, _didIteratorError3 = !1, _iteratorError3 = void 0;
-                try {
-                    for (var _step3, _iterator3 = update[Symbol.iterator](); !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = !0) {
-                        var _data = _step3.value;
-                        this.emit.apply(this, [ "entities.update" ].concat(_toConsumableArray(_data)));
-                    }
-                } catch (err) {
-                    _didIteratorError3 = !0, _iteratorError3 = err;
-                } finally {
-                    try {
-                        !_iteratorNormalCompletion3 && _iterator3.return && _iterator3.return();
-                    } finally {
-                        if (_didIteratorError3) throw _iteratorError3;
-                    }
+                for (var _i2 = 0, _update = update; _i2 < _update.length; _i2++) {
+                    var _data = _update[_i2];
+                    this.emit.apply(this, [ "entities.update" ].concat(_toConsumableArray(_data)));
                 }
-                var _iteratorNormalCompletion4 = !0, _didIteratorError4 = !1, _iteratorError4 = void 0;
-                try {
-                    for (var _step4, _iterator4 = remove[Symbol.iterator](); !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = !0) {
-                        var _data2 = _step4.value;
-                        this.emit("entities.remove", _data2);
-                    }
-                } catch (err) {
-                    _didIteratorError4 = !0, _iteratorError4 = err;
-                } finally {
-                    try {
-                        !_iteratorNormalCompletion4 && _iterator4.return && _iterator4.return();
-                    } finally {
-                        if (_didIteratorError4) throw _iteratorError4;
-                    }
+                for (var _i3 = 0, _remove = remove; _i3 < _remove.length; _i3++) {
+                    var _data2 = _remove[_i3];
+                    this.emit("entities.remove", _data2);
                 }
             }
         } ]), Ed;
-    }(__WEBPACK_IMPORTED_MODULE_0_eventemitter2__.EventEmitter2);
+    }(__WEBPACK_IMPORTED_MODULE_0_eventemitter2__.EventEmitter2));
     __webpack_exports__.a = Ed;
 }, function(module, __webpack_exports__, __webpack_require__) {
     "use strict";
+    function _createForOfIteratorHelper(o, allowArrayLike) {
+        var it;
+        if ("undefined" == typeof Symbol || null == o[Symbol.iterator]) {
+            if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && "number" == typeof o.length) {
+                it && (o = it);
+                var i = 0, F = function() {};
+                return {
+                    s: F,
+                    n: function() {
+                        return i >= o.length ? {
+                            done: !0
+                        } : {
+                            done: !1,
+                            value: o[i++]
+                        };
+                    },
+                    e: function(_e) {
+                        throw _e;
+                    },
+                    f: F
+                };
+            }
+            throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
+        }
+        var err, normalCompletion = !0, didErr = !1;
+        return {
+            s: function() {
+                it = o[Symbol.iterator]();
+            },
+            n: function() {
+                var step = it.next();
+                return normalCompletion = step.done, step;
+            },
+            e: function(_e2) {
+                didErr = !0, err = _e2;
+            },
+            f: function() {
+                try {
+                    normalCompletion || null == it.return || it.return();
+                } finally {
+                    if (didErr) throw err;
+                }
+            }
+        };
+    }
+    function _unsupportedIterableToArray(o, minLen) {
+        if (o) {
+            if ("string" == typeof o) return _arrayLikeToArray(o, minLen);
+            var n = Object.prototype.toString.call(o).slice(8, -1);
+            return "Object" === n && o.constructor && (n = o.constructor.name), "Map" === n || "Set" === n ? Array.from(o) : "Arguments" === n || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n) ? _arrayLikeToArray(o, minLen) : void 0;
+        }
+    }
+    function _arrayLikeToArray(arr, len) {
+        (null == len || len > arr.length) && (len = arr.length);
+        for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i];
+        return arr2;
+    }
+    function _typeof(obj) {
+        "@babel/helpers - typeof";
+        return (_typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function(obj) {
+            return typeof obj;
+        } : function(obj) {
+            return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
+        })(obj);
+    }
     function _classCallCheck(instance, Constructor) {
         if (!(instance instanceof Constructor)) throw new TypeError("Cannot call a class as a function");
     }
-    function _possibleConstructorReturn(self, call) {
-        if (!self) throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
-        return !call || "object" != typeof call && "function" != typeof call ? self : call;
+    function _defineProperties(target, props) {
+        for (var i = 0; i < props.length; i++) {
+            var descriptor = props[i];
+            descriptor.enumerable = descriptor.enumerable || !1, descriptor.configurable = !0,
+            "value" in descriptor && (descriptor.writable = !0), Object.defineProperty(target, descriptor.key, descriptor);
+        }
+    }
+    function _createClass(Constructor, protoProps, staticProps) {
+        return protoProps && _defineProperties(Constructor.prototype, protoProps), staticProps && _defineProperties(Constructor, staticProps),
+        Constructor;
     }
     function _inherits(subClass, superClass) {
-        if ("function" != typeof superClass && null !== superClass) throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
+        if ("function" != typeof superClass && null !== superClass) throw new TypeError("Super expression must either be null or a function");
         subClass.prototype = Object.create(superClass && superClass.prototype, {
             constructor: {
                 value: subClass,
-                enumerable: !1,
                 writable: !0,
                 configurable: !0
             }
-        }), superClass && (Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass);
+        }), superClass && _setPrototypeOf(subClass, superClass);
     }
-    function diagnosticMsgToStatus(msg) {
-        var hardware_status = {}, _iteratorNormalCompletion2 = !0, _didIteratorError2 = !1, _iteratorError2 = void 0;
+    function _setPrototypeOf(o, p) {
+        return (_setPrototypeOf = Object.setPrototypeOf || function(o, p) {
+            return o.__proto__ = p, o;
+        })(o, p);
+    }
+    function _createSuper(Derived) {
+        var hasNativeReflectConstruct = _isNativeReflectConstruct();
+        return function() {
+            var result, Super = _getPrototypeOf(Derived);
+            if (hasNativeReflectConstruct) {
+                var NewTarget = _getPrototypeOf(this).constructor;
+                result = Reflect.construct(Super, arguments, NewTarget);
+            } else result = Super.apply(this, arguments);
+            return _possibleConstructorReturn(this, result);
+        };
+    }
+    function _possibleConstructorReturn(self, call) {
+        return !call || "object" !== _typeof(call) && "function" != typeof call ? _assertThisInitialized(self) : call;
+    }
+    function _assertThisInitialized(self) {
+        if (void 0 === self) throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+        return self;
+    }
+    function _isNativeReflectConstruct() {
+        if ("undefined" == typeof Reflect || !Reflect.construct) return !1;
+        if (Reflect.construct.sham) return !1;
+        if ("function" == typeof Proxy) return !0;
         try {
-            for (var _step2, _iterator2 = msg.status[Symbol.iterator](); !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = !0) {
-                var _ref2 = _step2.value, _name = _ref2.name, level = _ref2.level, message = _ref2.message, homed = "homed" === message;
-                hardware_status[_name] = {
+            return Date.prototype.toString.call(Reflect.construct(Date, [], function() {})),
+            !0;
+        } catch (e) {
+            return !1;
+        }
+    }
+    function _getPrototypeOf(o) {
+        return (_getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function(o) {
+            return o.__proto__ || Object.getPrototypeOf(o);
+        })(o);
+    }
+    function _defineProperty(obj, key, value) {
+        return key in obj ? Object.defineProperty(obj, key, {
+            value: value,
+            enumerable: !0,
+            configurable: !0,
+            writable: !0
+        }) : obj[key] = value, obj;
+    }
+    function diagnosticMessageToStatus(message) {
+        var _step, hardware_status = {}, _iterator = _createForOfIteratorHelper(message.status);
+        try {
+            for (_iterator.s(); !(_step = _iterator.n()).done; ) {
+                var _step$value = _step.value, _name2 = _step$value.name, level = _step$value.level, message_info = _step$value.message_info, homed = "homed" === message_info;
+                hardware_status[_name2] = {
                     level: level,
                     homed: homed
                 };
             }
         } catch (err) {
-            _didIteratorError2 = !0, _iteratorError2 = err;
+            _iterator.e(err);
         } finally {
-            try {
-                !_iteratorNormalCompletion2 && _iterator2.return && _iterator2.return();
-            } finally {
-                if (_didIteratorError2) throw _iteratorError2;
-            }
+            _iterator.f();
         }
         hardware_status = Object.assign({}, defaultStatus, hardware_status);
-        var _iteratorNormalCompletion3 = !0, _didIteratorError3 = !1, _iteratorError3 = void 0;
-        try {
-            for (var _step3, _iterator3 = Object.keys(hardware_status)[Symbol.iterator](); !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = !0) {
-                var _name2 = _step3.value, part = hardware_status[_name2];
-                part.actions = getActions(_name2, part);
-            }
-        } catch (err) {
-            _didIteratorError3 = !0, _iteratorError3 = err;
-        } finally {
-            try {
-                !_iteratorNormalCompletion3 && _iterator3.return && _iterator3.return();
-            } finally {
-                if (_didIteratorError3) throw _iteratorError3;
-            }
+        for (var _i2 = 0, _Object$keys2 = Object.keys(hardware_status); _i2 < _Object$keys2.length; _i2++) {
+            var _name = _Object$keys2[_i2], part = hardware_status[_name];
+            part.actions = getActions(_name, part);
         }
         return hardware_status;
     }
@@ -19946,21 +20564,9 @@ object-assign
             enabled: level === levels.ERROR
         }), actions;
     }
-    var __WEBPACK_IMPORTED_MODULE_0_eventemitter2__ = __webpack_require__(5), __WEBPACK_IMPORTED_MODULE_1_roslib__ = (__webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_eventemitter2__),
+    for (var __WEBPACK_IMPORTED_MODULE_0_eventemitter2__ = __webpack_require__(5), __WEBPACK_IMPORTED_MODULE_1_roslib__ = (__webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_eventemitter2__),
     __webpack_require__(1)), __WEBPACK_IMPORTED_MODULE_2_lodash_debounce__ = (__webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_roslib__),
-    __webpack_require__(92)), __WEBPACK_IMPORTED_MODULE_2_lodash_debounce___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_lodash_debounce__), __WEBPACK_IMPORTED_MODULE_3__hardware_properties__ = __webpack_require__(101), _createClass = function() {
-        function defineProperties(target, props) {
-            for (var i = 0; i < props.length; i++) {
-                var descriptor = props[i];
-                descriptor.enumerable = descriptor.enumerable || !1, descriptor.configurable = !0,
-                "value" in descriptor && (descriptor.writable = !0), Object.defineProperty(target, descriptor.key, descriptor);
-            }
-        }
-        return function(Constructor, protoProps, staticProps) {
-            return protoProps && defineProperties(Constructor.prototype, protoProps), staticProps && defineProperties(Constructor, staticProps),
-            Constructor;
-        };
-    }(), levels = {
+    __webpack_require__(97)), __WEBPACK_IMPORTED_MODULE_2_lodash_debounce___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_lodash_debounce__), __WEBPACK_IMPORTED_MODULE_3__hardware_properties__ = __webpack_require__(106), levels = {
         STALE: 0,
         IDLE: 1,
         OPERATIONAL: 2,
@@ -19979,53 +20585,44 @@ object-assign
         left_arm: 3,
         right_arm: 4,
         head: 5
-    }, defaultStatus = {}, _iteratorNormalCompletion = !0, _didIteratorError = !1, _iteratorError = void 0;
-    try {
-        for (var _step, _iterator = Object.keys(hardwareIds)[Symbol.iterator](); !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = !0) {
-            var name = _step.value;
-            defaultStatus[name] = {
-                level: levels.STALE,
-                homed: !1
-            };
-        }
-    } catch (err) {
-        _didIteratorError = !0, _iteratorError = err;
-    } finally {
-        try {
-            !_iteratorNormalCompletion && _iterator.return && _iterator.return();
-        } finally {
-            if (_didIteratorError) throw _iteratorError;
-        }
+    }, defaultStatus = {}, _i = 0, _Object$keys = Object.keys(hardwareIds); _i < _Object$keys.length; _i++) {
+        var name = _Object$keys[_i];
+        defaultStatus[name] = {
+            level: levels.STALE,
+            homed: !1
+        };
     }
     var HARDWARE_TIMEOUT = 2e3, BATTERY_TIMEOUT = 2e3, EBUTTONS_TIMEOUT = 2e3, Hardware = function(_EventEmitter) {
         function Hardware(robot) {
-            _classCallCheck(this, Hardware);
-            var _this = _possibleConstructorReturn(this, (Hardware.__proto__ || Object.getPrototypeOf(Hardware)).call(this));
-            _this._status = defaultStatus, _this._resetHardwareLater = __WEBPACK_IMPORTED_MODULE_2_lodash_debounce___default()(_this._resetHardware, HARDWARE_TIMEOUT),
-            _this._battery = null, _this._resetBatteryLater = __WEBPACK_IMPORTED_MODULE_2_lodash_debounce___default()(_this._resetBattery, BATTERY_TIMEOUT),
-            _this._ebuttons = null, _this._resetEbuttonsLater = __WEBPACK_IMPORTED_MODULE_2_lodash_debounce___default()(_this._resetEbuttons, EBUTTONS_TIMEOUT);
+            var _this;
+            _classCallCheck(this, Hardware), _this = _super.call(this), _defineProperty(_assertThisInitialized(_this), "_status", defaultStatus),
+            _defineProperty(_assertThisInitialized(_this), "_resetHardwareLater", __WEBPACK_IMPORTED_MODULE_2_lodash_debounce___default()(_this._resetHardware, HARDWARE_TIMEOUT)),
+            _defineProperty(_assertThisInitialized(_this), "_battery", null), _defineProperty(_assertThisInitialized(_this), "_resetBatteryLater", __WEBPACK_IMPORTED_MODULE_2_lodash_debounce___default()(_this._resetBattery, BATTERY_TIMEOUT)),
+            _defineProperty(_assertThisInitialized(_this), "_ebuttons", null), _defineProperty(_assertThisInitialized(_this), "_resetEbuttonsLater", __WEBPACK_IMPORTED_MODULE_2_lodash_debounce___default()(_this._resetEbuttons, EBUTTONS_TIMEOUT));
             var ros = robot.ros;
             return ros.Topic({
                 name: "hardware_status",
                 messageType: "diagnostic_msgs/DiagnosticArray",
                 throttle_rate: 500
-            }).subscribe(_this._onStatus.bind(_this)), _this._commandTopic = ros.Topic({
+            }).subscribe(_this._onStatus.bind(_assertThisInitialized(_this))), _this._commandTopic = ros.Topic({
                 name: "dashboard_ctrlcmds",
                 messageType: "std_msgs/UInt8MultiArray"
             }), ros.Topic({
                 name: "battery_percentage",
                 messageType: "std_msgs/Float32",
                 throttle_rate: 200
-            }).subscribe(_this._onBattery.bind(_this)), ros.Topic({
+            }).subscribe(_this._onBattery.bind(_assertThisInitialized(_this))), ros.Topic({
                 name: "ebutton_status",
                 messageType: "diagnostic_msgs/DiagnosticArray",
                 throttle_rate: 200
-            }).subscribe(_this._onEbuttons.bind(_this)), _this;
+            }).subscribe(_this._onEbuttons.bind(_assertThisInitialized(_this))), _this;
         }
-        return _inherits(Hardware, _EventEmitter), _createClass(Hardware, [ {
+        _inherits(Hardware, _EventEmitter);
+        var _super = _createSuper(Hardware);
+        return _createClass(Hardware, [ {
             key: "_onStatus",
-            value: function(msg) {
-                this.status = diagnosticMsgToStatus(msg), this._resetHardwareLater();
+            value: function(message) {
+                this.status = diagnosticMessageToStatus(message), this._resetHardwareLater();
             }
         }, {
             key: "_resetHardware",
@@ -20046,8 +20643,8 @@ object-assign
             }
         }, {
             key: "_onBattery",
-            value: function(msg) {
-                var percent = msg.data;
+            value: function(message) {
+                var percent = message.data;
                 this.battery = percent, this._resetBatteryLater();
             }
         }, {
@@ -20057,8 +20654,8 @@ object-assign
             }
         }, {
             key: "_onEbuttons",
-            value: function(msg) {
-                var status = msg.status.map(function(_ref) {
+            value: function(message) {
+                var status = message.status.map(function(_ref) {
                     return {
                         name: _ref.name,
                         level: _ref.level
@@ -20097,7 +20694,7 @@ object-assign
             }
         } ]), Hardware;
     }(__WEBPACK_IMPORTED_MODULE_0_eventemitter2__.EventEmitter2);
-    Hardware.levels = levels, __webpack_exports__.a = Hardware;
+    _defineProperty(Hardware, "levels", levels), __webpack_exports__.a = Hardware;
 }, function(module, exports) {
     function isObject(value) {
         var type = typeof value;
@@ -20105,60 +20702,91 @@ object-assign
     }
     module.exports = isObject;
 }, function(module, exports, __webpack_require__) {
-    var freeGlobal = __webpack_require__(94), freeSelf = "object" == typeof self && self && self.Object === Object && self, root = freeGlobal || freeSelf || Function("return this")();
+    var freeGlobal = __webpack_require__(99), freeSelf = "object" == typeof self && self && self.Object === Object && self, root = freeGlobal || freeSelf || Function("return this")();
     module.exports = root;
-}, function(module, exports) {
-    var g;
-    g = function() {
-        return this;
-    }();
-    try {
-        g = g || Function("return this")() || (0, eval)("this");
-    } catch (e) {
-        "object" == typeof window && (g = window);
-    }
-    module.exports = g;
 }, function(module, exports, __webpack_require__) {
-    var root = __webpack_require__(36), Symbol = root.Symbol;
+    var root = __webpack_require__(37), Symbol = root.Symbol;
     module.exports = Symbol;
 }, function(module, __webpack_exports__, __webpack_require__) {
     "use strict";
+    function _typeof(obj) {
+        "@babel/helpers - typeof";
+        return (_typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function(obj) {
+            return typeof obj;
+        } : function(obj) {
+            return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
+        })(obj);
+    }
     function _classCallCheck(instance, Constructor) {
         if (!(instance instanceof Constructor)) throw new TypeError("Cannot call a class as a function");
     }
-    function _possibleConstructorReturn(self, call) {
-        if (!self) throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
-        return !call || "object" != typeof call && "function" != typeof call ? self : call;
+    function _defineProperties(target, props) {
+        for (var i = 0; i < props.length; i++) {
+            var descriptor = props[i];
+            descriptor.enumerable = descriptor.enumerable || !1, descriptor.configurable = !0,
+            "value" in descriptor && (descriptor.writable = !0), Object.defineProperty(target, descriptor.key, descriptor);
+        }
+    }
+    function _createClass(Constructor, protoProps, staticProps) {
+        return protoProps && _defineProperties(Constructor.prototype, protoProps), staticProps && _defineProperties(Constructor, staticProps),
+        Constructor;
     }
     function _inherits(subClass, superClass) {
-        if ("function" != typeof superClass && null !== superClass) throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
+        if ("function" != typeof superClass && null !== superClass) throw new TypeError("Super expression must either be null or a function");
         subClass.prototype = Object.create(superClass && superClass.prototype, {
             constructor: {
                 value: subClass,
-                enumerable: !1,
                 writable: !0,
                 configurable: !0
             }
-        }), superClass && (Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass);
+        }), superClass && _setPrototypeOf(subClass, superClass);
+    }
+    function _setPrototypeOf(o, p) {
+        return (_setPrototypeOf = Object.setPrototypeOf || function(o, p) {
+            return o.__proto__ = p, o;
+        })(o, p);
+    }
+    function _createSuper(Derived) {
+        var hasNativeReflectConstruct = _isNativeReflectConstruct();
+        return function() {
+            var result, Super = _getPrototypeOf(Derived);
+            if (hasNativeReflectConstruct) {
+                var NewTarget = _getPrototypeOf(this).constructor;
+                result = Reflect.construct(Super, arguments, NewTarget);
+            } else result = Super.apply(this, arguments);
+            return _possibleConstructorReturn(this, result);
+        };
+    }
+    function _possibleConstructorReturn(self, call) {
+        return !call || "object" !== _typeof(call) && "function" != typeof call ? _assertThisInitialized(self) : call;
+    }
+    function _assertThisInitialized(self) {
+        if (void 0 === self) throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+        return self;
+    }
+    function _isNativeReflectConstruct() {
+        if ("undefined" == typeof Reflect || !Reflect.construct) return !1;
+        if (Reflect.construct.sham) return !1;
+        if ("function" == typeof Proxy) return !0;
+        try {
+            return Date.prototype.toString.call(Reflect.construct(Date, [], function() {})),
+            !0;
+        } catch (e) {
+            return !1;
+        }
+    }
+    function _getPrototypeOf(o) {
+        return (_getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function(o) {
+            return o.__proto__ || Object.getPrototypeOf(o);
+        })(o);
     }
     var __WEBPACK_IMPORTED_MODULE_0_eventemitter2__ = __webpack_require__(5), __WEBPACK_IMPORTED_MODULE_1_roslib__ = (__webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_eventemitter2__),
-    __webpack_require__(1)), _createClass = (__webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_roslib__),
-    function() {
-        function defineProperties(target, props) {
-            for (var i = 0; i < props.length; i++) {
-                var descriptor = props[i];
-                descriptor.enumerable = descriptor.enumerable || !1, descriptor.configurable = !0,
-                "value" in descriptor && (descriptor.writable = !0), Object.defineProperty(target, descriptor.key, descriptor);
-            }
-        }
-        return function(Constructor, protoProps, staticProps) {
-            return protoProps && defineProperties(Constructor.prototype, protoProps), staticProps && defineProperties(Constructor, staticProps),
-            Constructor;
-        };
-    }()), Head = function(_EventEmitter) {
+    __webpack_require__(1)), Head = (__webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_roslib__),
+    function(_EventEmitter) {
         function Head(robot) {
-            _classCallCheck(this, Head);
-            var _this = _possibleConstructorReturn(this, (Head.__proto__ || Object.getPrototypeOf(Head)).call(this)), ros = robot.ros;
+            var _this;
+            _classCallCheck(this, Head), _this = _super.call(this);
+            var ros = robot.ros;
             return _this.getImageService = ros.Service({
                 name: "ed/get_image",
                 serviceType: "rgbd_msgs/GetRGBD"
@@ -20167,21 +20795,24 @@ object-assign
                 actionName: "head_ref_msgs/HeadReferenceAction"
             }), _this;
         }
-        return _inherits(Head, _EventEmitter), _createClass(Head, [ {
+        _inherits(Head, _EventEmitter);
+        var _super = _createSuper(Head);
+        return _createClass(Head, [ {
             key: "getImage",
             value: function() {
-                var _this2 = this, width = arguments.length > 0 && void 0 !== arguments[0] ? arguments[0] : 128, callback = arguments[1], request = new __WEBPACK_IMPORTED_MODULE_1_roslib__.ServiceRequest({
+                var _this2 = this, width = arguments.length > 0 && void 0 !== arguments[0] ? arguments[0] : 128, callback = arguments.length > 1 ? arguments[1] : void 0, request = new __WEBPACK_IMPORTED_MODULE_1_roslib__.ServiceRequest({
                     width: width,
                     compression: 0
                 }), start_time = new Date();
                 this.getImageService.callService(request, function(response) {
                     var time_diff = new Date() - start_time, rgb_data = response.rgb_data, depth_data = response.depth_data;
                     if (rgb_data) {
-                        callback("data:image/jpeg;base64," + rgb_data, "data:image/jpeg;base64," + depth_data, time_diff);
+                        var rgb_image_url = "data:image/jpeg;base64,".concat(rgb_data), depth_image_url = "data:image/jpeg;base64,".concat(depth_data);
+                        callback(rgb_image_url, depth_image_url, time_diff);
                     } else callback(null, null, time_diff);
                     _this2.emit("update_time", time_diff);
                 }, function(error) {
-                    console.error("Head:getImage callService " + _this2.getImageService.name + " failed:", error);
+                    console.error("Head:getImage callService ".concat(_this2.getImageService.name, " failed:"), error);
                 });
             }
         }, {
@@ -20212,7 +20843,7 @@ object-assign
                 this.head_ac.cancel();
             }
         } ]), Head;
-    }(__WEBPACK_IMPORTED_MODULE_0_eventemitter2__.EventEmitter2);
+    }(__WEBPACK_IMPORTED_MODULE_0_eventemitter2__.EventEmitter2));
     __webpack_exports__.a = Head;
 }, function(module, __webpack_exports__, __webpack_require__) {
     "use strict";
@@ -20249,14 +20880,14 @@ object-assign
         __webpack_require__(73));
         __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_28__scripts_services_robot__);
         angular.module("EdGuiApp").run([ "$templateCache", function($templateCache) {
-            $templateCache.put("views/scene.html", __webpack_require__(109)), $templateCache.put("views/hardware.html", __webpack_require__(110)),
-            $templateCache.put("views/tabs/teleop_tabs/base.html", __webpack_require__(111)),
-            $templateCache.put("views/tabs/teleop_tabs/head.html", __webpack_require__(112)),
-            $templateCache.put("views/tabs/teleop_tabs/speech.html", __webpack_require__(113)),
-            $templateCache.put("views/tabs/teleop_tabs/body.html", __webpack_require__(114)),
-            $templateCache.put("views/tabs/teleop_tabs/ed.html", __webpack_require__(115)),
-            $templateCache.put("views/tabs/teleop.html", __webpack_require__(116)), $templateCache.put("views/tabs/editor.html", __webpack_require__(117)),
-            $templateCache.put("views/tabs/actions.html", __webpack_require__(118));
+            $templateCache.put("views/scene.html", __webpack_require__(114)), $templateCache.put("views/hardware.html", __webpack_require__(115)),
+            $templateCache.put("views/tabs/teleop_tabs/base.html", __webpack_require__(116)),
+            $templateCache.put("views/tabs/teleop_tabs/head.html", __webpack_require__(117)),
+            $templateCache.put("views/tabs/teleop_tabs/speech.html", __webpack_require__(118)),
+            $templateCache.put("views/tabs/teleop_tabs/body.html", __webpack_require__(119)),
+            $templateCache.put("views/tabs/teleop_tabs/ed.html", __webpack_require__(120)),
+            $templateCache.put("views/tabs/teleop.html", __webpack_require__(121)), $templateCache.put("views/tabs/editor.html", __webpack_require__(122)),
+            $templateCache.put("views/tabs/actions.html", __webpack_require__(123));
         } ]);
     }.call(__webpack_exports__, __webpack_require__(0));
 }, function(module, exports, __webpack_require__) {
@@ -28308,7 +28939,7 @@ object-assign
                 angularInit(window.document, bootstrap);
             });
         }(window), !window.angular.$$csp().noInlineStyle && window.angular.element(document.head).prepend('<style type="text/css">@charset "UTF-8";[ng\\:cloak],[ng-cloak],[data-ng-cloak],[x-ng-cloak],.ng-cloak,.x-ng-cloak,.ng-hide:not(.ng-hide-animate){display:none !important;}ng\\:form{display:block;}.ng-animate-shim{visibility:hidden;}.ng-anchor{position:absolute;}</style>');
-    }).call(exports, __webpack_require__(12));
+    }).call(exports, __webpack_require__(13));
 }, function(module, exports) {}, function(module, exports) {}, function(module, exports) {}, function(module, exports) {}, function(module, exports) {}, function(module, exports) {}, function(module, exports, __webpack_require__) {
     var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;
     __webpack_require__(0);
@@ -28468,7 +29099,7 @@ object-assign
         return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
     }, windowIsDefined = "object" === ("undefined" == typeof window ? "undefined" : _typeof(window));
     !function(factory) {
-        __WEBPACK_AMD_DEFINE_ARRAY__ = [ __webpack_require__(12) ], __WEBPACK_AMD_DEFINE_FACTORY__ = factory,
+        __WEBPACK_AMD_DEFINE_ARRAY__ = [ __webpack_require__(13) ], __WEBPACK_AMD_DEFINE_FACTORY__ = factory,
         void 0 !== (__WEBPACK_AMD_DEFINE_RESULT__ = "function" == typeof __WEBPACK_AMD_DEFINE_FACTORY__ ? __WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__) : __WEBPACK_AMD_DEFINE_FACTORY__) && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__);
     }(function($) {
         windowIsDefined && !window.console && (window.console = {}), windowIsDefined && !window.console.log && (window.console.log = function() {}),
@@ -29584,7 +30215,7 @@ object-assign
         } ]);
     }).call(exports, __webpack_require__(0));
 }, function(module, exports, __webpack_require__) {
-    var jQuery = __webpack_require__(12);
+    var jQuery = __webpack_require__(13);
     +function($) {
         "use strict";
         function Plugin(option) {
@@ -30104,7 +30735,7 @@ object-assign
     }).call(__webpack_exports__, __webpack_require__(0));
 }, function(module, __webpack_exports__, __webpack_require__) {
     "use strict";
-    var __WEBPACK_IMPORTED_MODULE_0_three__ = __webpack_require__(17);
+    var __WEBPACK_IMPORTED_MODULE_0_three__ = __webpack_require__(19);
     const SceneRenderer = function(THREE) {
         function SceneRenderer(options) {
             if (!options || !options.canvas || !options.robot) throw new Error("Unspecified canvas or robot");
@@ -30662,7 +31293,7 @@ object-assign
                 }
             });
         }();
-    }).call(exports, __webpack_require__(17));
+    }).call(exports, __webpack_require__(19));
 }, function(module, exports, __webpack_require__) {
     "use strict";
     (function(angular, FastClick) {
@@ -30675,12 +31306,12 @@ object-assign
     !function() {
         "use strict";
         /**
-	 * @preserve FastClick: polyfill to remove click delays on browsers with touch UIs.
-	 *
-	 * @codingstandard ftlabs-jsv2
-	 * @copyright The Financial Times Limited [All Rights Reserved]
-	 * @license MIT License (see LICENSE.txt)
-	 */
+     * @preserve FastClick: polyfill to remove click delays on browsers with touch UIs.
+     *
+     * @codingstandard ftlabs-jsv2
+     * @copyright The Financial Times Limited [All Rights Reserved]
+     * @license MIT License (see LICENSE.txt)
+     */
         function FastClick(layer, options) {
             var oldOnClick;
             if (options = options || {}, this.trackingClick = !1, this.trackingClickStart = 0,
@@ -30884,7 +31515,7 @@ object-assign
     Object.defineProperty(__webpack_exports__, "__esModule", {
         value: !0
     });
-    var __WEBPACK_IMPORTED_MODULE_0__action_server__ = __webpack_require__(18), __WEBPACK_IMPORTED_MODULE_1__base__ = __webpack_require__(32), __WEBPACK_IMPORTED_MODULE_2__ed__ = __webpack_require__(33), __WEBPACK_IMPORTED_MODULE_3__hardware__ = __webpack_require__(34), __WEBPACK_IMPORTED_MODULE_4__head__ = __webpack_require__(39), __WEBPACK_IMPORTED_MODULE_5__robot__ = __webpack_require__(102);
+    var __WEBPACK_IMPORTED_MODULE_0__action_server__ = __webpack_require__(20), __WEBPACK_IMPORTED_MODULE_1__base__ = __webpack_require__(33), __WEBPACK_IMPORTED_MODULE_2__ed__ = __webpack_require__(34), __WEBPACK_IMPORTED_MODULE_3__hardware__ = __webpack_require__(35), __WEBPACK_IMPORTED_MODULE_4__head__ = __webpack_require__(39), __WEBPACK_IMPORTED_MODULE_5__robot__ = __webpack_require__(107);
     __webpack_require__.d(__webpack_exports__, "ActionServer", function() {
         return __WEBPACK_IMPORTED_MODULE_0__action_server__.a;
     }), __webpack_require__.d(__webpack_exports__, "Base", function() {
@@ -30899,16 +31530,228 @@ object-assign
         return __WEBPACK_IMPORTED_MODULE_5__robot__.a;
     });
 }, function(module, exports, __webpack_require__) {
-    var mixin = __webpack_require__(13), core = module.exports = {
-        Ros: __webpack_require__(14),
-        Topic: __webpack_require__(11),
+    (function(global) {
+        function Timeout(id, clearFn) {
+            this._id = id, this._clearFn = clearFn;
+        }
+        var scope = void 0 !== global && global || "undefined" != typeof self && self || window, apply = Function.prototype.apply;
+        exports.setTimeout = function() {
+            return new Timeout(apply.call(setTimeout, scope, arguments), clearTimeout);
+        }, exports.setInterval = function() {
+            return new Timeout(apply.call(setInterval, scope, arguments), clearInterval);
+        }, exports.clearTimeout = exports.clearInterval = function(timeout) {
+            timeout && timeout.close();
+        }, Timeout.prototype.unref = Timeout.prototype.ref = function() {}, Timeout.prototype.close = function() {
+            this._clearFn.call(scope, this._id);
+        }, exports.enroll = function(item, msecs) {
+            clearTimeout(item._idleTimeoutId), item._idleTimeout = msecs;
+        }, exports.unenroll = function(item) {
+            clearTimeout(item._idleTimeoutId), item._idleTimeout = -1;
+        }, exports._unrefActive = exports.active = function(item) {
+            clearTimeout(item._idleTimeoutId);
+            var msecs = item._idleTimeout;
+            msecs >= 0 && (item._idleTimeoutId = setTimeout(function() {
+                item._onTimeout && item._onTimeout();
+            }, msecs));
+        }, __webpack_require__(76), exports.setImmediate = "undefined" != typeof self && self.setImmediate || void 0 !== global && global.setImmediate || this && this.setImmediate,
+        exports.clearImmediate = "undefined" != typeof self && self.clearImmediate || void 0 !== global && global.clearImmediate || this && this.clearImmediate;
+    }).call(exports, __webpack_require__(11));
+}, function(module, exports, __webpack_require__) {
+    (function(global, process) {
+        !function(global, undefined) {
+            "use strict";
+            function setImmediate(callback) {
+                "function" != typeof callback && (callback = new Function("" + callback));
+                for (var args = new Array(arguments.length - 1), i = 0; i < args.length; i++) args[i] = arguments[i + 1];
+                var task = {
+                    callback: callback,
+                    args: args
+                };
+                return tasksByHandle[nextHandle] = task, registerImmediate(nextHandle), nextHandle++;
+            }
+            function clearImmediate(handle) {
+                delete tasksByHandle[handle];
+            }
+            function run(task) {
+                var callback = task.callback, args = task.args;
+                switch (args.length) {
+                  case 0:
+                    callback();
+                    break;
+
+                  case 1:
+                    callback(args[0]);
+                    break;
+
+                  case 2:
+                    callback(args[0], args[1]);
+                    break;
+
+                  case 3:
+                    callback(args[0], args[1], args[2]);
+                    break;
+
+                  default:
+                    callback.apply(undefined, args);
+                }
+            }
+            function runIfPresent(handle) {
+                if (currentlyRunningATask) setTimeout(runIfPresent, 0, handle); else {
+                    var task = tasksByHandle[handle];
+                    if (task) {
+                        currentlyRunningATask = !0;
+                        try {
+                            run(task);
+                        } finally {
+                            clearImmediate(handle), currentlyRunningATask = !1;
+                        }
+                    }
+                }
+            }
+            if (!global.setImmediate) {
+                var registerImmediate, nextHandle = 1, tasksByHandle = {}, currentlyRunningATask = !1, doc = global.document, attachTo = Object.getPrototypeOf && Object.getPrototypeOf(global);
+                attachTo = attachTo && attachTo.setTimeout ? attachTo : global, "[object process]" === {}.toString.call(global.process) ? function() {
+                    registerImmediate = function(handle) {
+                        process.nextTick(function() {
+                            runIfPresent(handle);
+                        });
+                    };
+                }() : function() {
+                    if (global.postMessage && !global.importScripts) {
+                        var postMessageIsAsynchronous = !0, oldOnMessage = global.onmessage;
+                        return global.onmessage = function() {
+                            postMessageIsAsynchronous = !1;
+                        }, global.postMessage("", "*"), global.onmessage = oldOnMessage, postMessageIsAsynchronous;
+                    }
+                }() ? function() {
+                    var messagePrefix = "setImmediate$" + Math.random() + "$", onGlobalMessage = function(event) {
+                        event.source === global && "string" == typeof event.data && 0 === event.data.indexOf(messagePrefix) && runIfPresent(+event.data.slice(messagePrefix.length));
+                    };
+                    global.addEventListener ? global.addEventListener("message", onGlobalMessage, !1) : global.attachEvent("onmessage", onGlobalMessage),
+                    registerImmediate = function(handle) {
+                        global.postMessage(messagePrefix + handle, "*");
+                    };
+                }() : global.MessageChannel ? function() {
+                    var channel = new MessageChannel();
+                    channel.port1.onmessage = function(event) {
+                        runIfPresent(event.data);
+                    }, registerImmediate = function(handle) {
+                        channel.port2.postMessage(handle);
+                    };
+                }() : doc && "onreadystatechange" in doc.createElement("script") ? function() {
+                    var html = doc.documentElement;
+                    registerImmediate = function(handle) {
+                        var script = doc.createElement("script");
+                        script.onreadystatechange = function() {
+                            runIfPresent(handle), script.onreadystatechange = null, html.removeChild(script),
+                            script = null;
+                        }, html.appendChild(script);
+                    };
+                }() : function() {
+                    registerImmediate = function(handle) {
+                        setTimeout(runIfPresent, 0, handle);
+                    };
+                }(), attachTo.setImmediate = setImmediate, attachTo.clearImmediate = clearImmediate;
+            }
+        }("undefined" == typeof self ? void 0 === global ? this : global : self);
+    }).call(exports, __webpack_require__(11), __webpack_require__(14));
+}, function(module, exports, __webpack_require__) {
+    var mixin = __webpack_require__(15), core = module.exports = {
+        Ros: __webpack_require__(16),
+        Topic: __webpack_require__(8),
         Message: __webpack_require__(6),
-        Param: __webpack_require__(81),
-        Service: __webpack_require__(10),
+        Param: __webpack_require__(86),
+        Service: __webpack_require__(12),
         ServiceRequest: __webpack_require__(7),
-        ServiceResponse: __webpack_require__(21)
+        ServiceResponse: __webpack_require__(22)
     };
     mixin(core.Ros, [ "Param", "Service", "Topic" ], core);
+}, function(module, exports, __webpack_require__) {
+    function WorkerSocket(uri) {
+        this.socket_ = work(workerSocketImpl), this.socket_.addEventListener("message", this.handleWorkerMessage_.bind(this)),
+        this.socket_.postMessage({
+            uri: uri
+        });
+    }
+    var work = __webpack_require__(79), workerSocketImpl = __webpack_require__(80);
+    WorkerSocket.prototype.handleWorkerMessage_ = function(ev) {
+        var data = ev.data;
+        if (data instanceof ArrayBuffer || "string" == typeof data) this.onmessage(ev); else {
+            var type = data.type;
+            if ("close" === type) this.onclose(null); else if ("open" === type) this.onopen(null); else {
+                if ("error" !== type) throw "Unknown message from workersocket";
+                this.onerror(null);
+            }
+        }
+    }, WorkerSocket.prototype.send = function(data) {
+        this.socket_.postMessage(data);
+    }, WorkerSocket.prototype.close = function() {
+        this.socket_.postMessage({
+            close: !0
+        });
+    }, module.exports = WorkerSocket;
+}, function(module, exports) {
+    var bundleFn = arguments[3], sources = arguments[4], cache = arguments[5], stringify = JSON.stringify;
+    module.exports = function(fn, options) {
+        function resolveSources(key) {
+            workerSources[key] = !0;
+            for (var depPath in sources[key][1]) {
+                var depKey = sources[key][1][depPath];
+                workerSources[depKey] || resolveSources(depKey);
+            }
+        }
+        for (var wkey, cacheKeys = Object.keys(cache), i = 0, l = cacheKeys.length; i < l; i++) {
+            var key = cacheKeys[i], exp = cache[key].exports;
+            if (exp === fn || exp && exp.default === fn) {
+                wkey = key;
+                break;
+            }
+        }
+        if (!wkey) {
+            wkey = Math.floor(Math.pow(16, 8) * Math.random()).toString(16);
+            for (var wcache = {}, i = 0, l = cacheKeys.length; i < l; i++) {
+                var key = cacheKeys[i];
+                wcache[key] = key;
+            }
+            sources[wkey] = [ "function(require,module,exports){" + fn + "(self); }", wcache ];
+        }
+        var skey = Math.floor(Math.pow(16, 8) * Math.random()).toString(16), scache = {};
+        scache[wkey] = wkey, sources[skey] = [ "function(require,module,exports){var f = require(" + stringify(wkey) + ");(f.default ? f.default : f)(self);}", scache ];
+        var workerSources = {};
+        resolveSources(skey);
+        var src = "(" + bundleFn + ")({" + Object.keys(workerSources).map(function(key) {
+            return stringify(key) + ":[" + sources[key][0] + "," + stringify(sources[key][1]) + "]";
+        }).join(",") + "},{},[" + stringify(skey) + "])", URL = window.URL || window.webkitURL || window.mozURL || window.msURL, blob = new Blob([ src ], {
+            type: "text/javascript"
+        });
+        if (options && options.bare) return blob;
+        var workerUrl = URL.createObjectURL(blob), worker = new Worker(workerUrl);
+        return worker.objectURL = workerUrl, worker;
+    };
+}, function(module, exports, __webpack_require__) {
+    var WebSocket = WebSocket || __webpack_require__(21);
+    module.exports = function(self) {
+        function handleSocketMessage(ev) {
+            var data = ev.data;
+            data instanceof ArrayBuffer ? self.postMessage(data, [ data ]) : self.postMessage(data);
+        }
+        function handleSocketControl(ev) {
+            self.postMessage({
+                type: ev.type
+            });
+        }
+        var socket = null;
+        self.addEventListener("message", function(ev) {
+            var data = ev.data;
+            if ("string" == typeof data) socket.send(data); else if (data.hasOwnProperty("close")) socket.close(),
+            socket = null; else {
+                if (!data.hasOwnProperty("uri")) throw "Unknown message to WorkerSocket";
+                var uri = data.uri;
+                socket = new WebSocket(uri), socket.binaryType = "arraybuffer", socket.onmessage = handleSocketMessage,
+                socket.onclose = handleSocketControl, socket.onopen = handleSocketControl, socket.onerror = handleSocketControl;
+            }
+        });
+    };
 }, function(module, exports, __webpack_require__) {
     "use strict";
     function SocketAdapter(client) {
@@ -30949,8 +31792,7 @@ object-assign
             }
         };
     }
-    var decompressPng = __webpack_require__(77), CBOR = __webpack_require__(79), typedArrayTagger = __webpack_require__(80), BSON = (__webpack_require__(20),
-    null);
+    var decompressPng = __webpack_require__(82), CBOR = __webpack_require__(84), typedArrayTagger = __webpack_require__(85), BSON = null;
     "undefined" != typeof bson && (BSON = bson().BSON), module.exports = SocketAdapter;
 }, function(module, exports, __webpack_require__) {
     "use strict";
@@ -30965,7 +31807,7 @@ object-assign
             callback(JSON.parse(jsonData));
         }, image.src = "data:image/png;base64," + data;
     }
-    var Canvas = __webpack_require__(78), Image = Canvas.Image || window.Image;
+    var Canvas = __webpack_require__(83), Image = Canvas.Image || window.Image;
     module.exports = decompressPng;
 }, function(module, exports) {
     module.exports = function() {
@@ -31253,7 +32095,7 @@ object-assign
     function Param(options) {
         options = options || {}, this.ros = options.ros, this.name = options.name;
     }
-    var Service = __webpack_require__(10), ServiceRequest = __webpack_require__(7);
+    var Service = __webpack_require__(12), ServiceRequest = __webpack_require__(7);
     Param.prototype.get = function(callback) {
         var paramClient = new Service({
             ros: this.ros,
@@ -31287,12 +32129,12 @@ object-assign
         paramClient.callService(request, callback);
     }, module.exports = Param;
 }, function(module, exports, __webpack_require__) {
-    var Ros = __webpack_require__(14);
-    __webpack_require__(13)(Ros, [ "ActionClient", "SimpleActionServer" ], module.exports = {
-        ActionClient: __webpack_require__(22),
-        ActionListener: __webpack_require__(83),
-        Goal: __webpack_require__(23),
-        SimpleActionServer: __webpack_require__(84)
+    var Ros = __webpack_require__(16);
+    __webpack_require__(15)(Ros, [ "ActionClient", "SimpleActionServer" ], module.exports = {
+        ActionClient: __webpack_require__(23),
+        ActionListener: __webpack_require__(88),
+        Goal: __webpack_require__(24),
+        SimpleActionServer: __webpack_require__(89)
     });
 }, function(module, exports, __webpack_require__) {
     function ActionListener(options) {
@@ -31329,7 +32171,7 @@ object-assign
             that.emit("status", resultMessage.status), that.emit("result", resultMessage.result);
         });
     }
-    var Topic = __webpack_require__(11), EventEmitter2 = (__webpack_require__(6), __webpack_require__(3).EventEmitter2);
+    var Topic = __webpack_require__(8), EventEmitter2 = (__webpack_require__(6), __webpack_require__(3).EventEmitter2);
     ActionListener.prototype.__proto__ = EventEmitter2.prototype, module.exports = ActionListener;
 }, function(module, exports, __webpack_require__) {
     function SimpleActionServer(options) {
@@ -31389,7 +32231,7 @@ object-assign
             statusPublisher.publish(that.statusMessage);
         }, 500);
     }
-    var Topic = __webpack_require__(11), Message = __webpack_require__(6), EventEmitter2 = __webpack_require__(3).EventEmitter2;
+    var Topic = __webpack_require__(8), Message = __webpack_require__(6), EventEmitter2 = __webpack_require__(3).EventEmitter2;
     SimpleActionServer.prototype.__proto__ = EventEmitter2.prototype, SimpleActionServer.prototype.setSucceeded = function(result2) {
         var resultMessage = new Message({
             status: {
@@ -31422,15 +32264,15 @@ object-assign
     }, module.exports = SimpleActionServer;
 }, function(module, exports, __webpack_require__) {
     module.exports = {
-        Pose: __webpack_require__(15),
-        Quaternion: __webpack_require__(8),
-        Transform: __webpack_require__(24),
+        Pose: __webpack_require__(17),
+        Quaternion: __webpack_require__(9),
+        Transform: __webpack_require__(25),
         Vector3: __webpack_require__(4)
     };
 }, function(module, exports, __webpack_require__) {
-    var Ros = __webpack_require__(14);
-    __webpack_require__(13)(Ros, [ "TFClient" ], module.exports = {
-        TFClient: __webpack_require__(87)
+    var Ros = __webpack_require__(16);
+    __webpack_require__(15)(Ros, [ "TFClient" ], module.exports = {
+        TFClient: __webpack_require__(92)
     });
 }, function(module, exports, __webpack_require__) {
     function TFClient(options) {
@@ -31443,18 +32285,19 @@ object-assign
             nsecs: nsecs
         }, this.serverName = options.serverName || "/tf2_web_republisher", this.repubServiceName = options.repubServiceName || "/republish_tfs",
         this.currentGoal = !1, this.currentTopic = !1, this.frameInfos = {}, this.republisherUpdateRequested = !1,
-        this.actionClient = this.ros.ActionClient({
+        this.actionClient = new ActionClient({
+            ros: options.ros,
             serverName: this.serverName,
             actionName: "tf2_web_republisher/TFSubscriptionAction",
             omitStatus: !0,
             omitResult: !0
-        }), this.serviceClient = this.ros.Service({
+        }), this.serviceClient = new Service({
+            ros: options.ros,
             name: this.repubServiceName,
             serviceType: "tf2_web_republisher/RepublishTFs"
         });
     }
-    var Goal = (__webpack_require__(22), __webpack_require__(23)), ServiceRequest = (__webpack_require__(10),
-    __webpack_require__(7)), Transform = __webpack_require__(24);
+    var ActionClient = __webpack_require__(23), Goal = __webpack_require__(24), Service = __webpack_require__(12), ServiceRequest = __webpack_require__(7), Topic = __webpack_require__(8), Transform = __webpack_require__(25);
     TFClient.prototype.processTFArray = function(tf) {
         tf.transforms.forEach(function(transform) {
             var frameID = transform.child_frame_id;
@@ -31486,7 +32329,8 @@ object-assign
         }
         this.republisherUpdateRequested = !1;
     }, TFClient.prototype.processResponse = function(response) {
-        this.currentTopic && this.currentTopic.unsubscribe(), this.currentTopic = this.ros.Topic({
+        this.currentTopic && this.currentTopic.unsubscribe(), this.currentTopic = new Topic({
+            ros: this.ros,
             name: response.topic_name,
             messageType: "tf2_web_republisher/TFArray"
         }), this.currentTopic.subscribe(this.processTFArray.bind(this));
@@ -31504,16 +32348,16 @@ object-assign
     }, module.exports = TFClient;
 }, function(module, exports, __webpack_require__) {
     module.exports = __webpack_require__(2)({
-        UrdfBox: __webpack_require__(25),
-        UrdfColor: __webpack_require__(26),
-        UrdfCylinder: __webpack_require__(27),
-        UrdfLink: __webpack_require__(28),
-        UrdfMaterial: __webpack_require__(16),
-        UrdfMesh: __webpack_require__(30),
-        UrdfModel: __webpack_require__(89),
-        UrdfSphere: __webpack_require__(31),
-        UrdfVisual: __webpack_require__(29)
-    }, __webpack_require__(9));
+        UrdfBox: __webpack_require__(26),
+        UrdfColor: __webpack_require__(27),
+        UrdfCylinder: __webpack_require__(28),
+        UrdfLink: __webpack_require__(29),
+        UrdfMaterial: __webpack_require__(18),
+        UrdfMesh: __webpack_require__(31),
+        UrdfModel: __webpack_require__(94),
+        UrdfSphere: __webpack_require__(32),
+        UrdfVisual: __webpack_require__(30)
+    }, __webpack_require__(10));
 }, function(module, exports, __webpack_require__) {
     function UrdfModel(options) {
         options = options || {};
@@ -31549,7 +32393,7 @@ object-assign
             }
         }
     }
-    var UrdfMaterial = __webpack_require__(16), UrdfLink = __webpack_require__(28), UrdfJoint = __webpack_require__(90), DOMParser = __webpack_require__(91).DOMParser;
+    var UrdfMaterial = __webpack_require__(18), UrdfLink = __webpack_require__(29), UrdfJoint = __webpack_require__(95), DOMParser = __webpack_require__(96).DOMParser;
     module.exports = UrdfModel;
 }, function(module, exports, __webpack_require__) {
     function UrdfJoint(options) {
@@ -31586,7 +32430,7 @@ object-assign
             });
         }
     }
-    var Pose = __webpack_require__(15), Vector3 = __webpack_require__(4), Quaternion = __webpack_require__(8);
+    var Pose = __webpack_require__(17), Vector3 = __webpack_require__(4), Quaternion = __webpack_require__(9);
     module.exports = UrdfJoint;
 }, function(module, exports) {
     exports.DOMImplementation = window.DOMImplementation, exports.XMLSerializer = window.XMLSerializer,
@@ -31639,10 +32483,10 @@ object-assign
         trailing = "trailing" in options ? !!options.trailing : trailing), debounced.cancel = cancel,
         debounced.flush = flush, debounced;
     }
-    var isObject = __webpack_require__(35), now = __webpack_require__(93), toNumber = __webpack_require__(95), FUNC_ERROR_TEXT = "Expected a function", nativeMax = Math.max, nativeMin = Math.min;
+    var isObject = __webpack_require__(36), now = __webpack_require__(98), toNumber = __webpack_require__(100), FUNC_ERROR_TEXT = "Expected a function", nativeMax = Math.max, nativeMin = Math.min;
     module.exports = debounce;
 }, function(module, exports, __webpack_require__) {
-    var root = __webpack_require__(36), now = function() {
+    var root = __webpack_require__(37), now = function() {
         return root.Date.now();
     };
     module.exports = now;
@@ -31650,7 +32494,7 @@ object-assign
     (function(global) {
         var freeGlobal = "object" == typeof global && global && global.Object === Object && global;
         module.exports = freeGlobal;
-    }).call(exports, __webpack_require__(37));
+    }).call(exports, __webpack_require__(11));
 }, function(module, exports, __webpack_require__) {
     function toNumber(value) {
         if ("number" == typeof value) return value;
@@ -31664,19 +32508,19 @@ object-assign
         var isBinary = reIsBinary.test(value);
         return isBinary || reIsOctal.test(value) ? freeParseInt(value.slice(2), isBinary ? 2 : 8) : reIsBadHex.test(value) ? NAN : +value;
     }
-    var isObject = __webpack_require__(35), isSymbol = __webpack_require__(96), NAN = NaN, reTrim = /^\s+|\s+$/g, reIsBadHex = /^[-+]0x[0-9a-f]+$/i, reIsBinary = /^0b[01]+$/i, reIsOctal = /^0o[0-7]+$/i, freeParseInt = parseInt;
+    var isObject = __webpack_require__(36), isSymbol = __webpack_require__(101), NAN = NaN, reTrim = /^\s+|\s+$/g, reIsBadHex = /^[-+]0x[0-9a-f]+$/i, reIsBinary = /^0b[01]+$/i, reIsOctal = /^0o[0-7]+$/i, freeParseInt = parseInt;
     module.exports = toNumber;
 }, function(module, exports, __webpack_require__) {
     function isSymbol(value) {
         return "symbol" == typeof value || isObjectLike(value) && baseGetTag(value) == symbolTag;
     }
-    var baseGetTag = __webpack_require__(97), isObjectLike = __webpack_require__(100), symbolTag = "[object Symbol]";
+    var baseGetTag = __webpack_require__(102), isObjectLike = __webpack_require__(105), symbolTag = "[object Symbol]";
     module.exports = isSymbol;
 }, function(module, exports, __webpack_require__) {
     function baseGetTag(value) {
         return null == value ? void 0 === value ? undefinedTag : nullTag : symToStringTag && symToStringTag in Object(value) ? getRawTag(value) : objectToString(value);
     }
-    var Symbol = __webpack_require__(38), getRawTag = __webpack_require__(98), objectToString = __webpack_require__(99), nullTag = "[object Null]", undefinedTag = "[object Undefined]", symToStringTag = Symbol ? Symbol.toStringTag : void 0;
+    var Symbol = __webpack_require__(38), getRawTag = __webpack_require__(103), objectToString = __webpack_require__(104), nullTag = "[object Null]", undefinedTag = "[object Undefined]", symToStringTag = Symbol ? Symbol.toStringTag : void 0;
     module.exports = baseGetTag;
 }, function(module, exports, __webpack_require__) {
     function getRawTag(value) {
@@ -31704,94 +32548,125 @@ object-assign
     module.exports = isObjectLike;
 }, function(module, __webpack_exports__, __webpack_require__) {
     "use strict";
-    var propertiesTable = {
+    for (var propertiesTable = {
         all: [ !0, !1, !1 ],
         base: [ !1, !1, !0 ],
         spindle: [ !0, !0, !0 ],
         left_arm: [ !0, !1, !0 ],
         right_arm: [ !0, !1, !0 ],
         head: [ !1, !1, !1 ]
-    }, properties = {}, _iteratorNormalCompletion = !0, _didIteratorError = !1, _iteratorError = void 0;
-    try {
-        for (var _step, _iterator = Object.keys(propertiesTable)[Symbol.iterator](); !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = !0) {
-            var name = _step.value, v = propertiesTable[name];
-            properties[name] = {
-                homeable: v[0],
-                homeable_mandatory: v[1],
-                resetable: v[2]
-            };
-        }
-    } catch (err) {
-        _didIteratorError = !0, _iteratorError = err;
-    } finally {
-        try {
-            !_iteratorNormalCompletion && _iterator.return && _iterator.return();
-        } finally {
-            if (_didIteratorError) throw _iteratorError;
-        }
+    }, properties = {}, _i = 0, _Object$keys = Object.keys(propertiesTable); _i < _Object$keys.length; _i++) {
+        var name = _Object$keys[_i], v = propertiesTable[name];
+        properties[name] = {
+            homeable: v[0],
+            homeable_mandatory: v[1],
+            resetable: v[2]
+        };
     }
     __webpack_exports__.a = properties;
 }, function(module, __webpack_exports__, __webpack_require__) {
     "use strict";
+    function _typeof(obj) {
+        "@babel/helpers - typeof";
+        return (_typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function(obj) {
+            return typeof obj;
+        } : function(obj) {
+            return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
+        })(obj);
+    }
     function _classCallCheck(instance, Constructor) {
         if (!(instance instanceof Constructor)) throw new TypeError("Cannot call a class as a function");
     }
-    function _possibleConstructorReturn(self, call) {
-        if (!self) throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
-        return !call || "object" != typeof call && "function" != typeof call ? self : call;
+    function _defineProperties(target, props) {
+        for (var i = 0; i < props.length; i++) {
+            var descriptor = props[i];
+            descriptor.enumerable = descriptor.enumerable || !1, descriptor.configurable = !0,
+            "value" in descriptor && (descriptor.writable = !0), Object.defineProperty(target, descriptor.key, descriptor);
+        }
+    }
+    function _createClass(Constructor, protoProps, staticProps) {
+        return protoProps && _defineProperties(Constructor.prototype, protoProps), staticProps && _defineProperties(Constructor, staticProps),
+        Constructor;
     }
     function _inherits(subClass, superClass) {
-        if ("function" != typeof superClass && null !== superClass) throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
+        if ("function" != typeof superClass && null !== superClass) throw new TypeError("Super expression must either be null or a function");
         subClass.prototype = Object.create(superClass && superClass.prototype, {
             constructor: {
                 value: subClass,
-                enumerable: !1,
                 writable: !0,
                 configurable: !0
             }
-        }), superClass && (Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass);
+        }), superClass && _setPrototypeOf(subClass, superClass);
     }
-    var __WEBPACK_IMPORTED_MODULE_0_os__ = __webpack_require__(103), __WEBPACK_IMPORTED_MODULE_1_eventemitter2__ = (__webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_os__),
+    function _setPrototypeOf(o, p) {
+        return (_setPrototypeOf = Object.setPrototypeOf || function(o, p) {
+            return o.__proto__ = p, o;
+        })(o, p);
+    }
+    function _createSuper(Derived) {
+        var hasNativeReflectConstruct = _isNativeReflectConstruct();
+        return function() {
+            var result, Super = _getPrototypeOf(Derived);
+            if (hasNativeReflectConstruct) {
+                var NewTarget = _getPrototypeOf(this).constructor;
+                result = Reflect.construct(Super, arguments, NewTarget);
+            } else result = Super.apply(this, arguments);
+            return _possibleConstructorReturn(this, result);
+        };
+    }
+    function _possibleConstructorReturn(self, call) {
+        return !call || "object" !== _typeof(call) && "function" != typeof call ? _assertThisInitialized(self) : call;
+    }
+    function _assertThisInitialized(self) {
+        if (void 0 === self) throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+        return self;
+    }
+    function _isNativeReflectConstruct() {
+        if ("undefined" == typeof Reflect || !Reflect.construct) return !1;
+        if (Reflect.construct.sham) return !1;
+        if ("function" == typeof Proxy) return !0;
+        try {
+            return Date.prototype.toString.call(Reflect.construct(Date, [], function() {})),
+            !0;
+        } catch (e) {
+            return !1;
+        }
+    }
+    function _getPrototypeOf(o) {
+        return (_getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function(o) {
+            return o.__proto__ || Object.getPrototypeOf(o);
+        })(o);
+    }
+    var __WEBPACK_IMPORTED_MODULE_0_os__ = __webpack_require__(108), __WEBPACK_IMPORTED_MODULE_1_eventemitter2__ = (__webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_os__),
     __webpack_require__(5)), __WEBPACK_IMPORTED_MODULE_2_roslib__ = (__webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_eventemitter2__),
     __webpack_require__(1)), __WEBPACK_IMPORTED_MODULE_3__ed_robocup__ = (__webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_roslib__),
-    __webpack_require__(104)), __WEBPACK_IMPORTED_MODULE_4__hardware__ = __webpack_require__(34), __WEBPACK_IMPORTED_MODULE_5__head__ = __webpack_require__(39), __WEBPACK_IMPORTED_MODULE_6__base__ = __webpack_require__(32), __WEBPACK_IMPORTED_MODULE_7__body__ = __webpack_require__(107), __WEBPACK_IMPORTED_MODULE_8__speech__ = __webpack_require__(108), __WEBPACK_IMPORTED_MODULE_9__action_server__ = __webpack_require__(18), _createClass = function() {
-        function defineProperties(target, props) {
-            for (var i = 0; i < props.length; i++) {
-                var descriptor = props[i];
-                descriptor.enumerable = descriptor.enumerable || !1, descriptor.configurable = !0,
-                "value" in descriptor && (descriptor.writable = !0), Object.defineProperty(target, descriptor.key, descriptor);
-            }
-        }
-        return function(Constructor, protoProps, staticProps) {
-            return protoProps && defineProperties(Constructor.prototype, protoProps), staticProps && defineProperties(Constructor, staticProps),
-            Constructor;
-        };
-    }(), host = Object(__WEBPACK_IMPORTED_MODULE_0_os__.hostname)() || "localhost", defaultUrl = "ws://" + host + ":9090", RECONNECT_TIMEOUT = 5e3, Robot = function(_EventEmitter) {
+    __webpack_require__(109)), __WEBPACK_IMPORTED_MODULE_4__hardware__ = __webpack_require__(35), __WEBPACK_IMPORTED_MODULE_5__head__ = __webpack_require__(39), __WEBPACK_IMPORTED_MODULE_6__base__ = __webpack_require__(33), __WEBPACK_IMPORTED_MODULE_7__body__ = __webpack_require__(112), __WEBPACK_IMPORTED_MODULE_8__speech__ = __webpack_require__(113), __WEBPACK_IMPORTED_MODULE_9__action_server__ = __webpack_require__(20), host = Object(__WEBPACK_IMPORTED_MODULE_0_os__.hostname)() || "localhost", defaultUrl = "ws://".concat(host, ":9090"), RECONNECT_TIMEOUT = 5e3, Robot = function(_EventEmitter) {
         function Robot() {
-            var modules = arguments.length > 0 && void 0 !== arguments[0] ? arguments[0] : {};
-            _classCallCheck(this, Robot);
-            var _this = _possibleConstructorReturn(this, (Robot.__proto__ || Object.getPrototypeOf(Robot)).call(this));
-            return _this.ros = new __WEBPACK_IMPORTED_MODULE_2_roslib__.Ros({
+            var _this, modules = arguments.length > 0 && void 0 !== arguments[0] ? arguments[0] : {};
+            return _classCallCheck(this, Robot), _this = _super.call(this), _this.ros = new __WEBPACK_IMPORTED_MODULE_2_roslib__.Ros({
                 encoding: "ascii"
-            }), _this.ros.on("connection", _this.onConnection.bind(_this)), _this.ros.on("close", _this.onClose.bind(_this)),
-            _this.ros.on("error", _this.onError.bind(_this)), _this.on("status", function(status) {
+            }), _this.ros.on("connection", _this.onConnection.bind(_assertThisInitialized(_this))),
+            _this.ros.on("close", _this.onClose.bind(_assertThisInitialized(_this))), _this.ros.on("error", _this.onError.bind(_assertThisInitialized(_this))),
+            _this.on("status", function(status) {
                 switch (status) {
                   case "closed":
                     setTimeout(this.connect.bind(this), RECONNECT_TIMEOUT);
                 }
-            }), console.log("Creating a robot with the following settings:", modules), "ed" in modules && (_this.ed = new __WEBPACK_IMPORTED_MODULE_3__ed_robocup__.a(_this)),
-            "hardware" in modules && (_this.hardware = new __WEBPACK_IMPORTED_MODULE_4__hardware__.a(_this)),
-            "head" in modules && (_this.head = new __WEBPACK_IMPORTED_MODULE_5__head__.a(_this)),
-            "base" in modules && (_this.base = new __WEBPACK_IMPORTED_MODULE_6__base__.a(_this)),
-            "body" in modules && (_this.body = new __WEBPACK_IMPORTED_MODULE_7__body__.a(_this)),
-            "speech" in modules && (_this.speech = new __WEBPACK_IMPORTED_MODULE_8__speech__.a(_this)),
-            "actionServer" in modules && (_this.actionServer = new __WEBPACK_IMPORTED_MODULE_9__action_server__.a(_this)),
+            }), console.log("Creating a robot with the following settings:", modules), "ed" in modules && (_this.ed = new __WEBPACK_IMPORTED_MODULE_3__ed_robocup__.a(_assertThisInitialized(_this))),
+            "hardware" in modules && (_this.hardware = new __WEBPACK_IMPORTED_MODULE_4__hardware__.a(_assertThisInitialized(_this))),
+            "head" in modules && (_this.head = new __WEBPACK_IMPORTED_MODULE_5__head__.a(_assertThisInitialized(_this))),
+            "base" in modules && (_this.base = new __WEBPACK_IMPORTED_MODULE_6__base__.a(_assertThisInitialized(_this))),
+            "body" in modules && (_this.body = new __WEBPACK_IMPORTED_MODULE_7__body__.a(_assertThisInitialized(_this))),
+            "speech" in modules && (_this.speech = new __WEBPACK_IMPORTED_MODULE_8__speech__.a(_assertThisInitialized(_this))),
+            "actionServer" in modules && (_this.actionServer = new __WEBPACK_IMPORTED_MODULE_9__action_server__.a(_assertThisInitialized(_this))),
             _this;
         }
-        return _inherits(Robot, _EventEmitter), _createClass(Robot, [ {
+        _inherits(Robot, _EventEmitter);
+        var _super = _createSuper(Robot);
+        return _createClass(Robot, [ {
             key: "connect",
             value: function(url) {
-                this.url = url || this.url || defaultUrl, console.log("connecting to " + this.url),
+                this.url = url || this.url || defaultUrl, console.log("connecting to ".concat(this.url)),
                 this.ros.connect(this.url), this.status = "connecting";
             }
         }, {
@@ -31852,69 +32727,173 @@ object-assign
     };
 }, function(module, __webpack_exports__, __webpack_require__) {
     "use strict";
+    function _typeof(obj) {
+        "@babel/helpers - typeof";
+        return (_typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function(obj) {
+            return typeof obj;
+        } : function(obj) {
+            return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
+        })(obj);
+    }
+    function _createForOfIteratorHelper(o, allowArrayLike) {
+        var it;
+        if ("undefined" == typeof Symbol || null == o[Symbol.iterator]) {
+            if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && "number" == typeof o.length) {
+                it && (o = it);
+                var i = 0, F = function() {};
+                return {
+                    s: F,
+                    n: function() {
+                        return i >= o.length ? {
+                            done: !0
+                        } : {
+                            done: !1,
+                            value: o[i++]
+                        };
+                    },
+                    e: function(_e) {
+                        throw _e;
+                    },
+                    f: F
+                };
+            }
+            throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
+        }
+        var err, normalCompletion = !0, didErr = !1;
+        return {
+            s: function() {
+                it = o[Symbol.iterator]();
+            },
+            n: function() {
+                var step = it.next();
+                return normalCompletion = step.done, step;
+            },
+            e: function(_e2) {
+                didErr = !0, err = _e2;
+            },
+            f: function() {
+                try {
+                    normalCompletion || null == it.return || it.return();
+                } finally {
+                    if (didErr) throw err;
+                }
+            }
+        };
+    }
+    function _unsupportedIterableToArray(o, minLen) {
+        if (o) {
+            if ("string" == typeof o) return _arrayLikeToArray(o, minLen);
+            var n = Object.prototype.toString.call(o).slice(8, -1);
+            return "Object" === n && o.constructor && (n = o.constructor.name), "Map" === n || "Set" === n ? Array.from(o) : "Arguments" === n || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n) ? _arrayLikeToArray(o, minLen) : void 0;
+        }
+    }
+    function _arrayLikeToArray(arr, len) {
+        (null == len || len > arr.length) && (len = arr.length);
+        for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i];
+        return arr2;
+    }
     function _classCallCheck(instance, Constructor) {
         if (!(instance instanceof Constructor)) throw new TypeError("Cannot call a class as a function");
     }
-    function _possibleConstructorReturn(self, call) {
-        if (!self) throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
-        return !call || "object" != typeof call && "function" != typeof call ? self : call;
+    function _defineProperties(target, props) {
+        for (var i = 0; i < props.length; i++) {
+            var descriptor = props[i];
+            descriptor.enumerable = descriptor.enumerable || !1, descriptor.configurable = !0,
+            "value" in descriptor && (descriptor.writable = !0), Object.defineProperty(target, descriptor.key, descriptor);
+        }
+    }
+    function _createClass(Constructor, protoProps, staticProps) {
+        return protoProps && _defineProperties(Constructor.prototype, protoProps), staticProps && _defineProperties(Constructor, staticProps),
+        Constructor;
     }
     function _inherits(subClass, superClass) {
-        if ("function" != typeof superClass && null !== superClass) throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
+        if ("function" != typeof superClass && null !== superClass) throw new TypeError("Super expression must either be null or a function");
         subClass.prototype = Object.create(superClass && superClass.prototype, {
             constructor: {
                 value: subClass,
-                enumerable: !1,
                 writable: !0,
                 configurable: !0
             }
-        }), superClass && (Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass);
+        }), superClass && _setPrototypeOf(subClass, superClass);
     }
-    var __WEBPACK_IMPORTED_MODULE_0_lodash__ = __webpack_require__(105), __WEBPACK_IMPORTED_MODULE_0_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_lodash__), __WEBPACK_IMPORTED_MODULE_1__ed__ = __webpack_require__(33), _createClass = function() {
-        function defineProperties(target, props) {
-            for (var i = 0; i < props.length; i++) {
-                var descriptor = props[i];
-                descriptor.enumerable = descriptor.enumerable || !1, descriptor.configurable = !0,
-                "value" in descriptor && (descriptor.writable = !0), Object.defineProperty(target, descriptor.key, descriptor);
-            }
-        }
-        return function(Constructor, protoProps, staticProps) {
-            return protoProps && defineProperties(Constructor.prototype, protoProps), staticProps && defineProperties(Constructor, staticProps),
-            Constructor;
+    function _setPrototypeOf(o, p) {
+        return (_setPrototypeOf = Object.setPrototypeOf || function(o, p) {
+            return o.__proto__ = p, o;
+        })(o, p);
+    }
+    function _createSuper(Derived) {
+        var hasNativeReflectConstruct = _isNativeReflectConstruct();
+        return function() {
+            var result, Super = _getPrototypeOf(Derived);
+            if (hasNativeReflectConstruct) {
+                var NewTarget = _getPrototypeOf(this).constructor;
+                result = Reflect.construct(Super, arguments, NewTarget);
+            } else result = Super.apply(this, arguments);
+            return _possibleConstructorReturn(this, result);
         };
-    }(), NAVIGATE_TYPES = {
+    }
+    function _possibleConstructorReturn(self, call) {
+        return !call || "object" !== _typeof(call) && "function" != typeof call ? _assertThisInitialized(self) : call;
+    }
+    function _assertThisInitialized(self) {
+        if (void 0 === self) throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+        return self;
+    }
+    function _isNativeReflectConstruct() {
+        if ("undefined" == typeof Reflect || !Reflect.construct) return !1;
+        if (Reflect.construct.sham) return !1;
+        if ("function" == typeof Proxy) return !0;
+        try {
+            return Date.prototype.toString.call(Reflect.construct(Date, [], function() {})),
+            !0;
+        } catch (e) {
+            return !1;
+        }
+    }
+    function _getPrototypeOf(o) {
+        return (_getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function(o) {
+            return o.__proto__ || Object.getPrototypeOf(o);
+        })(o);
+    }
+    function _defineProperty(obj, key, value) {
+        return key in obj ? Object.defineProperty(obj, key, {
+            value: value,
+            enumerable: !0,
+            configurable: !0,
+            writable: !0
+        }) : obj[key] = value, obj;
+    }
+    __webpack_require__.d(__webpack_exports__, "a", function() {
+        return EdRobocup;
+    });
+    var __WEBPACK_IMPORTED_MODULE_0_lodash__ = __webpack_require__(110), __WEBPACK_IMPORTED_MODULE_0_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_lodash__), __WEBPACK_IMPORTED_MODULE_1__ed__ = __webpack_require__(34), NAVIGATE_TYPES = {
         NAVIGATE_TO_PIXEL: 1,
         TURN_LEFT: 2,
         TURN_RIGHT: 3
     }, EdRobocup = function(_Ed) {
         function EdRobocup(robot) {
-            _classCallCheck(this, EdRobocup);
-            var _this = _possibleConstructorReturn(this, (EdRobocup.__proto__ || Object.getPrototypeOf(EdRobocup)).call(this, robot));
-            _this.updateModels = function() {
+            var _this;
+            _classCallCheck(this, EdRobocup), _this = _super.call(this, robot), _defineProperty(_assertThisInitialized(_this), "updateModels", function() {
                 var request = {};
                 _this.modelsService.callService(request, function(response) {
-                    var _iteratorNormalCompletion = !0, _didIteratorError = !1, _iteratorError = void 0;
+                    var _step, _iterator = _createForOfIteratorHelper(response.models);
                     try {
-                        for (var _step, _iterator = response.models[Symbol.iterator](); !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = !0) {
+                        for (_iterator.s(); !(_step = _iterator.n()).done; ) {
                             var model = _step.value, name = model.name, encoding = model.encoding, data = model.data;
                             _this.models[name] = {
-                                src: "data:image/" + encoding + ";base64," + data
+                                src: "data:image/".concat(encoding, ";base64,").concat(data)
                             };
                         }
                     } catch (err) {
-                        _didIteratorError = !0, _iteratorError = err;
+                        _iterator.e(err);
                     } finally {
-                        try {
-                            !_iteratorNormalCompletion && _iterator.return && _iterator.return();
-                        } finally {
-                            if (_didIteratorError) throw _iteratorError;
-                        }
+                        _iterator.f();
                     }
                     _this.emit("models", _this.models);
-                }, function(msg) {
-                    console.warn("update models failed:", msg), __WEBPACK_IMPORTED_MODULE_0_lodash___default.a.delay(_this.updateModels, 5e3);
+                }, function(message) {
+                    console.warn("update models failed:", message), __WEBPACK_IMPORTED_MODULE_0_lodash___default.a.delay(_this.updateModels, 5e3);
                 });
-            };
+            });
             var ros = robot.ros;
             return _this.models = {}, _this.modelsService = ros.Service({
                 name: "ed/get_model_images",
@@ -31930,7 +32909,9 @@ object-assign
                 serviceType: "std_srvs/Empty"
             }), _this;
         }
-        return _inherits(EdRobocup, _Ed), _createClass(EdRobocup, [ {
+        _inherits(EdRobocup, _Ed);
+        var _super = _createSuper(EdRobocup);
+        return _createClass(EdRobocup, [ {
             key: "fit_model",
             value: function(model_name, px, py) {
                 var request = {
@@ -31978,7 +32959,6 @@ object-assign
             }
         } ]), EdRobocup;
     }(__WEBPACK_IMPORTED_MODULE_1__ed__.a);
-    __webpack_exports__.a = EdRobocup;
 }, function(module, exports, __webpack_require__) {
     (function(global, module) {
         var __WEBPACK_AMD_DEFINE_RESULT__;
@@ -32953,9 +33933,13 @@ object-assign
                     if (length) return n += n < 0 ? length : 0, isIndex(n, length) ? array[n] : undefined;
                 }
                 function baseOrderBy(collection, iteratees, orders) {
+                    iteratees = iteratees.length ? arrayMap(iteratees, function(iteratee) {
+                        return isArray(iteratee) ? function(value) {
+                            return baseGet(value, 1 === iteratee.length ? iteratee[0] : iteratee);
+                        } : iteratee;
+                    }) : [ identity ];
                     var index = -1;
-                    return iteratees = arrayMap(iteratees.length ? iteratees : [ identity ], baseUnary(getIteratee())),
-                    baseSortBy(baseMap(collection, function(value, key, collection) {
+                    return iteratees = arrayMap(iteratees, baseUnary(getIteratee())), baseSortBy(baseMap(collection, function(value, key, collection) {
                         return {
                             criteria: arrayMap(iteratees, function(iteratee) {
                                 return iteratee(value);
@@ -33031,6 +34015,7 @@ object-assign
                     path = castPath(path, object);
                     for (var index = -1, length = path.length, lastIndex = length - 1, nested = object; null != nested && ++index < length; ) {
                         var key = toKey(path[index]), newValue = value;
+                        if ("__proto__" === key || "constructor" === key || "prototype" === key) return object;
                         if (index != lastIndex) {
                             var objValue = nested[key];
                             newValue = customizer ? customizer(objValue, key, nested) : undefined, newValue === undefined && (newValue = isObject(objValue) ? objValue : isIndex(path[index + 1]) ? [] : {});
@@ -33067,8 +34052,10 @@ object-assign
                     return baseSortedIndexBy(array, value, identity, retHighest);
                 }
                 function baseSortedIndexBy(array, value, iteratee, retHighest) {
+                    var low = 0, high = null == array ? 0 : array.length;
+                    if (0 === high) return 0;
                     value = iteratee(value);
-                    for (var low = 0, high = null == array ? 0 : array.length, valIsNaN = value !== value, valIsNull = null === value, valIsSymbol = isSymbol(value), valIsUndefined = value === undefined; low < high; ) {
+                    for (var valIsNaN = value !== value, valIsNull = null === value, valIsSymbol = isSymbol(value), valIsUndefined = value === undefined; low < high; ) {
                         var mid = nativeFloor((low + high) / 2), computed = iteratee(array[mid]), othIsDefined = computed !== undefined, othIsNull = null === computed, othIsReflexive = computed === computed, othIsSymbol = isSymbol(computed);
                         if (valIsNaN) var setLow = retHighest || othIsReflexive; else setLow = valIsUndefined ? othIsReflexive && (retHighest || othIsDefined) : valIsNull ? othIsReflexive && othIsDefined && (retHighest || !othIsNull) : valIsSymbol ? othIsReflexive && othIsDefined && !othIsNull && (retHighest || !othIsSymbol) : !othIsNull && !othIsSymbol && (retHighest ? computed <= value : computed < value);
                         setLow ? low = mid + 1 : high = mid;
@@ -33486,8 +34473,8 @@ object-assign
                 function equalArrays(array, other, bitmask, customizer, equalFunc, stack) {
                     var isPartial = bitmask & COMPARE_PARTIAL_FLAG, arrLength = array.length, othLength = other.length;
                     if (arrLength != othLength && !(isPartial && othLength > arrLength)) return !1;
-                    var stacked = stack.get(array);
-                    if (stacked && stack.get(other)) return stacked == other;
+                    var arrStacked = stack.get(array), othStacked = stack.get(other);
+                    if (arrStacked && othStacked) return arrStacked == other && othStacked == array;
                     var index = -1, result = !0, seen = bitmask & COMPARE_UNORDERED_FLAG ? new SetCache() : undefined;
                     for (stack.set(array, other), stack.set(other, array); ++index < arrLength; ) {
                         var arrValue = array[index], othValue = other[index];
@@ -33556,8 +34543,8 @@ object-assign
                         var key = objProps[index];
                         if (!(isPartial ? key in other : hasOwnProperty.call(other, key))) return !1;
                     }
-                    var stacked = stack.get(object);
-                    if (stacked && stack.get(other)) return stacked == other;
+                    var objStacked = stack.get(object), othStacked = stack.get(other);
+                    if (objStacked && othStacked) return objStacked == other && othStacked == object;
                     var result = !0;
                     stack.set(object, other), stack.set(other, object);
                     for (var skipCtor = isPartial; ++index < objLength; ) {
@@ -34680,7 +35667,7 @@ object-assign
                     var settings = lodash.templateSettings;
                     guard && isIterateeCall(string, options, guard) && (options = undefined), string = toString(string),
                     options = assignInWith({}, options, settings, customDefaultsAssignIn);
-                    var isEscaping, isEvaluating, imports = assignInWith({}, options.imports, settings.imports, customDefaultsAssignIn), importsKeys = keys(imports), importsValues = baseValues(imports, importsKeys), index = 0, interpolate = options.interpolate || reNoMatch, source = "__p += '", reDelimiters = RegExp((options.escape || reNoMatch).source + "|" + interpolate.source + "|" + (interpolate === reInterpolate ? reEsTemplate : reNoMatch).source + "|" + (options.evaluate || reNoMatch).source + "|$", "g"), sourceURL = "//# sourceURL=" + (hasOwnProperty.call(options, "sourceURL") ? (options.sourceURL + "").replace(/[\r\n]/g, " ") : "lodash.templateSources[" + ++templateCounter + "]") + "\n";
+                    var isEscaping, isEvaluating, imports = assignInWith({}, options.imports, settings.imports, customDefaultsAssignIn), importsKeys = keys(imports), importsValues = baseValues(imports, importsKeys), index = 0, interpolate = options.interpolate || reNoMatch, source = "__p += '", reDelimiters = RegExp((options.escape || reNoMatch).source + "|" + interpolate.source + "|" + (interpolate === reInterpolate ? reEsTemplate : reNoMatch).source + "|" + (options.evaluate || reNoMatch).source + "|$", "g"), sourceURL = "//# sourceURL=" + (hasOwnProperty.call(options, "sourceURL") ? (options.sourceURL + "").replace(/\s/g, " ") : "lodash.templateSources[" + ++templateCounter + "]") + "\n";
                     string.replace(reDelimiters, function(match, escapeValue, interpolateValue, esTemplateValue, evaluateValue, offset) {
                         return interpolateValue || (interpolateValue = esTemplateValue), source += string.slice(index, offset).replace(reUnescapedString, escapeStringChar),
                         escapeValue && (isEscaping = !0, source += "' +\n__e(" + escapeValue + ") +\n'"),
@@ -35272,7 +36259,7 @@ object-assign
                     }), source;
                 }(), {
                     chain: !1
-                }), lodash.VERSION = "4.17.15", arrayEach([ "bind", "bindKey", "curry", "curryRight", "partial", "partialRight" ], function(methodName) {
+                }), lodash.VERSION = "4.17.19", arrayEach([ "bind", "bindKey", "curry", "curryRight", "partial", "partialRight" ], function(methodName) {
                     lodash[methodName].placeholder = lodash;
                 }), arrayEach([ "drop", "take" ], function(methodName, index) {
                     LazyWrapper.prototype[methodName] = function(n) {
@@ -35382,7 +36369,7 @@ object-assign
                 return _;
             }.call(exports, __webpack_require__, exports, module)) !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__);
         }).call(this);
-    }).call(exports, __webpack_require__(37), __webpack_require__(106)(module));
+    }).call(exports, __webpack_require__(11), __webpack_require__(111)(module));
 }, function(module, exports) {
     module.exports = function(module) {
         return module.webpackPolyfill || (module.deprecate = function() {}, module.paths = [],
@@ -35403,20 +36390,19 @@ object-assign
     function _classCallCheck(instance, Constructor) {
         if (!(instance instanceof Constructor)) throw new TypeError("Cannot call a class as a function");
     }
-    var __WEBPACK_IMPORTED_MODULE_0_roslib__ = __webpack_require__(1), _createClass = (__webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_roslib__),
-    function() {
-        function defineProperties(target, props) {
-            for (var i = 0; i < props.length; i++) {
-                var descriptor = props[i];
-                descriptor.enumerable = descriptor.enumerable || !1, descriptor.configurable = !0,
-                "value" in descriptor && (descriptor.writable = !0), Object.defineProperty(target, descriptor.key, descriptor);
-            }
+    function _defineProperties(target, props) {
+        for (var i = 0; i < props.length; i++) {
+            var descriptor = props[i];
+            descriptor.enumerable = descriptor.enumerable || !1, descriptor.configurable = !0,
+            "value" in descriptor && (descriptor.writable = !0), Object.defineProperty(target, descriptor.key, descriptor);
         }
-        return function(Constructor, protoProps, staticProps) {
-            return protoProps && defineProperties(Constructor.prototype, protoProps), staticProps && defineProperties(Constructor, staticProps),
-            Constructor;
-        };
-    }()), Body = function() {
+    }
+    function _createClass(Constructor, protoProps, staticProps) {
+        return protoProps && _defineProperties(Constructor.prototype, protoProps), staticProps && _defineProperties(Constructor, staticProps),
+        Constructor;
+    }
+    var __WEBPACK_IMPORTED_MODULE_0_roslib__ = __webpack_require__(1), Body = (__webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_roslib__),
+    function() {
         function Body(robot) {
             _classCallCheck(this, Body);
             var ros = robot.ros;
@@ -35426,17 +36412,18 @@ object-assign
                 actionName: "control_msgs/FollowJointTrajectoryAction",
                 timeout: 10
             });
-            var param = new __WEBPACK_IMPORTED_MODULE_0_roslib__.Param({
+            var parameter = new __WEBPACK_IMPORTED_MODULE_0_roslib__.Param({
                 ros: ros,
                 name: "skills"
             }), that = this;
-            param.get(function(param) {
+            parameter.get(function(parameter_) {
                 that.jointNames = {}, that.jointNames.arm = [], that.jointNames.leftArm = [], that.jointNames.rightArm = [],
-                param.arm.joint_names.forEach(function(e) {
-                    that.jointNames.arm.push("" + e), that.jointNames.leftArm.push(e + "_left"), that.jointNames.rightArm.push(e + "_right");
-                }), that.jointNames.torso = param.torso.joint_names, that.defaultConfigurations = {},
-                that.defaultConfigurations.torso = param.torso.default_configurations, that.defaultConfigurations.arm = param.arm.default_configurations,
-                that.defaultConfigurations.leftArm = param.arm.default_configurations, that.defaultConfigurations.rightArm = param.arm.default_configurations;
+                parameter_.arm.joint_names.forEach(function(jointName) {
+                    that.jointNames.arm.push("".concat(jointName)), that.jointNames.leftArm.push("".concat(jointName, "_left")),
+                    that.jointNames.rightArm.push("".concat(jointName, "_right"));
+                }), that.jointNames.torso = parameter_.torso.joint_names, that.defaultConfigurations = {},
+                that.defaultConfigurations.torso = parameter_.torso.default_configurations, that.defaultConfigurations.arm = parameter_.arm.default_configurations,
+                that.defaultConfigurations.leftArm = parameter_.arm.default_configurations, that.defaultConfigurations.rightArm = parameter_.arm.default_configurations;
             }), this.leftGripperAction = new __WEBPACK_IMPORTED_MODULE_0_roslib__.ActionClient({
                 ros: ros,
                 serverName: "left_arm/gripper/action",
@@ -35471,12 +36458,12 @@ object-assign
             key: "sendGripperGoal",
             value: function(cmd) {
                 console.log("Robot body: gripper goal:", cmd);
-                var actionClient = void 0;
+                var actionClient;
                 if ("left" === cmd.side) actionClient = this.leftGripperAction; else {
                     if ("right" !== cmd.side) return void console.error("Gripper command side must be either left or right. Right now, it is", cmd.side);
                     actionClient = this.rightGripperAction;
                 }
-                var direction = void 0;
+                var direction;
                 if ("open" === cmd.direction) direction = -1; else {
                     if ("close" !== cmd.direction) return void console.error("Gripper command direction must be either open or close. Right now, it is", cmd.direction);
                     direction = 1;
@@ -35492,27 +36479,26 @@ object-assign
                 }).send(0);
             }
         } ]), Body;
-    }();
+    }());
     __webpack_exports__.a = Body;
 }, function(module, __webpack_exports__, __webpack_require__) {
     "use strict";
     function _classCallCheck(instance, Constructor) {
         if (!(instance instanceof Constructor)) throw new TypeError("Cannot call a class as a function");
     }
-    var __WEBPACK_IMPORTED_MODULE_0_roslib__ = __webpack_require__(1), _createClass = (__webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_roslib__),
-    function() {
-        function defineProperties(target, props) {
-            for (var i = 0; i < props.length; i++) {
-                var descriptor = props[i];
-                descriptor.enumerable = descriptor.enumerable || !1, descriptor.configurable = !0,
-                "value" in descriptor && (descriptor.writable = !0), Object.defineProperty(target, descriptor.key, descriptor);
-            }
+    function _defineProperties(target, props) {
+        for (var i = 0; i < props.length; i++) {
+            var descriptor = props[i];
+            descriptor.enumerable = descriptor.enumerable || !1, descriptor.configurable = !0,
+            "value" in descriptor && (descriptor.writable = !0), Object.defineProperty(target, descriptor.key, descriptor);
         }
-        return function(Constructor, protoProps, staticProps) {
-            return protoProps && defineProperties(Constructor.prototype, protoProps), staticProps && defineProperties(Constructor, staticProps),
-            Constructor;
-        };
-    }()), Speech = function() {
+    }
+    function _createClass(Constructor, protoProps, staticProps) {
+        return protoProps && _defineProperties(Constructor.prototype, protoProps), staticProps && _defineProperties(Constructor, staticProps),
+        Constructor;
+    }
+    var __WEBPACK_IMPORTED_MODULE_0_roslib__ = __webpack_require__(1), Speech = (__webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_roslib__),
+    function() {
         function Speech(robot) {
             _classCallCheck(this, Speech);
             var ros = robot.ros;
@@ -35525,13 +36511,13 @@ object-assign
             key: "speak",
             value: function(cmd) {
                 console.log("Speaking:", cmd);
-                var msg = new __WEBPACK_IMPORTED_MODULE_0_roslib__.Message({
+                var message = new __WEBPACK_IMPORTED_MODULE_0_roslib__.Message({
                     data: cmd.sentence
                 });
-                this.speechTopic.publish(msg);
+                this.speechTopic.publish(message);
             }
         } ]), Speech;
-    }();
+    }());
     __webpack_exports__.a = Speech;
 }, function(module, exports) {
     module.exports = '<script id="vs" type="x-shader/x-vertex">\n\n  uniform sampler2D map;\n\n  uniform float width;\n  uniform float height;\n  uniform float nearClipping, farClipping;\n\n  varying vec2 vUv;\n\n  const float XtoZ = 1.11146; // tan( 1.0144686 / 2.0 ) * 2.0;\n  const float YtoZ = 0.83359; // tan( 0.7898090 / 2.0 ) * 2.0;\n\n  void main() {\n\n    vUv = vec2( position.x / width, 1.0 - ( position.y / height ) );\n\n    vec4 color = texture2D( map, vUv );\n    float depth = ( color.r + color.g + color.b ) / 3.0;\n\n    // Projection code by @kcmic\n\n    float z = ( 1.0 - depth ) * (farClipping - nearClipping) + nearClipping;\n\n    vec4 pos = vec4(\n      ( position.x / width - 0.5 ) * z * XtoZ,\n      ( position.y / height - 0.5 ) * z * YtoZ,\n      - z + 1000.0,\n      1.0);\n\n    gl_PointSize = 2.0;\n    gl_Position = projectionMatrix * modelViewMatrix * pos;\n\n  }\n\n<\/script>\n\n<script id="fs" type="x-shader/x-fragment">\n\n  uniform sampler2D map;\n\n  varying vec2 vUv;\n\n  void main() {\n\n    vec4 color = texture2D( map, vUv );\n    gl_FragColor = vec4( color.r, color.g, color.b, smoothstep( 8000.0, -8000.0, gl_FragCoord.z / gl_FragCoord.w ) );\n\n  }\n\n<\/script>\n\n<ng-webgl on-entity-selection="entitySelection({entity: entity, event: event})" />\n';
