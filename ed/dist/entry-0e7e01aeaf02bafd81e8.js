@@ -20893,8 +20893,8 @@ object-assign
 }, function(module, exports, __webpack_require__) {
     (function(__webpack_provided_window_dot_jQuery) {
         /**
- * @license AngularJS v1.7.8
- * (c) 2010-2018 Google, Inc. http://angularjs.org
+ * @license AngularJS v1.8.2
+ * (c) 2010-2020 Google LLC. http://angularjs.org
  * License: MIT
  */
         !function(window) {
@@ -20909,7 +20909,7 @@ object-assign
             }
             function minErr(module, ErrorConstructor) {
                 ErrorConstructor = ErrorConstructor || Error;
-                var url = "https://errors.angularjs.org/1.7.8/", regex = url.replace(".", "\\.") + "[\\s\\S]*", errRegExp = new RegExp(regex, "g");
+                var url = "https://errors.angularjs.org/1.8.2/", regex = url.replace(".", "\\.") + "[\\s\\S]*", errRegExp = new RegExp(regex, "g");
                 return function() {
                     var paramPrefix, i, code = arguments[0], template = arguments[1], message = "[" + (module ? module + ":" : "") + code + "] ", templateArgs = sliceArgs(arguments, 2).map(function(arg) {
                         return toDebugString(arg, minErrConfig.objectMaxDepth);
@@ -20956,7 +20956,7 @@ object-assign
                     var obj = objs[i];
                     if (isObject(obj) || isFunction(obj)) for (var keys = Object.keys(obj), j = 0, jj = keys.length; j < jj; j++) {
                         var key = keys[j], src = obj[key];
-                        deep && isObject(src) ? isDate(src) ? dst[key] = new Date(src.valueOf()) : isRegExp(src) ? dst[key] = new RegExp(src) : src.nodeName ? dst[key] = src.cloneNode(!0) : isElement(src) ? dst[key] = src.clone() : (isObject(dst[key]) || (dst[key] = isArray(src) ? [] : {}),
+                        deep && isObject(src) ? isDate(src) ? dst[key] = new Date(src.valueOf()) : isRegExp(src) ? dst[key] = new RegExp(src) : src.nodeName ? dst[key] = src.cloneNode(!0) : isElement(src) ? dst[key] = src.clone() : "__proto__" !== key && (isObject(dst[key]) || (dst[key] = isArray(src) ? [] : {}),
                         baseExtend(dst[key], [ src ], !0)) : dst[key] = src;
                     }
                 }
@@ -21115,7 +21115,7 @@ object-assign
                         return new source.constructor(source.valueOf());
 
                       case "[object RegExp]":
-                        var re = new RegExp(source.source, source.toString().match(/[^\/]*$/)[0]);
+                        var re = new RegExp(source.source, source.toString().match(/[^/]*$/)[0]);
                         return re.lastIndex = source.lastIndex, re;
 
                       case "[object Blob]":
@@ -21306,6 +21306,9 @@ object-assign
                     return (pos ? separator : "") + letter.toLowerCase();
                 });
             }
+            function UNSAFE_restoreLegacyJqLiteXHTMLReplacement() {
+                JQLite.legacyXHTMLReplacement = !0;
+            }
             function assertArg(arg, name, reason) {
                 if (!arg) throw ngMinErr("areq", "Argument '{0}' is {1}", name || "?", reason || "required");
                 return arg;
@@ -21453,11 +21456,16 @@ object-assign
                 return !1;
             }
             function jqLiteBuildFragment(html, context) {
-                var tmp, tag, wrap, i, fragment = context.createDocumentFragment(), nodes = [];
+                var tmp, tag, wrap, finalHtml, i, fragment = context.createDocumentFragment(), nodes = [];
                 if (jqLiteIsTextNode(html)) nodes.push(context.createTextNode(html)); else {
-                    for (tmp = fragment.appendChild(context.createElement("div")), tag = (TAG_NAME_REGEXP.exec(html) || [ "", "" ])[1].toLowerCase(),
-                    wrap = wrapMap[tag] || wrapMap._default, tmp.innerHTML = wrap[1] + html.replace(XHTML_TAG_REGEXP, "<$1></$2>") + wrap[2],
-                    i = wrap[0]; i--; ) tmp = tmp.lastChild;
+                    if (tmp = fragment.appendChild(context.createElement("div")), tag = (TAG_NAME_REGEXP.exec(html) || [ "", "" ])[1].toLowerCase(),
+                    finalHtml = JQLite.legacyXHTMLReplacement ? html.replace(XHTML_TAG_REGEXP, "<$1></$2>") : html,
+                    msie < 10) for (wrap = wrapMapIE9[tag] || wrapMapIE9._default, tmp.innerHTML = wrap[1] + finalHtml + wrap[2],
+                    i = wrap[0]; i--; ) tmp = tmp.firstChild; else {
+                        for (wrap = wrapMap[tag] || [], i = wrap.length; --i > -1; ) tmp.appendChild(window.document.createElement(wrap[i])),
+                        tmp = tmp.firstChild;
+                        tmp.innerHTML = finalHtml;
+                    }
                     nodes = concat(nodes, tmp.childNodes), tmp = fragment.firstChild, tmp.textContent = "";
                 }
                 return fragment.textContent = "", fragment.innerHTML = "", forEach(nodes, function(node) {
@@ -21952,7 +21960,7 @@ object-assign
                     jqLite(window).off("hashchange popstate", cacheStateAndFireUrlChange);
                 }, self.$$checkUrlChange = fireStateOrUrlChange, self.baseHref = function() {
                     var href = baseElement.attr("href");
-                    return href ? href.replace(/^(https?:)?\/\/[^\/]*/, "") : "";
+                    return href ? href.replace(/^(https?:)?\/\/[^/]*/, "") : "";
                 }, self.defer = function(fn, delay, taskType) {
                     var timeoutId;
                     return delay = delay || 0, taskType = taskType || taskTracker.DEFAULT_TASK_TYPE,
@@ -22140,13 +22148,27 @@ object-assign
                     return forEach(options, function(val, key) {
                         "$" === key.charAt(0) && (factory[key] = val, isFunction(controller) && (controller[key] = val));
                     }), factory.$inject = [ "$injector" ], this.directive(name, factory);
-                }, this.aHrefSanitizationWhitelist = function(regexp) {
-                    return isDefined(regexp) ? ($$sanitizeUriProvider.aHrefSanitizationWhitelist(regexp),
-                    this) : $$sanitizeUriProvider.aHrefSanitizationWhitelist();
-                }, this.imgSrcSanitizationWhitelist = function(regexp) {
-                    return isDefined(regexp) ? ($$sanitizeUriProvider.imgSrcSanitizationWhitelist(regexp),
-                    this) : $$sanitizeUriProvider.imgSrcSanitizationWhitelist();
-                };
+                }, this.aHrefSanitizationTrustedUrlList = function(regexp) {
+                    return isDefined(regexp) ? ($$sanitizeUriProvider.aHrefSanitizationTrustedUrlList(regexp),
+                    this) : $$sanitizeUriProvider.aHrefSanitizationTrustedUrlList();
+                }, Object.defineProperty(this, "aHrefSanitizationWhitelist", {
+                    get: function() {
+                        return this.aHrefSanitizationTrustedUrlList;
+                    },
+                    set: function(value) {
+                        this.aHrefSanitizationTrustedUrlList = value;
+                    }
+                }), this.imgSrcSanitizationTrustedUrlList = function(regexp) {
+                    return isDefined(regexp) ? ($$sanitizeUriProvider.imgSrcSanitizationTrustedUrlList(regexp),
+                    this) : $$sanitizeUriProvider.imgSrcSanitizationTrustedUrlList();
+                }, Object.defineProperty(this, "imgSrcSanitizationWhitelist", {
+                    get: function() {
+                        return this.imgSrcSanitizationTrustedUrlList;
+                    },
+                    set: function(value) {
+                        this.imgSrcSanitizationTrustedUrlList = value;
+                    }
+                });
                 var debugInfoEnabled = !0;
                 this.debugInfoEnabled = function(enabled) {
                     return isDefined(enabled) ? (debugInfoEnabled = enabled, this) : debugInfoEnabled;
@@ -23080,8 +23102,15 @@ object-assign
                 this.useApplyAsync = function(value) {
                     return isDefined(value) ? (useApplyAsync = !!value, this) : useApplyAsync;
                 };
-                var interceptorFactories = this.interceptors = [], xsrfWhitelistedOrigins = this.xsrfWhitelistedOrigins = [];
-                this.$get = [ "$browser", "$httpBackend", "$$cookieReader", "$cacheFactory", "$rootScope", "$q", "$injector", "$sce", function($browser, $httpBackend, $$cookieReader, $cacheFactory, $rootScope, $q, $injector, $sce) {
+                var interceptorFactories = this.interceptors = [], xsrfTrustedOrigins = this.xsrfTrustedOrigins = [];
+                Object.defineProperty(this, "xsrfWhitelistedOrigins", {
+                    get: function() {
+                        return this.xsrfTrustedOrigins;
+                    },
+                    set: function(origins) {
+                        this.xsrfTrustedOrigins = origins;
+                    }
+                }), this.$get = [ "$browser", "$httpBackend", "$$cookieReader", "$cacheFactory", "$rootScope", "$q", "$injector", "$sce", function($browser, $httpBackend, $$cookieReader, $cacheFactory, $rootScope, $q, $injector, $sce) {
                     function $http(requestConfig) {
                         function chainInterceptors(promise, interceptors) {
                             for (var i = 0, ii = interceptors.length; i < ii; ) {
@@ -23208,7 +23237,7 @@ object-assign
                     forEach(interceptorFactories, function(interceptorFactory) {
                         reversedInterceptors.unshift(isString(interceptorFactory) ? $injector.get(interceptorFactory) : $injector.invoke(interceptorFactory));
                     });
-                    var urlIsAllowedOrigin = urlIsAllowedOriginFactory(xsrfWhitelistedOrigins);
+                    var urlIsAllowedOrigin = urlIsAllowedOriginFactory(xsrfTrustedOrigins);
                     return $http.pendingRequests = [], function(names) {
                         forEach(arguments, function(name) {
                             $http[name] = function(url, config) {
@@ -24423,14 +24452,14 @@ object-assign
                 } ];
             }
             function $$SanitizeUriProvider() {
-                var aHrefSanitizationWhitelist = /^\s*(https?|s?ftp|mailto|tel|file):/, imgSrcSanitizationWhitelist = /^\s*((https?|ftp|file|blob):|data:image\/)/;
-                this.aHrefSanitizationWhitelist = function(regexp) {
-                    return isDefined(regexp) ? (aHrefSanitizationWhitelist = regexp, this) : aHrefSanitizationWhitelist;
-                }, this.imgSrcSanitizationWhitelist = function(regexp) {
-                    return isDefined(regexp) ? (imgSrcSanitizationWhitelist = regexp, this) : imgSrcSanitizationWhitelist;
+                var aHrefSanitizationTrustedUrlList = /^\s*(https?|s?ftp|mailto|tel|file):/, imgSrcSanitizationTrustedUrlList = /^\s*((https?|ftp|file|blob):|data:image\/)/;
+                this.aHrefSanitizationTrustedUrlList = function(regexp) {
+                    return isDefined(regexp) ? (aHrefSanitizationTrustedUrlList = regexp, this) : aHrefSanitizationTrustedUrlList;
+                }, this.imgSrcSanitizationTrustedUrlList = function(regexp) {
+                    return isDefined(regexp) ? (imgSrcSanitizationTrustedUrlList = regexp, this) : imgSrcSanitizationTrustedUrlList;
                 }, this.$get = function() {
                     return function(uri, isMediaUrl) {
-                        var regex = isMediaUrl ? imgSrcSanitizationWhitelist : aHrefSanitizationWhitelist, normalizedVal = urlResolve(uri && uri.trim()).href;
+                        var regex = isMediaUrl ? imgSrcSanitizationTrustedUrlList : aHrefSanitizationTrustedUrlList, normalizedVal = urlResolve(uri && uri.trim()).href;
                         return "" === normalizedVal || normalizedVal.match(regex) ? uri : "unsafe:" + normalizedVal;
                     };
                 };
@@ -24456,22 +24485,36 @@ object-assign
             }
             function $SceDelegateProvider() {
                 this.SCE_CONTEXTS = SCE_CONTEXTS;
-                var resourceUrlWhitelist = [ "self" ], resourceUrlBlacklist = [];
-                this.resourceUrlWhitelist = function(value) {
-                    return arguments.length && (resourceUrlWhitelist = adjustMatchers(value)), resourceUrlWhitelist;
-                }, this.resourceUrlBlacklist = function(value) {
-                    return arguments.length && (resourceUrlBlacklist = adjustMatchers(value)), resourceUrlBlacklist;
-                }, this.$get = [ "$injector", "$$sanitizeUri", function($injector, $$sanitizeUri) {
+                var trustedResourceUrlList = [ "self" ], bannedResourceUrlList = [];
+                this.trustedResourceUrlList = function(value) {
+                    return arguments.length && (trustedResourceUrlList = adjustMatchers(value)), trustedResourceUrlList;
+                }, Object.defineProperty(this, "resourceUrlWhitelist", {
+                    get: function() {
+                        return this.trustedResourceUrlList;
+                    },
+                    set: function(value) {
+                        this.trustedResourceUrlList = value;
+                    }
+                }), this.bannedResourceUrlList = function(value) {
+                    return arguments.length && (bannedResourceUrlList = adjustMatchers(value)), bannedResourceUrlList;
+                }, Object.defineProperty(this, "resourceUrlBlacklist", {
+                    get: function() {
+                        return this.bannedResourceUrlList;
+                    },
+                    set: function(value) {
+                        this.bannedResourceUrlList = value;
+                    }
+                }), this.$get = [ "$injector", "$$sanitizeUri", function($injector, $$sanitizeUri) {
                     function matchUrl(matcher, parsedUrl) {
                         return "self" === matcher ? urlIsSameOrigin(parsedUrl) || urlIsSameOriginAsBaseUrl(parsedUrl) : !!matcher.exec(parsedUrl.href);
                     }
                     function isResourceUrlAllowedByPolicy(url) {
                         var i, n, parsedUrl = urlResolve(url.toString()), allowed = !1;
-                        for (i = 0, n = resourceUrlWhitelist.length; i < n; i++) if (matchUrl(resourceUrlWhitelist[i], parsedUrl)) {
+                        for (i = 0, n = trustedResourceUrlList.length; i < n; i++) if (matchUrl(trustedResourceUrlList[i], parsedUrl)) {
                             allowed = !0;
                             break;
                         }
-                        if (allowed) for (i = 0, n = resourceUrlBlacklist.length; i < n; i++) if (matchUrl(resourceUrlBlacklist[i], parsedUrl)) {
+                        if (allowed) for (i = 0, n = bannedResourceUrlList.length; i < n; i++) if (matchUrl(bannedResourceUrlList[i], parsedUrl)) {
                             allowed = !1;
                             break;
                         }
@@ -24732,8 +24775,8 @@ object-assign
             function urlIsSameOriginAsBaseUrl(requestUrl) {
                 return urlsAreSameOrigin(requestUrl, getBaseUrl());
             }
-            function urlIsAllowedOriginFactory(whitelistedOriginUrls) {
-                var parsedAllowedOriginUrls = [ originUrl ].concat(whitelistedOriginUrls.map(urlResolve));
+            function urlIsAllowedOriginFactory(trustedOriginUrls) {
+                var parsedAllowedOriginUrls = [ originUrl ].concat(trustedOriginUrls.map(urlResolve));
                 return function(requestUrl) {
                     var parsedUrl = urlResolve(requestUrl);
                     return parsedAllowedOriginUrls.some(urlsAreSameOrigin.bind(null, parsedUrl));
@@ -25673,11 +25716,11 @@ object-assign
                     }
                 });
             }(window.document), SNAKE_CASE_REGEXP = /[A-Z]/g, bindJQueryFired = !1, NODE_TYPE_ELEMENT = 1, NODE_TYPE_TEXT = 3, NODE_TYPE_COMMENT = 8, NODE_TYPE_DOCUMENT = 9, NODE_TYPE_DOCUMENT_FRAGMENT = 11, version = {
-                full: "1.7.8",
+                full: "1.8.2",
                 major: 1,
-                minor: 7,
-                dot: 8,
-                codeName: "enthusiastic-oblation"
+                minor: 8,
+                dot: 2,
+                codeName: "meteoric-mining"
             };
             JQLite.expando = "ng339";
             var jqCache = JQLite.cache = {}, jqId = 1;
@@ -25688,15 +25731,22 @@ object-assign
                 mouseleave: "mouseout",
                 mouseenter: "mouseover"
             }, jqLiteMinErr = minErr("jqLite"), SINGLE_TAG_REGEXP = /^<([\w-]+)\s*\/?>(?:<\/\1>|)$/, HTML_REGEXP = /<|&#?\w+;/, TAG_NAME_REGEXP = /<([\w:-]+)/, XHTML_TAG_REGEXP = /<(?!area|br|col|embed|hr|img|input|link|meta|param)(([\w:-]+)[^>]*)\/>/gi, wrapMap = {
+                thead: [ "table" ],
+                col: [ "colgroup", "table" ],
+                tr: [ "tbody", "table" ],
+                td: [ "tr", "tbody", "table" ]
+            };
+            wrapMap.tbody = wrapMap.tfoot = wrapMap.colgroup = wrapMap.caption = wrapMap.thead,
+            wrapMap.th = wrapMap.td;
+            var wrapMapIE9 = {
                 option: [ 1, '<select multiple="multiple">', "</select>" ],
-                thead: [ 1, "<table>", "</table>" ],
-                col: [ 2, "<table><colgroup>", "</colgroup></table>" ],
-                tr: [ 2, "<table><tbody>", "</tbody></table>" ],
-                td: [ 3, "<table><tbody><tr>", "</tr></tbody></table>" ],
                 _default: [ 0, "", "" ]
             };
-            wrapMap.optgroup = wrapMap.option, wrapMap.tbody = wrapMap.tfoot = wrapMap.colgroup = wrapMap.caption = wrapMap.thead,
-            wrapMap.th = wrapMap.td;
+            for (var key in wrapMap) {
+                var wrapMapValueClosing = wrapMap[key], wrapMapValue = wrapMapValueClosing.slice().reverse();
+                wrapMapIE9[key] = [ wrapMapValue.length, "<" + wrapMapValue.join("><") + ">", "</" + wrapMapValueClosing.join("></") + ">" ];
+            }
+            wrapMapIE9.optgroup = wrapMapIE9.option;
             var jqLiteContains = window.Node.prototype.contains || function(arg) {
                 return !!(16 & this.compareDocumentPosition(arg));
             }, JQLitePrototype = JQLite.prototype = {
@@ -26258,7 +26308,7 @@ object-assign
                 http: 80,
                 https: 443,
                 ftp: 21
-            }, $locationMinErr = minErr("$location"), DOUBLE_SLASH_REGEX = /^\s*[\\\/]{2,}/, locationPrototype = {
+            }, $locationMinErr = minErr("$location"), DOUBLE_SLASH_REGEX = /^\s*[\\/]{2,}/, locationPrototype = {
                 $$absUrl: "",
                 $$html5: !1,
                 $$replace: !1,
@@ -27555,7 +27605,7 @@ object-assign
                         }
                     };
                 } ];
-            }, formDirective = formDirectiveFactory(), ngFormDirective = formDirectiveFactory(!0), ISO_DATE_REGEXP = /^\d{4,}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d+(?:[+-][0-2]\d:[0-5]\d|Z)$/, URL_REGEXP = /^[a-z][a-z\d.+-]*:\/*(?:[^:@]+(?::[^@]+)?@)?(?:[^\s:\/?#]+|\[[a-f\d:]+])(?::\d+)?(?:\/[^?#]*)?(?:\?[^#]*)?(?:#.*)?$/i, EMAIL_REGEXP = /^(?=.{1,254}$)(?=.{1,64}@)[-!#$%&'*+\/0-9=?A-Z^_`a-z{|}~]+(\.[-!#$%&'*+\/0-9=?A-Z^_`a-z{|}~]+)*@[A-Za-z0-9]([A-Za-z0-9-]{0,61}[A-Za-z0-9])?(\.[A-Za-z0-9]([A-Za-z0-9-]{0,61}[A-Za-z0-9])?)*$/, NUMBER_REGEXP = /^\s*(-|\+)?(\d+|(\d*(\.\d*)))([eE][+-]?\d+)?\s*$/, DATE_REGEXP = /^(\d{4,})-(\d{2})-(\d{2})$/, DATETIMELOCAL_REGEXP = /^(\d{4,})-(\d\d)-(\d\d)T(\d\d):(\d\d)(?::(\d\d)(\.\d{1,3})?)?$/, WEEK_REGEXP = /^(\d{4,})-W(\d\d)$/, MONTH_REGEXP = /^(\d{4,})-(\d\d)$/, TIME_REGEXP = /^(\d\d):(\d\d)(?::(\d\d)(\.\d{1,3})?)?$/, PARTIAL_VALIDATION_EVENTS = "keydown wheel mousedown", PARTIAL_VALIDATION_TYPES = createMap();
+            }, formDirective = formDirectiveFactory(), ngFormDirective = formDirectiveFactory(!0), ISO_DATE_REGEXP = /^\d{4,}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d+(?:[+-][0-2]\d:[0-5]\d|Z)$/, URL_REGEXP = /^[a-z][a-z\d.+-]*:\/*(?:[^:@]+(?::[^@]+)?@)?(?:[^\s:/?#]+|\[[a-f\d:]+])(?::\d+)?(?:\/[^?#]*)?(?:\?[^#]*)?(?:#.*)?$/i, EMAIL_REGEXP = /^(?=.{1,254}$)(?=.{1,64}@)[-!#$%&'*+/0-9=?A-Z^_`a-z{|}~]+(\.[-!#$%&'*+/0-9=?A-Z^_`a-z{|}~]+)*@[A-Za-z0-9]([A-Za-z0-9-]{0,61}[A-Za-z0-9])?(\.[A-Za-z0-9]([A-Za-z0-9-]{0,61}[A-Za-z0-9])?)*$/, NUMBER_REGEXP = /^\s*(-|\+)?(\d+|(\d*(\.\d*)))([eE][+-]?\d+)?\s*$/, DATE_REGEXP = /^(\d{4,})-(\d{2})-(\d{2})$/, DATETIMELOCAL_REGEXP = /^(\d{4,})-(\d\d)-(\d\d)T(\d\d):(\d\d)(?::(\d\d)(\.\d{1,3})?)?$/, WEEK_REGEXP = /^(\d{4,})-W(\d\d)$/, MONTH_REGEXP = /^(\d{4,})-(\d\d)$/, TIME_REGEXP = /^(\d\d):(\d\d)(?::(\d\d)(\.\d{1,3})?)?$/, PARTIAL_VALIDATION_EVENTS = "keydown wheel mousedown", PARTIAL_VALIDATION_TYPES = createMap();
             forEach("date,datetime-local,month,time,week".split(","), function(type) {
                 PARTIAL_VALIDATION_TYPES[type] = !0;
             });
@@ -28367,9 +28417,9 @@ object-assign
                 };
             } ], ngStyleDirective = ngDirective(function(scope, element, attr) {
                 scope.$watchCollection(attr.ngStyle, function(newStyles, oldStyles) {
-                    oldStyles && newStyles !== oldStyles && (newStyles || (newStyles = {}), forEach(oldStyles, function(val, style) {
-                        null == newStyles[style] && (newStyles[style] = "");
-                    })), newStyles && element.css(newStyles);
+                    oldStyles && newStyles !== oldStyles && forEach(oldStyles, function(val, style) {
+                        element.css(style, "");
+                    }), newStyles && element.css(newStyles);
                 });
             }), ngSwitchDirective = [ "$animate", "$compile", function($animate, $compile) {
                 return {
@@ -28752,6 +28802,7 @@ object-assign
                     },
                     getTestability: getTestability,
                     reloadWithDebugInfo: reloadWithDebugInfo,
+                    UNSAFE_restoreLegacyJqLiteXHTMLReplacement: UNSAFE_restoreLegacyJqLiteXHTMLReplacement,
                     $$minErr: minErr,
                     $$csp: csp,
                     $$encodeUriSegment: encodeUriSegment,
@@ -28856,7 +28907,7 @@ object-assign
                         $$cookieReader: $$CookieReaderProvider
                     });
                 } ]).info({
-                    angularVersion: "1.7.8"
+                    angularVersion: "1.8.2"
                 });
             }(angular), angular.module("ngLocale", [], [ "$provide", function($provide) {
                 function getDecimals(n) {
@@ -28938,7 +28989,7 @@ object-assign
             } ]), jqLite(function() {
                 angularInit(window.document, bootstrap);
             });
-        }(window), !window.angular.$$csp().noInlineStyle && window.angular.element(document.head).prepend('<style type="text/css">@charset "UTF-8";[ng\\:cloak],[ng-cloak],[data-ng-cloak],[x-ng-cloak],.ng-cloak,.x-ng-cloak,.ng-hide:not(.ng-hide-animate){display:none !important;}ng\\:form{display:block;}.ng-animate-shim{visibility:hidden;}.ng-anchor{position:absolute;}</style>');
+        }(window), !window.angular.$$csp().noInlineStyle && window.angular.element(document.head).prepend(window.angular.element("<style>").text('@charset "UTF-8";[ng\\:cloak],[ng-cloak],[data-ng-cloak],[x-ng-cloak],.ng-cloak,.x-ng-cloak,.ng-hide:not(.ng-hide-animate){display:none !important;}ng\\:form{display:block;}.ng-animate-shim{visibility:hidden;}.ng-anchor{position:absolute;}'));
     }).call(exports, __webpack_require__(13));
 }, function(module, exports) {}, function(module, exports) {}, function(module, exports) {}, function(module, exports) {}, function(module, exports) {}, function(module, exports) {}, function(module, exports, __webpack_require__) {
     var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;
@@ -28951,7 +29002,7 @@ object-assign
                 scope: {
                     options: "="
                 },
-                template: '<button ng-click="toggleMenu()" class="cn-button {{options.button.size}}" ng-class="options.button.cssClass" style="background: {{options.button.background ? options.button.background : options.background}}; color: {{options.button.color ? options.button.color :options.color}};">{{options.content}}</button><div class="cn-wrapper {{options.size}} items-{{options.items.length}}" ng-class="{\'opened-nav\': options.isOpen}"><ul><li ng-repeat="item in options.items"><a ng-hide="item.empty" ng-click="perform(options, item)" ng-class="{\'is-active\': item.isActive}" class="{{item.cssClass}}" style="background: {{item.background ? item.background : options.background}}; color: {{item.color ? item.color : options.color}};"><span>{{item.content}}</span></a></li></ul></div>',
+                template: '<button ng-click="toggleMenu()" class="cn-button {{options.button.size}}" ng-class="options.button.cssClass" ng-style="{ \'background\': ( options.button.background ? options.button.background : options.background ), \'color\': ( options.button.color ? options.button.color : options.color ) }">{{options.content}}</button><div class="cn-wrapper {{options.size}} items-{{options.items.length}}" ng-class="{\'opened-nav\': options.isOpen}"><ul><li ng-repeat="item in options.items"><a ng-hide="item.empty" ng-click="perform(options, item)" ng-class="{\'is-active\': item.isActive}" class="{{item.cssClass}}" ng-style="{ \'background\': ( item.background ? item.background : options.background ), \'color\': ( item.color ? item.color : options.color ) }"><span>{{item.content}}</span></a></li></ul></div>',
                 controller: [ "$scope", "$element", "$attrs", function($scope, $element, $attrs) {
                     $scope.toggleMenu = function() {
                         $scope.options.isOpen = !$scope.options.isOpen;
@@ -31306,12 +31357,12 @@ object-assign
     !function() {
         "use strict";
         /**
-     * @preserve FastClick: polyfill to remove click delays on browsers with touch UIs.
-     *
-     * @codingstandard ftlabs-jsv2
-     * @copyright The Financial Times Limited [All Rights Reserved]
-     * @license MIT License (see LICENSE.txt)
-     */
+	 * @preserve FastClick: polyfill to remove click delays on browsers with touch UIs.
+	 *
+	 * @codingstandard ftlabs-jsv2
+	 * @copyright The Financial Times Limited [All Rights Reserved]
+	 * @license MIT License (see LICENSE.txt)
+	 */
         function FastClick(layer, options) {
             var oldOnClick;
             if (options = options || {}, this.trackingClick = !1, this.trackingClickStart = 0,
