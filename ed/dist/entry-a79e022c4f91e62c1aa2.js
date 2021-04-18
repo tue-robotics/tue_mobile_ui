@@ -29438,30 +29438,32 @@ object-assign
             } ], $scope.options = {
                 items: []
             }, $scope.$watch("selectedEntityEvent", function(entityEvent) {
-                var menuElement = document.getElementById("action-menu");
-                if (!entityEvent.entity) return $scope.options.isOpen = !1, menuElement.style.opacity = 0,
-                void (menuElement.style.zIndex = -1);
-                menuElement.style.left = entityEvent.event.pageX + "px", menuElement.style.top = entityEvent.event.pageY + "px",
-                menuElement.style.opacity = 1, menuElement.style.zIndex = 1, $scope.options.content = entityEvent.entity.id,
-                $scope.options.items = $scope.actionList.map(function(action) {
-                    return {
-                        cssClass: "fa fa-" + action.icon,
-                        background: action.color,
-                        onclick: function(event) {
-                            var recipe = {
-                                actions: [ {
-                                    action: action.name
-                                } ]
-                            };
-                            recipe.actions[0][action.entityDescription] = {
-                                id: entityEvent.entity.id
-                            }, robot.actionServer.doAction(recipe), $scope.entitySelection({
-                                event: event,
-                                entity: null
-                            });
-                        }
-                    };
-                }), $scope.options.isOpen = !0;
+                if (entityEvent) {
+                    var menuElement = document.getElementById("action-menu");
+                    if (!entityEvent.entity) return $scope.options.isOpen = !1, menuElement.style.opacity = 0,
+                    void (menuElement.style.zIndex = -1);
+                    menuElement.style.left = entityEvent.event.pageX + "px", menuElement.style.top = entityEvent.event.pageY + "px",
+                    menuElement.style.opacity = 1, menuElement.style.zIndex = 1, $scope.options.content = entityEvent.entity.id,
+                    $scope.options.items = $scope.actionList.map(function(action) {
+                        return {
+                            cssClass: "fa fa-" + action.icon,
+                            background: action.color,
+                            onclick: function(event) {
+                                var recipe = {
+                                    actions: [ {
+                                        action: action.name
+                                    } ]
+                                };
+                                recipe.actions[0][action.entityDescription] = {
+                                    id: entityEvent.entity.id
+                                }, robot.actionServer.doAction(recipe), $scope.entitySelection({
+                                    event: event,
+                                    entity: null
+                                });
+                            }
+                        };
+                    }), $scope.options.isOpen = !0;
+                }
             });
         });
     }).call(exports, __webpack_require__(0));

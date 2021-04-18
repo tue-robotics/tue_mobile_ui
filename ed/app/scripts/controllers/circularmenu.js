@@ -14,6 +14,11 @@ angular.module('EdGuiApp')
 
     $scope.$watch('selectedEntityEvent', function (entityEvent) {
 
+      // Ignore null/empty objects
+      if (!entityEvent) {
+        return;
+      }
+
       var menuElement = document.getElementById('action-menu');
 
       // At deselection, hide the menu
