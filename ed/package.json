@@ -13,7 +13,7 @@
     "bson": "^1.1.1",
     "fastclick": "^1.0.6",
     "font-awesome": "^4.7.0",
-    "jquery": "^3.4.1",
+    "jquery": "^3.6.0",
     "ngdraggable": "^0.1.10",
     "robot-api": "^0.12.2",
     "roslib": "^1.0.1",
