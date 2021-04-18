@@ -8,7 +8,7 @@
   "dependencies": {
     "angular": "^1.7.8",
     "angular-circular-navigation": "git+https://github.com/tue-robotics/angular-circular-navigation.git",
-    "angular-ui-bootstrap": "^0.14.3",
+    "angular-ui-bootstrap": "^2.5.0",
     "bootstrap": "^3.4.1",
     "bson": "^1.1.1",
     "fastclick": "^1.0.6",
