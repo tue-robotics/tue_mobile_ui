@@ -2,7 +2,7 @@
 
 
 var app = angular
-  .module('EdGuiApp', ['angularCircularNavigation', 'ui.bootstrap-slider', 'ngDraggable'
+  .module('EdGuiApp', ['angularCircularNavigation', 'ngDraggable'
   ]);
 
 app.filter('makeNice', function () {

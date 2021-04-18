@@ -7,11 +7,9 @@
   },
   "dependencies": {
     "angular": "^1.7.8",
-    "angular-bootstrap-slider": "git+https://github.com/seiyria/angular-bootstrap-slider.git#0.1.28",
     "angular-circular-navigation": "git+https://github.com/tue-robotics/angular-circular-navigation.git",
     "angular-ui-bootstrap": "^0.14.3",
     "bootstrap": "^3.4.1",
-    "bootstrap-slider": "^10.6.2",
     "bson": "^1.1.1",
     "fastclick": "^1.0.6",
     "font-awesome": "^4.7.0",

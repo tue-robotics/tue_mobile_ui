@@ -34,9 +34,9 @@
     var ROSLIB = this.ROSLIB || {
         REVISION: "1.1.0"
     }, assign = __webpack_require__(2);
-    assign(ROSLIB, __webpack_require__(77)), assign(ROSLIB, __webpack_require__(87)),
-    assign(ROSLIB, __webpack_require__(90)), assign(ROSLIB, __webpack_require__(91)),
-    assign(ROSLIB, __webpack_require__(93)), module.exports = ROSLIB;
+    assign(ROSLIB, __webpack_require__(74)), assign(ROSLIB, __webpack_require__(84)),
+    assign(ROSLIB, __webpack_require__(87)), assign(ROSLIB, __webpack_require__(88)),
+    assign(ROSLIB, __webpack_require__(90)), module.exports = ROSLIB;
 }, function(module, exports, __webpack_require__) {
     "use strict";
     function toObject(val) {
@@ -397,7 +397,7 @@ object-assign
                 return EventEmitter;
             }.call(exports, __webpack_require__, exports, module)) !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__);
         }();
-    }).call(exports, __webpack_require__(14));
+    }).call(exports, __webpack_require__(13));
 }, function(module, exports) {
     function Vector3(options) {
         options = options || {}, this.x = options.x || 0, this.y = options.y || 0, this.z = options.z || 0;
@@ -1079,7 +1079,7 @@ object-assign
                 return EventEmitter;
             }.call(exports, __webpack_require__, exports, module)) !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__);
         }();
-    }).call(exports, __webpack_require__(14), __webpack_require__(75).setImmediate);
+    }).call(exports, __webpack_require__(13), __webpack_require__(72).setImmediate);
 }, function(module, exports, __webpack_require__) {
     function Message(values) {
         assign(this, values);
@@ -1248,6 +1248,412 @@ object-assign
         };
         rosbridgeRequest.id && (call.id = rosbridgeRequest.id), this.ros.callOnConnection(call);
     }, module.exports = Service;
+}, function(module, exports) {
+    function defaultSetTimout() {
+        throw new Error("setTimeout has not been defined");
+    }
+    function defaultClearTimeout() {
+        throw new Error("clearTimeout has not been defined");
+    }
+    function runTimeout(fun) {
+        if (cachedSetTimeout === setTimeout) return setTimeout(fun, 0);
+        if ((cachedSetTimeout === defaultSetTimout || !cachedSetTimeout) && setTimeout) return cachedSetTimeout = setTimeout,
+        setTimeout(fun, 0);
+        try {
+            return cachedSetTimeout(fun, 0);
+        } catch (e) {
+            try {
+                return cachedSetTimeout.call(null, fun, 0);
+            } catch (e) {
+                return cachedSetTimeout.call(this, fun, 0);
+            }
+        }
+    }
+    function runClearTimeout(marker) {
+        if (cachedClearTimeout === clearTimeout) return clearTimeout(marker);
+        if ((cachedClearTimeout === defaultClearTimeout || !cachedClearTimeout) && clearTimeout) return cachedClearTimeout = clearTimeout,
+        clearTimeout(marker);
+        try {
+            return cachedClearTimeout(marker);
+        } catch (e) {
+            try {
+                return cachedClearTimeout.call(null, marker);
+            } catch (e) {
+                return cachedClearTimeout.call(this, marker);
+            }
+        }
+    }
+    function cleanUpNextTick() {
+        draining && currentQueue && (draining = !1, currentQueue.length ? queue = currentQueue.concat(queue) : queueIndex = -1,
+        queue.length && drainQueue());
+    }
+    function drainQueue() {
+        if (!draining) {
+            var timeout = runTimeout(cleanUpNextTick);
+            draining = !0;
+            for (var len = queue.length; len; ) {
+                for (currentQueue = queue, queue = []; ++queueIndex < len; ) currentQueue && currentQueue[queueIndex].run();
+                queueIndex = -1, len = queue.length;
+            }
+            currentQueue = null, draining = !1, runClearTimeout(timeout);
+        }
+    }
+    function Item(fun, array) {
+        this.fun = fun, this.array = array;
+    }
+    function noop() {}
+    var cachedSetTimeout, cachedClearTimeout, process = module.exports = {};
+    !function() {
+        try {
+            cachedSetTimeout = "function" == typeof setTimeout ? setTimeout : defaultSetTimout;
+        } catch (e) {
+            cachedSetTimeout = defaultSetTimout;
+        }
+        try {
+            cachedClearTimeout = "function" == typeof clearTimeout ? clearTimeout : defaultClearTimeout;
+        } catch (e) {
+            cachedClearTimeout = defaultClearTimeout;
+        }
+    }();
+    var currentQueue, queue = [], draining = !1, queueIndex = -1;
+    process.nextTick = function(fun) {
+        var args = new Array(arguments.length - 1);
+        if (arguments.length > 1) for (var i = 1; i < arguments.length; i++) args[i - 1] = arguments[i];
+        queue.push(new Item(fun, args)), 1 !== queue.length || draining || runTimeout(drainQueue);
+    }, Item.prototype.run = function() {
+        this.fun.apply(null, this.array);
+    }, process.title = "browser", process.browser = !0, process.env = {}, process.argv = [],
+    process.version = "", process.versions = {}, process.on = noop, process.addListener = noop,
+    process.once = noop, process.off = noop, process.removeListener = noop, process.removeAllListeners = noop,
+    process.emit = noop, process.prependListener = noop, process.prependOnceListener = noop,
+    process.listeners = function(name) {
+        return [];
+    }, process.binding = function(name) {
+        throw new Error("process.binding is not supported");
+    }, process.cwd = function() {
+        return "/";
+    }, process.chdir = function(dir) {
+        throw new Error("process.chdir is not supported");
+    }, process.umask = function() {
+        return 0;
+    };
+}, function(module, exports) {
+    module.exports = function(Ros, classes, features) {
+        classes.forEach(function(className) {
+            var Class = features[className];
+            Ros.prototype[className] = function(options) {
+                return options.ros = this, new Class(options);
+            };
+        });
+    };
+}, function(module, exports, __webpack_require__) {
+    function Ros(options) {
+        options = options || {}, this.socket = null, this.idCounter = 0, this.isConnected = !1,
+        this.transportLibrary = options.transportLibrary || "websocket", this.transportOptions = options.transportOptions || {},
+        void 0 === options.groovyCompatibility ? this.groovyCompatibility = !0 : this.groovyCompatibility = options.groovyCompatibility,
+        this.setMaxListeners(0), options.url && this.connect(options.url);
+    }
+    var WebSocket = __webpack_require__(21), WorkerSocket = __webpack_require__(75), socketAdapter = __webpack_require__(78), Service = __webpack_require__(12), ServiceRequest = __webpack_require__(7), assign = __webpack_require__(2), EventEmitter2 = __webpack_require__(3).EventEmitter2;
+    Ros.prototype.__proto__ = EventEmitter2.prototype, Ros.prototype.connect = function(url) {
+        if ("socket.io" === this.transportLibrary) this.socket = assign(io(url, {
+            "force new connection": !0
+        }), socketAdapter(this)), this.socket.on("connect", this.socket.onopen), this.socket.on("data", this.socket.onmessage),
+        this.socket.on("close", this.socket.onclose), this.socket.on("error", this.socket.onerror); else if ("RTCPeerConnection" === this.transportLibrary.constructor.name) this.socket = assign(this.transportLibrary.createDataChannel(url, this.transportOptions), socketAdapter(this)); else if ("websocket" === this.transportLibrary) {
+            if (!this.socket || this.socket.readyState === WebSocket.CLOSED) {
+                var sock = new WebSocket(url);
+                sock.binaryType = "arraybuffer", this.socket = assign(sock, socketAdapter(this));
+            }
+        } else {
+            if ("workersocket" !== this.transportLibrary) throw "Unknown transportLibrary: " + this.transportLibrary.toString();
+            this.socket = assign(new WorkerSocket(url), socketAdapter(this));
+        }
+    }, Ros.prototype.close = function() {
+        this.socket && this.socket.close();
+    }, Ros.prototype.authenticate = function(mac, client, dest, rand, t, level, end) {
+        var auth = {
+            op: "auth",
+            mac: mac,
+            client: client,
+            dest: dest,
+            rand: rand,
+            t: t,
+            level: level,
+            end: end
+        };
+        this.callOnConnection(auth);
+    }, Ros.prototype.callOnConnection = function(message) {
+        var that = this, messageJson = JSON.stringify(message), emitter = null;
+        emitter = "socket.io" === this.transportLibrary ? function(msg) {
+            that.socket.emit("operation", msg);
+        } : function(msg) {
+            that.socket.send(msg);
+        }, this.isConnected ? emitter(messageJson) : that.once("connection", function() {
+            emitter(messageJson);
+        });
+    }, Ros.prototype.setStatusLevel = function(level, id) {
+        var levelMsg = {
+            op: "set_level",
+            level: level,
+            id: id
+        };
+        this.callOnConnection(levelMsg);
+    }, Ros.prototype.getActionServers = function(callback, failedCallback) {
+        var getActionServers = new Service({
+            ros: this,
+            name: "/rosapi/action_servers",
+            serviceType: "rosapi/GetActionServers"
+        }), request = new ServiceRequest({});
+        "function" == typeof failedCallback ? getActionServers.callService(request, function(result) {
+            callback(result.action_servers);
+        }, function(message) {
+            failedCallback(message);
+        }) : getActionServers.callService(request, function(result) {
+            callback(result.action_servers);
+        });
+    }, Ros.prototype.getTopics = function(callback, failedCallback) {
+        var topicsClient = new Service({
+            ros: this,
+            name: "/rosapi/topics",
+            serviceType: "rosapi/Topics"
+        }), request = new ServiceRequest();
+        "function" == typeof failedCallback ? topicsClient.callService(request, function(result) {
+            callback(result);
+        }, function(message) {
+            failedCallback(message);
+        }) : topicsClient.callService(request, function(result) {
+            callback(result);
+        });
+    }, Ros.prototype.getTopicsForType = function(topicType, callback, failedCallback) {
+        var topicsForTypeClient = new Service({
+            ros: this,
+            name: "/rosapi/topics_for_type",
+            serviceType: "rosapi/TopicsForType"
+        }), request = new ServiceRequest({
+            type: topicType
+        });
+        "function" == typeof failedCallback ? topicsForTypeClient.callService(request, function(result) {
+            callback(result.topics);
+        }, function(message) {
+            failedCallback(message);
+        }) : topicsForTypeClient.callService(request, function(result) {
+            callback(result.topics);
+        });
+    }, Ros.prototype.getServices = function(callback, failedCallback) {
+        var servicesClient = new Service({
+            ros: this,
+            name: "/rosapi/services",
+            serviceType: "rosapi/Services"
+        }), request = new ServiceRequest();
+        "function" == typeof failedCallback ? servicesClient.callService(request, function(result) {
+            callback(result.services);
+        }, function(message) {
+            failedCallback(message);
+        }) : servicesClient.callService(request, function(result) {
+            callback(result.services);
+        });
+    }, Ros.prototype.getServicesForType = function(serviceType, callback, failedCallback) {
+        var servicesForTypeClient = new Service({
+            ros: this,
+            name: "/rosapi/services_for_type",
+            serviceType: "rosapi/ServicesForType"
+        }), request = new ServiceRequest({
+            type: serviceType
+        });
+        "function" == typeof failedCallback ? servicesForTypeClient.callService(request, function(result) {
+            callback(result.services);
+        }, function(message) {
+            failedCallback(message);
+        }) : servicesForTypeClient.callService(request, function(result) {
+            callback(result.services);
+        });
+    }, Ros.prototype.getServiceRequestDetails = function(type, callback, failedCallback) {
+        var serviceTypeClient = new Service({
+            ros: this,
+            name: "/rosapi/service_request_details",
+            serviceType: "rosapi/ServiceRequestDetails"
+        }), request = new ServiceRequest({
+            type: type
+        });
+        "function" == typeof failedCallback ? serviceTypeClient.callService(request, function(result) {
+            callback(result);
+        }, function(message) {
+            failedCallback(message);
+        }) : serviceTypeClient.callService(request, function(result) {
+            callback(result);
+        });
+    }, Ros.prototype.getServiceResponseDetails = function(type, callback, failedCallback) {
+        var serviceTypeClient = new Service({
+            ros: this,
+            name: "/rosapi/service_response_details",
+            serviceType: "rosapi/ServiceResponseDetails"
+        }), request = new ServiceRequest({
+            type: type
+        });
+        "function" == typeof failedCallback ? serviceTypeClient.callService(request, function(result) {
+            callback(result);
+        }, function(message) {
+            failedCallback(message);
+        }) : serviceTypeClient.callService(request, function(result) {
+            callback(result);
+        });
+    }, Ros.prototype.getNodes = function(callback, failedCallback) {
+        var nodesClient = new Service({
+            ros: this,
+            name: "/rosapi/nodes",
+            serviceType: "rosapi/Nodes"
+        }), request = new ServiceRequest();
+        "function" == typeof failedCallback ? nodesClient.callService(request, function(result) {
+            callback(result.nodes);
+        }, function(message) {
+            failedCallback(message);
+        }) : nodesClient.callService(request, function(result) {
+            callback(result.nodes);
+        });
+    }, Ros.prototype.getNodeDetails = function(node, callback, failedCallback) {
+        var nodesClient = new Service({
+            ros: this,
+            name: "/rosapi/node_details",
+            serviceType: "rosapi/NodeDetails"
+        }), request = new ServiceRequest({
+            node: node
+        });
+        "function" == typeof failedCallback ? nodesClient.callService(request, function(result) {
+            callback(result.subscribing, result.publishing, result.services);
+        }, function(message) {
+            failedCallback(message);
+        }) : nodesClient.callService(request, function(result) {
+            callback(result);
+        });
+    }, Ros.prototype.getParams = function(callback, failedCallback) {
+        var paramsClient = new Service({
+            ros: this,
+            name: "/rosapi/get_param_names",
+            serviceType: "rosapi/GetParamNames"
+        }), request = new ServiceRequest();
+        "function" == typeof failedCallback ? paramsClient.callService(request, function(result) {
+            callback(result.names);
+        }, function(message) {
+            failedCallback(message);
+        }) : paramsClient.callService(request, function(result) {
+            callback(result.names);
+        });
+    }, Ros.prototype.getTopicType = function(topic, callback, failedCallback) {
+        var topicTypeClient = new Service({
+            ros: this,
+            name: "/rosapi/topic_type",
+            serviceType: "rosapi/TopicType"
+        }), request = new ServiceRequest({
+            topic: topic
+        });
+        "function" == typeof failedCallback ? topicTypeClient.callService(request, function(result) {
+            callback(result.type);
+        }, function(message) {
+            failedCallback(message);
+        }) : topicTypeClient.callService(request, function(result) {
+            callback(result.type);
+        });
+    }, Ros.prototype.getServiceType = function(service, callback, failedCallback) {
+        var serviceTypeClient = new Service({
+            ros: this,
+            name: "/rosapi/service_type",
+            serviceType: "rosapi/ServiceType"
+        }), request = new ServiceRequest({
+            service: service
+        });
+        "function" == typeof failedCallback ? serviceTypeClient.callService(request, function(result) {
+            callback(result.type);
+        }, function(message) {
+            failedCallback(message);
+        }) : serviceTypeClient.callService(request, function(result) {
+            callback(result.type);
+        });
+    }, Ros.prototype.getMessageDetails = function(message, callback, failedCallback) {
+        var messageDetailClient = new Service({
+            ros: this,
+            name: "/rosapi/message_details",
+            serviceType: "rosapi/MessageDetails"
+        }), request = new ServiceRequest({
+            type: message
+        });
+        "function" == typeof failedCallback ? messageDetailClient.callService(request, function(result) {
+            callback(result.typedefs);
+        }, function(message) {
+            failedCallback(message);
+        }) : messageDetailClient.callService(request, function(result) {
+            callback(result.typedefs);
+        });
+    }, Ros.prototype.decodeTypeDefs = function(defs) {
+        var that = this, decodeTypeDefsRec = function(theType, hints) {
+            for (var typeDefDict = {}, i = 0; i < theType.fieldnames.length; i++) {
+                var arrayLen = theType.fieldarraylen[i], fieldName = theType.fieldnames[i], fieldType = theType.fieldtypes[i];
+                if (-1 === fieldType.indexOf("/")) typeDefDict[fieldName] = -1 === arrayLen ? fieldType : [ fieldType ]; else {
+                    for (var sub = !1, j = 0; j < hints.length; j++) if (hints[j].type.toString() === fieldType.toString()) {
+                        sub = hints[j];
+                        break;
+                    }
+                    if (sub) {
+                        var subResult = decodeTypeDefsRec(sub, hints);
+                        -1 === arrayLen || (typeDefDict[fieldName] = [ subResult ]);
+                    } else that.emit("error", "Cannot find " + fieldType + " in decodeTypeDefs");
+                }
+            }
+            return typeDefDict;
+        };
+        return decodeTypeDefsRec(defs[0], defs);
+    }, Ros.prototype.getTopicsAndRawTypes = function(callback, failedCallback) {
+        var topicsAndRawTypesClient = new Service({
+            ros: this,
+            name: "/rosapi/topics_and_raw_types",
+            serviceType: "rosapi/TopicsAndRawTypes"
+        }), request = new ServiceRequest();
+        "function" == typeof failedCallback ? topicsAndRawTypesClient.callService(request, function(result) {
+            callback(result);
+        }, function(message) {
+            failedCallback(message);
+        }) : topicsAndRawTypesClient.callService(request, function(result) {
+            callback(result);
+        });
+    }, module.exports = Ros;
+}, function(module, exports, __webpack_require__) {
+    function Pose(options) {
+        options = options || {}, this.position = new Vector3(options.position), this.orientation = new Quaternion(options.orientation);
+    }
+    var Vector3 = __webpack_require__(4), Quaternion = __webpack_require__(9);
+    Pose.prototype.applyTransform = function(tf) {
+        this.position.multiplyQuaternion(tf.rotation), this.position.add(tf.translation);
+        var tmp = tf.rotation.clone();
+        tmp.multiply(this.orientation), this.orientation = tmp;
+    }, Pose.prototype.clone = function() {
+        return new Pose(this);
+    }, Pose.prototype.multiply = function(pose) {
+        var p = pose.clone();
+        return p.applyTransform({
+            rotation: this.orientation,
+            translation: this.position
+        }), p;
+    }, Pose.prototype.getInverse = function() {
+        var inverse = this.clone();
+        return inverse.orientation.invert(), inverse.position.multiplyQuaternion(inverse.orientation),
+        inverse.position.x *= -1, inverse.position.y *= -1, inverse.position.z *= -1, inverse;
+    }, module.exports = Pose;
+}, function(module, exports, __webpack_require__) {
+    function UrdfMaterial(options) {
+        this.textureFilename = null, this.color = null, this.name = options.xml.getAttribute("name");
+        var textures = options.xml.getElementsByTagName("texture");
+        textures.length > 0 && (this.textureFilename = textures[0].getAttribute("filename"));
+        var colors = options.xml.getElementsByTagName("color");
+        colors.length > 0 && (this.color = new UrdfColor({
+            xml: colors[0]
+        }));
+    }
+    var UrdfColor = __webpack_require__(27);
+    UrdfMaterial.prototype.isLink = function() {
+        return null === this.color && null === this.textureFilename;
+    };
+    var assign = __webpack_require__(2);
+    UrdfMaterial.prototype.assign = function(obj) {
+        return assign(this, obj);
+    }, module.exports = UrdfMaterial;
 }, function(module, exports, __webpack_require__) {
     var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;
     /*!
@@ -4354,412 +4760,6 @@ object-assign
             jQuery;
         }, noGlobal || (window.jQuery = window.$ = jQuery), jQuery;
     });
-}, function(module, exports) {
-    function defaultSetTimout() {
-        throw new Error("setTimeout has not been defined");
-    }
-    function defaultClearTimeout() {
-        throw new Error("clearTimeout has not been defined");
-    }
-    function runTimeout(fun) {
-        if (cachedSetTimeout === setTimeout) return setTimeout(fun, 0);
-        if ((cachedSetTimeout === defaultSetTimout || !cachedSetTimeout) && setTimeout) return cachedSetTimeout = setTimeout,
-        setTimeout(fun, 0);
-        try {
-            return cachedSetTimeout(fun, 0);
-        } catch (e) {
-            try {
-                return cachedSetTimeout.call(null, fun, 0);
-            } catch (e) {
-                return cachedSetTimeout.call(this, fun, 0);
-            }
-        }
-    }
-    function runClearTimeout(marker) {
-        if (cachedClearTimeout === clearTimeout) return clearTimeout(marker);
-        if ((cachedClearTimeout === defaultClearTimeout || !cachedClearTimeout) && clearTimeout) return cachedClearTimeout = clearTimeout,
-        clearTimeout(marker);
-        try {
-            return cachedClearTimeout(marker);
-        } catch (e) {
-            try {
-                return cachedClearTimeout.call(null, marker);
-            } catch (e) {
-                return cachedClearTimeout.call(this, marker);
-            }
-        }
-    }
-    function cleanUpNextTick() {
-        draining && currentQueue && (draining = !1, currentQueue.length ? queue = currentQueue.concat(queue) : queueIndex = -1,
-        queue.length && drainQueue());
-    }
-    function drainQueue() {
-        if (!draining) {
-            var timeout = runTimeout(cleanUpNextTick);
-            draining = !0;
-            for (var len = queue.length; len; ) {
-                for (currentQueue = queue, queue = []; ++queueIndex < len; ) currentQueue && currentQueue[queueIndex].run();
-                queueIndex = -1, len = queue.length;
-            }
-            currentQueue = null, draining = !1, runClearTimeout(timeout);
-        }
-    }
-    function Item(fun, array) {
-        this.fun = fun, this.array = array;
-    }
-    function noop() {}
-    var cachedSetTimeout, cachedClearTimeout, process = module.exports = {};
-    !function() {
-        try {
-            cachedSetTimeout = "function" == typeof setTimeout ? setTimeout : defaultSetTimout;
-        } catch (e) {
-            cachedSetTimeout = defaultSetTimout;
-        }
-        try {
-            cachedClearTimeout = "function" == typeof clearTimeout ? clearTimeout : defaultClearTimeout;
-        } catch (e) {
-            cachedClearTimeout = defaultClearTimeout;
-        }
-    }();
-    var currentQueue, queue = [], draining = !1, queueIndex = -1;
-    process.nextTick = function(fun) {
-        var args = new Array(arguments.length - 1);
-        if (arguments.length > 1) for (var i = 1; i < arguments.length; i++) args[i - 1] = arguments[i];
-        queue.push(new Item(fun, args)), 1 !== queue.length || draining || runTimeout(drainQueue);
-    }, Item.prototype.run = function() {
-        this.fun.apply(null, this.array);
-    }, process.title = "browser", process.browser = !0, process.env = {}, process.argv = [],
-    process.version = "", process.versions = {}, process.on = noop, process.addListener = noop,
-    process.once = noop, process.off = noop, process.removeListener = noop, process.removeAllListeners = noop,
-    process.emit = noop, process.prependListener = noop, process.prependOnceListener = noop,
-    process.listeners = function(name) {
-        return [];
-    }, process.binding = function(name) {
-        throw new Error("process.binding is not supported");
-    }, process.cwd = function() {
-        return "/";
-    }, process.chdir = function(dir) {
-        throw new Error("process.chdir is not supported");
-    }, process.umask = function() {
-        return 0;
-    };
-}, function(module, exports) {
-    module.exports = function(Ros, classes, features) {
-        classes.forEach(function(className) {
-            var Class = features[className];
-            Ros.prototype[className] = function(options) {
-                return options.ros = this, new Class(options);
-            };
-        });
-    };
-}, function(module, exports, __webpack_require__) {
-    function Ros(options) {
-        options = options || {}, this.socket = null, this.idCounter = 0, this.isConnected = !1,
-        this.transportLibrary = options.transportLibrary || "websocket", this.transportOptions = options.transportOptions || {},
-        void 0 === options.groovyCompatibility ? this.groovyCompatibility = !0 : this.groovyCompatibility = options.groovyCompatibility,
-        this.setMaxListeners(0), options.url && this.connect(options.url);
-    }
-    var WebSocket = __webpack_require__(21), WorkerSocket = __webpack_require__(78), socketAdapter = __webpack_require__(81), Service = __webpack_require__(12), ServiceRequest = __webpack_require__(7), assign = __webpack_require__(2), EventEmitter2 = __webpack_require__(3).EventEmitter2;
-    Ros.prototype.__proto__ = EventEmitter2.prototype, Ros.prototype.connect = function(url) {
-        if ("socket.io" === this.transportLibrary) this.socket = assign(io(url, {
-            "force new connection": !0
-        }), socketAdapter(this)), this.socket.on("connect", this.socket.onopen), this.socket.on("data", this.socket.onmessage),
-        this.socket.on("close", this.socket.onclose), this.socket.on("error", this.socket.onerror); else if ("RTCPeerConnection" === this.transportLibrary.constructor.name) this.socket = assign(this.transportLibrary.createDataChannel(url, this.transportOptions), socketAdapter(this)); else if ("websocket" === this.transportLibrary) {
-            if (!this.socket || this.socket.readyState === WebSocket.CLOSED) {
-                var sock = new WebSocket(url);
-                sock.binaryType = "arraybuffer", this.socket = assign(sock, socketAdapter(this));
-            }
-        } else {
-            if ("workersocket" !== this.transportLibrary) throw "Unknown transportLibrary: " + this.transportLibrary.toString();
-            this.socket = assign(new WorkerSocket(url), socketAdapter(this));
-        }
-    }, Ros.prototype.close = function() {
-        this.socket && this.socket.close();
-    }, Ros.prototype.authenticate = function(mac, client, dest, rand, t, level, end) {
-        var auth = {
-            op: "auth",
-            mac: mac,
-            client: client,
-            dest: dest,
-            rand: rand,
-            t: t,
-            level: level,
-            end: end
-        };
-        this.callOnConnection(auth);
-    }, Ros.prototype.callOnConnection = function(message) {
-        var that = this, messageJson = JSON.stringify(message), emitter = null;
-        emitter = "socket.io" === this.transportLibrary ? function(msg) {
-            that.socket.emit("operation", msg);
-        } : function(msg) {
-            that.socket.send(msg);
-        }, this.isConnected ? emitter(messageJson) : that.once("connection", function() {
-            emitter(messageJson);
-        });
-    }, Ros.prototype.setStatusLevel = function(level, id) {
-        var levelMsg = {
-            op: "set_level",
-            level: level,
-            id: id
-        };
-        this.callOnConnection(levelMsg);
-    }, Ros.prototype.getActionServers = function(callback, failedCallback) {
-        var getActionServers = new Service({
-            ros: this,
-            name: "/rosapi/action_servers",
-            serviceType: "rosapi/GetActionServers"
-        }), request = new ServiceRequest({});
-        "function" == typeof failedCallback ? getActionServers.callService(request, function(result) {
-            callback(result.action_servers);
-        }, function(message) {
-            failedCallback(message);
-        }) : getActionServers.callService(request, function(result) {
-            callback(result.action_servers);
-        });
-    }, Ros.prototype.getTopics = function(callback, failedCallback) {
-        var topicsClient = new Service({
-            ros: this,
-            name: "/rosapi/topics",
-            serviceType: "rosapi/Topics"
-        }), request = new ServiceRequest();
-        "function" == typeof failedCallback ? topicsClient.callService(request, function(result) {
-            callback(result);
-        }, function(message) {
-            failedCallback(message);
-        }) : topicsClient.callService(request, function(result) {
-            callback(result);
-        });
-    }, Ros.prototype.getTopicsForType = function(topicType, callback, failedCallback) {
-        var topicsForTypeClient = new Service({
-            ros: this,
-            name: "/rosapi/topics_for_type",
-            serviceType: "rosapi/TopicsForType"
-        }), request = new ServiceRequest({
-            type: topicType
-        });
-        "function" == typeof failedCallback ? topicsForTypeClient.callService(request, function(result) {
-            callback(result.topics);
-        }, function(message) {
-            failedCallback(message);
-        }) : topicsForTypeClient.callService(request, function(result) {
-            callback(result.topics);
-        });
-    }, Ros.prototype.getServices = function(callback, failedCallback) {
-        var servicesClient = new Service({
-            ros: this,
-            name: "/rosapi/services",
-            serviceType: "rosapi/Services"
-        }), request = new ServiceRequest();
-        "function" == typeof failedCallback ? servicesClient.callService(request, function(result) {
-            callback(result.services);
-        }, function(message) {
-            failedCallback(message);
-        }) : servicesClient.callService(request, function(result) {
-            callback(result.services);
-        });
-    }, Ros.prototype.getServicesForType = function(serviceType, callback, failedCallback) {
-        var servicesForTypeClient = new Service({
-            ros: this,
-            name: "/rosapi/services_for_type",
-            serviceType: "rosapi/ServicesForType"
-        }), request = new ServiceRequest({
-            type: serviceType
-        });
-        "function" == typeof failedCallback ? servicesForTypeClient.callService(request, function(result) {
-            callback(result.services);
-        }, function(message) {
-            failedCallback(message);
-        }) : servicesForTypeClient.callService(request, function(result) {
-            callback(result.services);
-        });
-    }, Ros.prototype.getServiceRequestDetails = function(type, callback, failedCallback) {
-        var serviceTypeClient = new Service({
-            ros: this,
-            name: "/rosapi/service_request_details",
-            serviceType: "rosapi/ServiceRequestDetails"
-        }), request = new ServiceRequest({
-            type: type
-        });
-        "function" == typeof failedCallback ? serviceTypeClient.callService(request, function(result) {
-            callback(result);
-        }, function(message) {
-            failedCallback(message);
-        }) : serviceTypeClient.callService(request, function(result) {
-            callback(result);
-        });
-    }, Ros.prototype.getServiceResponseDetails = function(type, callback, failedCallback) {
-        var serviceTypeClient = new Service({
-            ros: this,
-            name: "/rosapi/service_response_details",
-            serviceType: "rosapi/ServiceResponseDetails"
-        }), request = new ServiceRequest({
-            type: type
-        });
-        "function" == typeof failedCallback ? serviceTypeClient.callService(request, function(result) {
-            callback(result);
-        }, function(message) {
-            failedCallback(message);
-        }) : serviceTypeClient.callService(request, function(result) {
-            callback(result);
-        });
-    }, Ros.prototype.getNodes = function(callback, failedCallback) {
-        var nodesClient = new Service({
-            ros: this,
-            name: "/rosapi/nodes",
-            serviceType: "rosapi/Nodes"
-        }), request = new ServiceRequest();
-        "function" == typeof failedCallback ? nodesClient.callService(request, function(result) {
-            callback(result.nodes);
-        }, function(message) {
-            failedCallback(message);
-        }) : nodesClient.callService(request, function(result) {
-            callback(result.nodes);
-        });
-    }, Ros.prototype.getNodeDetails = function(node, callback, failedCallback) {
-        var nodesClient = new Service({
-            ros: this,
-            name: "/rosapi/node_details",
-            serviceType: "rosapi/NodeDetails"
-        }), request = new ServiceRequest({
-            node: node
-        });
-        "function" == typeof failedCallback ? nodesClient.callService(request, function(result) {
-            callback(result.subscribing, result.publishing, result.services);
-        }, function(message) {
-            failedCallback(message);
-        }) : nodesClient.callService(request, function(result) {
-            callback(result);
-        });
-    }, Ros.prototype.getParams = function(callback, failedCallback) {
-        var paramsClient = new Service({
-            ros: this,
-            name: "/rosapi/get_param_names",
-            serviceType: "rosapi/GetParamNames"
-        }), request = new ServiceRequest();
-        "function" == typeof failedCallback ? paramsClient.callService(request, function(result) {
-            callback(result.names);
-        }, function(message) {
-            failedCallback(message);
-        }) : paramsClient.callService(request, function(result) {
-            callback(result.names);
-        });
-    }, Ros.prototype.getTopicType = function(topic, callback, failedCallback) {
-        var topicTypeClient = new Service({
-            ros: this,
-            name: "/rosapi/topic_type",
-            serviceType: "rosapi/TopicType"
-        }), request = new ServiceRequest({
-            topic: topic
-        });
-        "function" == typeof failedCallback ? topicTypeClient.callService(request, function(result) {
-            callback(result.type);
-        }, function(message) {
-            failedCallback(message);
-        }) : topicTypeClient.callService(request, function(result) {
-            callback(result.type);
-        });
-    }, Ros.prototype.getServiceType = function(service, callback, failedCallback) {
-        var serviceTypeClient = new Service({
-            ros: this,
-            name: "/rosapi/service_type",
-            serviceType: "rosapi/ServiceType"
-        }), request = new ServiceRequest({
-            service: service
-        });
-        "function" == typeof failedCallback ? serviceTypeClient.callService(request, function(result) {
-            callback(result.type);
-        }, function(message) {
-            failedCallback(message);
-        }) : serviceTypeClient.callService(request, function(result) {
-            callback(result.type);
-        });
-    }, Ros.prototype.getMessageDetails = function(message, callback, failedCallback) {
-        var messageDetailClient = new Service({
-            ros: this,
-            name: "/rosapi/message_details",
-            serviceType: "rosapi/MessageDetails"
-        }), request = new ServiceRequest({
-            type: message
-        });
-        "function" == typeof failedCallback ? messageDetailClient.callService(request, function(result) {
-            callback(result.typedefs);
-        }, function(message) {
-            failedCallback(message);
-        }) : messageDetailClient.callService(request, function(result) {
-            callback(result.typedefs);
-        });
-    }, Ros.prototype.decodeTypeDefs = function(defs) {
-        var that = this, decodeTypeDefsRec = function(theType, hints) {
-            for (var typeDefDict = {}, i = 0; i < theType.fieldnames.length; i++) {
-                var arrayLen = theType.fieldarraylen[i], fieldName = theType.fieldnames[i], fieldType = theType.fieldtypes[i];
-                if (-1 === fieldType.indexOf("/")) typeDefDict[fieldName] = -1 === arrayLen ? fieldType : [ fieldType ]; else {
-                    for (var sub = !1, j = 0; j < hints.length; j++) if (hints[j].type.toString() === fieldType.toString()) {
-                        sub = hints[j];
-                        break;
-                    }
-                    if (sub) {
-                        var subResult = decodeTypeDefsRec(sub, hints);
-                        -1 === arrayLen || (typeDefDict[fieldName] = [ subResult ]);
-                    } else that.emit("error", "Cannot find " + fieldType + " in decodeTypeDefs");
-                }
-            }
-            return typeDefDict;
-        };
-        return decodeTypeDefsRec(defs[0], defs);
-    }, Ros.prototype.getTopicsAndRawTypes = function(callback, failedCallback) {
-        var topicsAndRawTypesClient = new Service({
-            ros: this,
-            name: "/rosapi/topics_and_raw_types",
-            serviceType: "rosapi/TopicsAndRawTypes"
-        }), request = new ServiceRequest();
-        "function" == typeof failedCallback ? topicsAndRawTypesClient.callService(request, function(result) {
-            callback(result);
-        }, function(message) {
-            failedCallback(message);
-        }) : topicsAndRawTypesClient.callService(request, function(result) {
-            callback(result);
-        });
-    }, module.exports = Ros;
-}, function(module, exports, __webpack_require__) {
-    function Pose(options) {
-        options = options || {}, this.position = new Vector3(options.position), this.orientation = new Quaternion(options.orientation);
-    }
-    var Vector3 = __webpack_require__(4), Quaternion = __webpack_require__(9);
-    Pose.prototype.applyTransform = function(tf) {
-        this.position.multiplyQuaternion(tf.rotation), this.position.add(tf.translation);
-        var tmp = tf.rotation.clone();
-        tmp.multiply(this.orientation), this.orientation = tmp;
-    }, Pose.prototype.clone = function() {
-        return new Pose(this);
-    }, Pose.prototype.multiply = function(pose) {
-        var p = pose.clone();
-        return p.applyTransform({
-            rotation: this.orientation,
-            translation: this.position
-        }), p;
-    }, Pose.prototype.getInverse = function() {
-        var inverse = this.clone();
-        return inverse.orientation.invert(), inverse.position.multiplyQuaternion(inverse.orientation),
-        inverse.position.x *= -1, inverse.position.y *= -1, inverse.position.z *= -1, inverse;
-    }, module.exports = Pose;
-}, function(module, exports, __webpack_require__) {
-    function UrdfMaterial(options) {
-        this.textureFilename = null, this.color = null, this.name = options.xml.getAttribute("name");
-        var textures = options.xml.getElementsByTagName("texture");
-        textures.length > 0 && (this.textureFilename = textures[0].getAttribute("filename"));
-        var colors = options.xml.getElementsByTagName("color");
-        colors.length > 0 && (this.color = new UrdfColor({
-            xml: colors[0]
-        }));
-    }
-    var UrdfColor = __webpack_require__(27);
-    UrdfMaterial.prototype.isLink = function() {
-        return null === this.color && null === this.textureFilename;
-    };
-    var assign = __webpack_require__(2);
-    UrdfMaterial.prototype.assign = function(obj) {
-        return assign(this, obj);
-    }, module.exports = UrdfMaterial;
 }, function(module, __webpack_exports__, __webpack_require__) {
     "use strict";
     function EventDispatcher() {}
@@ -19922,7 +19922,7 @@ object-assign
             xml: materials[0]
         }));
     }
-    var Pose = __webpack_require__(17), Vector3 = __webpack_require__(4), Quaternion = __webpack_require__(9), UrdfCylinder = __webpack_require__(28), UrdfBox = __webpack_require__(26), UrdfMaterial = __webpack_require__(18), UrdfMesh = __webpack_require__(31), UrdfSphere = __webpack_require__(32);
+    var Pose = __webpack_require__(16), Vector3 = __webpack_require__(4), Quaternion = __webpack_require__(9), UrdfCylinder = __webpack_require__(28), UrdfBox = __webpack_require__(26), UrdfMaterial = __webpack_require__(17), UrdfMesh = __webpack_require__(31), UrdfSphere = __webpack_require__(32);
     module.exports = UrdfVisual;
 }, function(module, exports, __webpack_require__) {
     function UrdfMesh(options) {
@@ -20566,7 +20566,7 @@ object-assign
     }
     for (var __WEBPACK_IMPORTED_MODULE_0_eventemitter2__ = __webpack_require__(5), __WEBPACK_IMPORTED_MODULE_1_roslib__ = (__webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_eventemitter2__),
     __webpack_require__(1)), __WEBPACK_IMPORTED_MODULE_2_lodash_debounce__ = (__webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_roslib__),
-    __webpack_require__(97)), __WEBPACK_IMPORTED_MODULE_2_lodash_debounce___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_lodash_debounce__), __WEBPACK_IMPORTED_MODULE_3__hardware_properties__ = __webpack_require__(106), levels = {
+    __webpack_require__(94)), __WEBPACK_IMPORTED_MODULE_2_lodash_debounce___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_lodash_debounce__), __WEBPACK_IMPORTED_MODULE_3__hardware_properties__ = __webpack_require__(103), levels = {
         STALE: 0,
         IDLE: 1,
         OPERATIONAL: 2,
@@ -20702,7 +20702,7 @@ object-assign
     }
     module.exports = isObject;
 }, function(module, exports, __webpack_require__) {
-    var freeGlobal = __webpack_require__(99), freeSelf = "object" == typeof self && self && self.Object === Object && self, root = freeGlobal || freeSelf || Function("return this")();
+    var freeGlobal = __webpack_require__(96), freeSelf = "object" == typeof self && self && self.Object === Object && self, root = freeGlobal || freeSelf || Function("return this")();
     module.exports = root;
 }, function(module, exports, __webpack_require__) {
     var root = __webpack_require__(37), Symbol = root.Symbol;
@@ -20850,44 +20850,42 @@ object-assign
     Object.defineProperty(__webpack_exports__, "__esModule", {
         value: !0
     }), function(angular) {
-        var __WEBPACK_IMPORTED_MODULE_0_bootstrap_dist_css_bootstrap_min_css__ = __webpack_require__(42), __WEBPACK_IMPORTED_MODULE_1_bootstrap_slider_dist_css_bootstrap_slider_css__ = (__webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_bootstrap_dist_css_bootstrap_min_css__),
-        __webpack_require__(43)), __WEBPACK_IMPORTED_MODULE_2_bootstrap_dist_css_bootstrap_css__ = (__webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_bootstrap_slider_dist_css_bootstrap_slider_css__),
-        __webpack_require__(44)), __WEBPACK_IMPORTED_MODULE_3_angular_circular_navigation_angular_circular_navigation_css__ = (__webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_bootstrap_dist_css_bootstrap_css__),
-        __webpack_require__(45)), __WEBPACK_IMPORTED_MODULE_4_font_awesome_css_font_awesome_min_css__ = (__webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3_angular_circular_navigation_angular_circular_navigation_css__),
-        __webpack_require__(46)), __WEBPACK_IMPORTED_MODULE_5__styles_main_css__ = (__webpack_require__.n(__WEBPACK_IMPORTED_MODULE_4_font_awesome_css_font_awesome_min_css__),
-        __webpack_require__(47)), __WEBPACK_IMPORTED_MODULE_6_angular_circular_navigation_angular_circular_navigation__ = (__webpack_require__.n(__WEBPACK_IMPORTED_MODULE_5__styles_main_css__),
-        __webpack_require__(48)), __WEBPACK_IMPORTED_MODULE_7_angular_bootstrap_slider__ = (__webpack_require__.n(__WEBPACK_IMPORTED_MODULE_6_angular_circular_navigation_angular_circular_navigation__),
-        __webpack_require__(49)), __WEBPACK_IMPORTED_MODULE_8_ngdraggable__ = (__webpack_require__.n(__WEBPACK_IMPORTED_MODULE_7_angular_bootstrap_slider__),
-        __webpack_require__(51)), __WEBPACK_IMPORTED_MODULE_9_bootstrap_js_tab__ = (__webpack_require__.n(__WEBPACK_IMPORTED_MODULE_8_ngdraggable__),
-        __webpack_require__(52)), __WEBPACK_IMPORTED_MODULE_10__scripts_app__ = (__webpack_require__.n(__WEBPACK_IMPORTED_MODULE_9_bootstrap_js_tab__),
-        __webpack_require__(53)), __WEBPACK_IMPORTED_MODULE_11__scripts_controllers_actions__ = (__webpack_require__.n(__WEBPACK_IMPORTED_MODULE_10__scripts_app__),
-        __webpack_require__(54)), __WEBPACK_IMPORTED_MODULE_12__scripts_controllers_circularmenu__ = (__webpack_require__.n(__WEBPACK_IMPORTED_MODULE_11__scripts_controllers_actions__),
-        __webpack_require__(55)), __WEBPACK_IMPORTED_MODULE_13__scripts_controllers_connection__ = (__webpack_require__.n(__WEBPACK_IMPORTED_MODULE_12__scripts_controllers_circularmenu__),
-        __webpack_require__(56)), __WEBPACK_IMPORTED_MODULE_14__scripts_controllers_ed__ = (__webpack_require__.n(__WEBPACK_IMPORTED_MODULE_13__scripts_controllers_connection__),
-        __webpack_require__(57)), __WEBPACK_IMPORTED_MODULE_15__scripts_controllers_jointcontroller__ = (__webpack_require__.n(__WEBPACK_IMPORTED_MODULE_14__scripts_controllers_ed__),
-        __webpack_require__(58)), __WEBPACK_IMPORTED_MODULE_16__scripts_controllers_main__ = (__webpack_require__.n(__WEBPACK_IMPORTED_MODULE_15__scripts_controllers_jointcontroller__),
-        __webpack_require__(59)), __WEBPACK_IMPORTED_MODULE_17__scripts_controllers_modellist__ = (__webpack_require__.n(__WEBPACK_IMPORTED_MODULE_16__scripts_controllers_main__),
-        __webpack_require__(60)), __WEBPACK_IMPORTED_MODULE_18__scripts_controllers_sidebar__ = (__webpack_require__.n(__WEBPACK_IMPORTED_MODULE_17__scripts_controllers_modellist__),
-        __webpack_require__(61)), __WEBPACK_IMPORTED_MODULE_19__scripts_controllers_snapshotlist__ = (__webpack_require__.n(__WEBPACK_IMPORTED_MODULE_18__scripts_controllers_sidebar__),
-        __webpack_require__(62)), __WEBPACK_IMPORTED_MODULE_20__scripts_controllers_speech__ = (__webpack_require__.n(__WEBPACK_IMPORTED_MODULE_19__scripts_controllers_snapshotlist__),
-        __webpack_require__(63)), __WEBPACK_IMPORTED_MODULE_21__scripts_controllers_teleop__ = (__webpack_require__.n(__WEBPACK_IMPORTED_MODULE_20__scripts_controllers_speech__),
-        __webpack_require__(64)), __WEBPACK_IMPORTED_MODULE_22__scripts_controllers_hardware_battery_js__ = (__webpack_require__.n(__WEBPACK_IMPORTED_MODULE_21__scripts_controllers_teleop__),
-        __webpack_require__(65)), __WEBPACK_IMPORTED_MODULE_23__scripts_controllers_hardware_ebuttons_js__ = (__webpack_require__.n(__WEBPACK_IMPORTED_MODULE_22__scripts_controllers_hardware_battery_js__),
-        __webpack_require__(66)), __WEBPACK_IMPORTED_MODULE_24__scripts_directives_ngteleopcanvas__ = (__webpack_require__.n(__WEBPACK_IMPORTED_MODULE_23__scripts_controllers_hardware_ebuttons_js__),
-        __webpack_require__(67)), __WEBPACK_IMPORTED_MODULE_26__scripts_orbitControls__ = (__webpack_require__.n(__WEBPACK_IMPORTED_MODULE_24__scripts_directives_ngteleopcanvas__),
-        __webpack_require__(68), __webpack_require__(70)), __WEBPACK_IMPORTED_MODULE_27__scripts_run__ = (__webpack_require__.n(__WEBPACK_IMPORTED_MODULE_26__scripts_orbitControls__),
-        __webpack_require__(71)), __WEBPACK_IMPORTED_MODULE_28__scripts_services_robot__ = (__webpack_require__.n(__WEBPACK_IMPORTED_MODULE_27__scripts_run__),
-        __webpack_require__(73));
-        __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_28__scripts_services_robot__);
+        var __WEBPACK_IMPORTED_MODULE_0_bootstrap_dist_css_bootstrap_min_css__ = __webpack_require__(42), __WEBPACK_IMPORTED_MODULE_1_bootstrap_dist_css_bootstrap_css__ = (__webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_bootstrap_dist_css_bootstrap_min_css__),
+        __webpack_require__(43)), __WEBPACK_IMPORTED_MODULE_2_angular_circular_navigation_angular_circular_navigation_css__ = (__webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_bootstrap_dist_css_bootstrap_css__),
+        __webpack_require__(44)), __WEBPACK_IMPORTED_MODULE_3_font_awesome_css_font_awesome_min_css__ = (__webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_angular_circular_navigation_angular_circular_navigation_css__),
+        __webpack_require__(45)), __WEBPACK_IMPORTED_MODULE_4__styles_main_css__ = (__webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3_font_awesome_css_font_awesome_min_css__),
+        __webpack_require__(46)), __WEBPACK_IMPORTED_MODULE_5_angular_circular_navigation_angular_circular_navigation__ = (__webpack_require__.n(__WEBPACK_IMPORTED_MODULE_4__styles_main_css__),
+        __webpack_require__(47)), __WEBPACK_IMPORTED_MODULE_6_ngdraggable__ = (__webpack_require__.n(__WEBPACK_IMPORTED_MODULE_5_angular_circular_navigation_angular_circular_navigation__),
+        __webpack_require__(48)), __WEBPACK_IMPORTED_MODULE_7_bootstrap_js_tab__ = (__webpack_require__.n(__WEBPACK_IMPORTED_MODULE_6_ngdraggable__),
+        __webpack_require__(49)), __WEBPACK_IMPORTED_MODULE_8__scripts_app__ = (__webpack_require__.n(__WEBPACK_IMPORTED_MODULE_7_bootstrap_js_tab__),
+        __webpack_require__(50)), __WEBPACK_IMPORTED_MODULE_9__scripts_controllers_actions__ = (__webpack_require__.n(__WEBPACK_IMPORTED_MODULE_8__scripts_app__),
+        __webpack_require__(51)), __WEBPACK_IMPORTED_MODULE_10__scripts_controllers_circularmenu__ = (__webpack_require__.n(__WEBPACK_IMPORTED_MODULE_9__scripts_controllers_actions__),
+        __webpack_require__(52)), __WEBPACK_IMPORTED_MODULE_11__scripts_controllers_connection__ = (__webpack_require__.n(__WEBPACK_IMPORTED_MODULE_10__scripts_controllers_circularmenu__),
+        __webpack_require__(53)), __WEBPACK_IMPORTED_MODULE_12__scripts_controllers_ed__ = (__webpack_require__.n(__WEBPACK_IMPORTED_MODULE_11__scripts_controllers_connection__),
+        __webpack_require__(54)), __WEBPACK_IMPORTED_MODULE_13__scripts_controllers_jointcontroller__ = (__webpack_require__.n(__WEBPACK_IMPORTED_MODULE_12__scripts_controllers_ed__),
+        __webpack_require__(55)), __WEBPACK_IMPORTED_MODULE_14__scripts_controllers_main__ = (__webpack_require__.n(__WEBPACK_IMPORTED_MODULE_13__scripts_controllers_jointcontroller__),
+        __webpack_require__(56)), __WEBPACK_IMPORTED_MODULE_15__scripts_controllers_modellist__ = (__webpack_require__.n(__WEBPACK_IMPORTED_MODULE_14__scripts_controllers_main__),
+        __webpack_require__(57)), __WEBPACK_IMPORTED_MODULE_16__scripts_controllers_sidebar__ = (__webpack_require__.n(__WEBPACK_IMPORTED_MODULE_15__scripts_controllers_modellist__),
+        __webpack_require__(58)), __WEBPACK_IMPORTED_MODULE_17__scripts_controllers_snapshotlist__ = (__webpack_require__.n(__WEBPACK_IMPORTED_MODULE_16__scripts_controllers_sidebar__),
+        __webpack_require__(59)), __WEBPACK_IMPORTED_MODULE_18__scripts_controllers_speech__ = (__webpack_require__.n(__WEBPACK_IMPORTED_MODULE_17__scripts_controllers_snapshotlist__),
+        __webpack_require__(60)), __WEBPACK_IMPORTED_MODULE_19__scripts_controllers_teleop__ = (__webpack_require__.n(__WEBPACK_IMPORTED_MODULE_18__scripts_controllers_speech__),
+        __webpack_require__(61)), __WEBPACK_IMPORTED_MODULE_20__scripts_controllers_hardware_battery_js__ = (__webpack_require__.n(__WEBPACK_IMPORTED_MODULE_19__scripts_controllers_teleop__),
+        __webpack_require__(62)), __WEBPACK_IMPORTED_MODULE_21__scripts_controllers_hardware_ebuttons_js__ = (__webpack_require__.n(__WEBPACK_IMPORTED_MODULE_20__scripts_controllers_hardware_battery_js__),
+        __webpack_require__(63)), __WEBPACK_IMPORTED_MODULE_22__scripts_directives_ngteleopcanvas__ = (__webpack_require__.n(__WEBPACK_IMPORTED_MODULE_21__scripts_controllers_hardware_ebuttons_js__),
+        __webpack_require__(64)), __WEBPACK_IMPORTED_MODULE_24__scripts_orbitControls__ = (__webpack_require__.n(__WEBPACK_IMPORTED_MODULE_22__scripts_directives_ngteleopcanvas__),
+        __webpack_require__(65), __webpack_require__(67)), __WEBPACK_IMPORTED_MODULE_25__scripts_run__ = (__webpack_require__.n(__WEBPACK_IMPORTED_MODULE_24__scripts_orbitControls__),
+        __webpack_require__(68)), __WEBPACK_IMPORTED_MODULE_26__scripts_services_robot__ = (__webpack_require__.n(__WEBPACK_IMPORTED_MODULE_25__scripts_run__),
+        __webpack_require__(70));
+        __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_26__scripts_services_robot__);
         angular.module("EdGuiApp").run([ "$templateCache", function($templateCache) {
-            $templateCache.put("views/scene.html", __webpack_require__(114)), $templateCache.put("views/hardware.html", __webpack_require__(115)),
-            $templateCache.put("views/tabs/teleop_tabs/base.html", __webpack_require__(116)),
-            $templateCache.put("views/tabs/teleop_tabs/head.html", __webpack_require__(117)),
-            $templateCache.put("views/tabs/teleop_tabs/speech.html", __webpack_require__(118)),
-            $templateCache.put("views/tabs/teleop_tabs/body.html", __webpack_require__(119)),
-            $templateCache.put("views/tabs/teleop_tabs/ed.html", __webpack_require__(120)),
-            $templateCache.put("views/tabs/teleop.html", __webpack_require__(121)), $templateCache.put("views/tabs/editor.html", __webpack_require__(122)),
-            $templateCache.put("views/tabs/actions.html", __webpack_require__(123));
+            $templateCache.put("views/scene.html", __webpack_require__(111)), $templateCache.put("views/hardware.html", __webpack_require__(112)),
+            $templateCache.put("views/tabs/teleop_tabs/base.html", __webpack_require__(113)),
+            $templateCache.put("views/tabs/teleop_tabs/head.html", __webpack_require__(114)),
+            $templateCache.put("views/tabs/teleop_tabs/speech.html", __webpack_require__(115)),
+            $templateCache.put("views/tabs/teleop_tabs/body.html", __webpack_require__(116)),
+            $templateCache.put("views/tabs/teleop_tabs/ed.html", __webpack_require__(117)),
+            $templateCache.put("views/tabs/teleop.html", __webpack_require__(118)), $templateCache.put("views/tabs/editor.html", __webpack_require__(119)),
+            $templateCache.put("views/tabs/actions.html", __webpack_require__(120));
         } ]);
     }.call(__webpack_exports__, __webpack_require__(0));
 }, function(module, exports, __webpack_require__) {
@@ -28990,8 +28988,8 @@ object-assign
                 angularInit(window.document, bootstrap);
             });
         }(window), !window.angular.$$csp().noInlineStyle && window.angular.element(document.head).prepend(window.angular.element("<style>").text('@charset "UTF-8";[ng\\:cloak],[ng-cloak],[data-ng-cloak],[x-ng-cloak],.ng-cloak,.x-ng-cloak,.ng-hide:not(.ng-hide-animate){display:none !important;}ng\\:form{display:block;}.ng-animate-shim{visibility:hidden;}.ng-anchor{position:absolute;}'));
-    }).call(exports, __webpack_require__(13));
-}, function(module, exports) {}, function(module, exports) {}, function(module, exports) {}, function(module, exports) {}, function(module, exports) {}, function(module, exports) {}, function(module, exports, __webpack_require__) {
+    }).call(exports, __webpack_require__(18));
+}, function(module, exports) {}, function(module, exports) {}, function(module, exports) {}, function(module, exports) {}, function(module, exports) {}, function(module, exports, __webpack_require__) {
     var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;
     __webpack_require__(0);
     !function() {
@@ -29015,948 +29013,6 @@ object-assign
         __WEBPACK_AMD_DEFINE_ARRAY__ = [ __webpack_require__(0) ], __WEBPACK_AMD_DEFINE_FACTORY__ = circular,
         void 0 !== (__WEBPACK_AMD_DEFINE_RESULT__ = "function" == typeof __WEBPACK_AMD_DEFINE_FACTORY__ ? __WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__) : __WEBPACK_AMD_DEFINE_FACTORY__) && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__);
     }();
-}, function(module, exports, __webpack_require__) {
-    var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;
-    __webpack_require__(0);
-    !function(factory) {
-        __WEBPACK_AMD_DEFINE_ARRAY__ = [ __webpack_require__(0), __webpack_require__(50) ],
-        __WEBPACK_AMD_DEFINE_FACTORY__ = factory, void 0 !== (__WEBPACK_AMD_DEFINE_RESULT__ = "function" == typeof __WEBPACK_AMD_DEFINE_FACTORY__ ? __WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__) : __WEBPACK_AMD_DEFINE_FACTORY__) && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__);
-    }(function(angular, Slider) {
-        angular.module("ui.bootstrap-slider", []).directive("slider", [ "$parse", "$timeout", "$rootScope", function($parse, $timeout, $rootScope) {
-            return {
-                restrict: "AE",
-                replace: !0,
-                template: '<div><input class="slider-input" type="text" style="width:100%" /></div>',
-                require: "ngModel",
-                scope: {
-                    max: "=",
-                    min: "=",
-                    step: "=",
-                    value: "=",
-                    ngModel: "=",
-                    ngDisabled: "=",
-                    range: "=",
-                    sliderid: "=",
-                    ticks: "=",
-                    ticksLabels: "=",
-                    ticksSnapBounds: "=",
-                    ticksPositions: "=",
-                    scale: "=",
-                    focus: "=",
-                    formatter: "&",
-                    onStartSlide: "&",
-                    onStopSlide: "&",
-                    onSlide: "&"
-                },
-                link: function($scope, element, attrs, ngModelCtrl, $compile) {
-                    function initSlider() {
-                        function setOption(key, value, defaultValue) {
-                            options[key] = value || defaultValue;
-                        }
-                        function setFloatOption(key, value, defaultValue) {
-                            options[key] = value || 0 === value ? parseFloat(value) : defaultValue;
-                        }
-                        function setBooleanOption(key, value, defaultValue) {
-                            options[key] = value ? value + "" == "true" : defaultValue;
-                        }
-                        function getArrayOrValue(value) {
-                            return angular.isString(value) && 0 === value.indexOf("[") ? angular.fromJson(value) : value;
-                        }
-                        var options = {};
-                        setOption("id", $scope.sliderid), setOption("orientation", attrs.orientation, "horizontal"),
-                        setOption("selection", attrs.selection, "before"), setOption("handle", attrs.handle, "round"),
-                        setOption("tooltip", attrs.sliderTooltip || attrs.tooltip, "show"), setOption("tooltip_position", attrs.sliderTooltipPosition, "top"),
-                        setOption("tooltipseparator", attrs.tooltipseparator, ":"), setOption("ticks", $scope.ticks),
-                        setOption("ticks_labels", $scope.ticksLabels), setOption("ticks_snap_bounds", $scope.ticksSnapBounds),
-                        setOption("ticks_positions", $scope.ticksPositions), setOption("scale", $scope.scale, "linear"),
-                        setOption("focus", $scope.focus), setFloatOption("min", $scope.min, 0), setFloatOption("max", $scope.max, 10),
-                        setFloatOption("step", $scope.step, 1);
-                        var strNbr = options.step + "", dotPos = strNbr.search(/[^.,]*$/), decimals = strNbr.substring(dotPos);
-                        if (setFloatOption("precision", attrs.precision, decimals.length), setBooleanOption("tooltip_split", attrs.tooltipsplit, !1),
-                        setBooleanOption("enabled", attrs.enabled, !0), setBooleanOption("naturalarrowkeys", attrs.naturalarrowkeys, !1),
-                        setBooleanOption("reversed", attrs.reversed, !1), setBooleanOption("range", $scope.range, !1),
-                        options.range) {
-                            if (angular.isArray($scope.value)) options.value = $scope.value; else if (angular.isString($scope.value)) {
-                                if (options.value = getArrayOrValue($scope.value), !angular.isArray(options.value)) {
-                                    var value = parseFloat($scope.value);
-                                    isNaN(value) && (value = 5), value < $scope.min ? (value = $scope.min, options.value = [ value, options.max ]) : value > $scope.max ? (value = $scope.max,
-                                    options.value = [ options.min, value ]) : options.value = [ options.min, options.max ];
-                                }
-                            } else options.value = [ options.min, options.max ];
-                            $scope.ngModel = options.value;
-                        } else setFloatOption("value", $scope.value, 5);
-                        attrs.formatter && (options.formatter = function(value) {
-                            return $scope.formatter({
-                                value: value
-                            });
-                        }), "$" in window && $.fn.slider && ($.fn.slider.constructor.prototype.disable = function() {
-                            this.picker.off();
-                        }, $.fn.slider.constructor.prototype.enable = function() {
-                            this.picker.on();
-                        }), element[0].__slider && element[0].__slider.destroy();
-                        var slider = new Slider(element[0].getElementsByClassName("slider-input")[0], options);
-                        element[0].__slider = slider;
-                        var updateEvent = getArrayOrValue(attrs.updateevent);
-                        updateEvent = angular.isString(updateEvent) ? [ updateEvent ] : [ "slide" ], angular.forEach(updateEvent, function(sliderEvent) {
-                            slider.on(sliderEvent, function(ev) {
-                                ngModelCtrl.$setViewValue(ev);
-                            });
-                        }), slider.on("change", function(ev) {
-                            ngModelCtrl.$setViewValue(ev.newValue);
-                        });
-                        var sliderEvents = {
-                            slideStart: "onStartSlide",
-                            slide: "onSlide",
-                            slideStop: "onStopSlide"
-                        };
-                        return angular.forEach(sliderEvents, function(sliderEventAttr, sliderEvent) {
-                            var fn = $parse(attrs[sliderEventAttr]);
-                            slider.on(sliderEvent, function(ev) {
-                                $scope[sliderEventAttr] && $scope.$apply(function() {
-                                    fn($scope.$parent, {
-                                        $event: ev,
-                                        value: ev
-                                    });
-                                });
-                            });
-                        }), angular.isFunction(ngDisabledDeregisterFn) && (ngDisabledDeregisterFn(), ngDisabledDeregisterFn = null),
-                        ngDisabledDeregisterFn = $scope.$watch("ngDisabled", function(value) {
-                            value ? slider.disable() : slider.enable();
-                        }), angular.isFunction(ngModelDeregisterFn) && ngModelDeregisterFn(), ngModelDeregisterFn = $scope.$watch("ngModel", function(value) {
-                            $scope.range ? slider.setValue(value) : slider.setValue(parseFloat(value)), slider.relayout();
-                        }, !0), slider;
-                    }
-                    var ngModelDeregisterFn, ngDisabledDeregisterFn, slider = initSlider(), watchers = [ "min", "max", "step", "range", "scale", "ticksLabels" ];
-                    angular.forEach(watchers, function(prop) {
-                        $scope.$watch(prop, function() {
-                            slider = initSlider();
-                        });
-                    });
-                    var globalEvents = [ "relayout", "refresh", "resize" ];
-                    angular.forEach(globalEvents, function(event) {
-                        angular.isFunction(slider[event]) && $scope.$on("slider:" + event, function() {
-                            slider[event]();
-                        });
-                    });
-                }
-            };
-        } ]);
-    });
-}, function(module, exports, __webpack_require__) {
-    "use strict";
-    var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__, _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function(obj) {
-        return typeof obj;
-    } : function(obj) {
-        return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
-    }, windowIsDefined = "object" === ("undefined" == typeof window ? "undefined" : _typeof(window));
-    !function(factory) {
-        __WEBPACK_AMD_DEFINE_ARRAY__ = [ __webpack_require__(13) ], __WEBPACK_AMD_DEFINE_FACTORY__ = factory,
-        void 0 !== (__WEBPACK_AMD_DEFINE_RESULT__ = "function" == typeof __WEBPACK_AMD_DEFINE_FACTORY__ ? __WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__) : __WEBPACK_AMD_DEFINE_FACTORY__) && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__);
-    }(function($) {
-        windowIsDefined && !window.console && (window.console = {}), windowIsDefined && !window.console.log && (window.console.log = function() {}),
-        windowIsDefined && !window.console.warn && (window.console.warn = function() {});
-        var Slider;
-        return function($) {
-            function noop() {}
-            var slice = Array.prototype.slice;
-            !function($) {
-                function addOptionMethod(PluginClass) {
-                    PluginClass.prototype.option || (PluginClass.prototype.option = function(opts) {
-                        $.isPlainObject(opts) && (this.options = $.extend(!0, this.options, opts));
-                    });
-                }
-                function bridge(namespace, PluginClass) {
-                    $.fn[namespace] = function(options) {
-                        if ("string" == typeof options) {
-                            for (var args = slice.call(arguments, 1), i = 0, len = this.length; i < len; i++) {
-                                var elem = this[i], instance = $.data(elem, namespace);
-                                if (instance) if ($.isFunction(instance[options]) && "_" !== options.charAt(0)) {
-                                    var returnValue = instance[options].apply(instance, args);
-                                    if (void 0 !== returnValue && returnValue !== instance) return returnValue;
-                                } else logError("no such method '" + options + "' for " + namespace + " instance"); else logError("cannot call methods on " + namespace + " prior to initialization; attempted to call '" + options + "'");
-                            }
-                            return this;
-                        }
-                        var objects = this.map(function() {
-                            var instance = $.data(this, namespace);
-                            return instance ? (instance.option(options), instance._init()) : (instance = new PluginClass(this, options),
-                            $.data(this, namespace, instance)), $(this);
-                        });
-                        return 1 === objects.length ? objects[0] : objects;
-                    };
-                }
-                if ($) {
-                    var logError = "undefined" == typeof console ? noop : function(message) {
-                        console.error(message);
-                    };
-                    $.bridget = function(namespace, PluginClass) {
-                        addOptionMethod(PluginClass), bridge(namespace, PluginClass);
-                    }, $.bridget;
-                }
-            }($);
-        }($), function($) {
-            function createNewSlider(element, options) {
-                this._state = {
-                    value: null,
-                    enabled: null,
-                    offset: null,
-                    size: null,
-                    percentage: null,
-                    inDrag: !1,
-                    over: !1,
-                    tickIndex: null
-                }, this.ticksCallbackMap = {}, this.handleCallbackMap = {}, "string" == typeof element ? this.element = document.querySelector(element) : element instanceof HTMLElement && (this.element = element),
-                options = options || {};
-                for (var optionTypes = Object.keys(this.defaultOptions), isMinSet = options.hasOwnProperty("min"), isMaxSet = options.hasOwnProperty("max"), i = 0; i < optionTypes.length; i++) {
-                    var optName = optionTypes[i], val = options[optName];
-                    val = void 0 !== val ? val : function(element, optName) {
-                        var dataName = "data-slider-" + optName.replace(/_/g, "-"), dataValString = element.getAttribute(dataName);
-                        try {
-                            return JSON.parse(dataValString);
-                        } catch (err) {
-                            return dataValString;
-                        }
-                    }(this.element, optName), val = null !== val ? val : this.defaultOptions[optName],
-                    this.options || (this.options = {}), this.options[optName] = val;
-                }
-                if (this.ticksAreValid = Array.isArray(this.options.ticks) && this.options.ticks.length > 0,
-                this.ticksAreValid || (this.options.lock_to_ticks = !1), "auto" === this.options.rtl) {
-                    var computedStyle = window.getComputedStyle(this.element);
-                    this.options.rtl = null != computedStyle ? "rtl" === computedStyle.direction : "rtl" === this.element.style.direction;
-                }
-                "vertical" !== this.options.orientation || "top" !== this.options.tooltip_position && "bottom" !== this.options.tooltip_position ? "horizontal" !== this.options.orientation || "left" !== this.options.tooltip_position && "right" !== this.options.tooltip_position || (this.options.tooltip_position = "top") : this.options.rtl ? this.options.tooltip_position = "left" : this.options.tooltip_position = "right";
-                var sliderTrackSelection, sliderTrackLow, sliderTrackHigh, sliderMinHandle, sliderMaxHandle, origWidth = this.element.style.width, updateSlider = !1, parent = this.element.parentNode;
-                if (this.sliderElem) updateSlider = !0; else {
-                    this.sliderElem = document.createElement("div"), this.sliderElem.className = "slider";
-                    var sliderTrack = document.createElement("div");
-                    sliderTrack.className = "slider-track", sliderTrackLow = document.createElement("div"),
-                    sliderTrackLow.className = "slider-track-low", sliderTrackSelection = document.createElement("div"),
-                    sliderTrackSelection.className = "slider-selection", sliderTrackHigh = document.createElement("div"),
-                    sliderTrackHigh.className = "slider-track-high", sliderMinHandle = document.createElement("div"),
-                    sliderMinHandle.className = "slider-handle min-slider-handle", sliderMinHandle.setAttribute("role", "slider"),
-                    sliderMinHandle.setAttribute("aria-valuemin", this.options.min), sliderMinHandle.setAttribute("aria-valuemax", this.options.max),
-                    sliderMaxHandle = document.createElement("div"), sliderMaxHandle.className = "slider-handle max-slider-handle",
-                    sliderMaxHandle.setAttribute("role", "slider"), sliderMaxHandle.setAttribute("aria-valuemin", this.options.min),
-                    sliderMaxHandle.setAttribute("aria-valuemax", this.options.max), sliderTrack.appendChild(sliderTrackLow),
-                    sliderTrack.appendChild(sliderTrackSelection), sliderTrack.appendChild(sliderTrackHigh),
-                    this.rangeHighlightElements = [];
-                    var rangeHighlightsOpts = this.options.rangeHighlights;
-                    if (Array.isArray(rangeHighlightsOpts) && rangeHighlightsOpts.length > 0) for (var j = 0; j < rangeHighlightsOpts.length; j++) {
-                        var rangeHighlightElement = document.createElement("div"), customClassString = rangeHighlightsOpts[j].class || "";
-                        rangeHighlightElement.className = "slider-rangeHighlight slider-selection " + customClassString,
-                        this.rangeHighlightElements.push(rangeHighlightElement), sliderTrack.appendChild(rangeHighlightElement);
-                    }
-                    var isLabelledbyArray = Array.isArray(this.options.labelledby);
-                    if (isLabelledbyArray && this.options.labelledby[0] && sliderMinHandle.setAttribute("aria-labelledby", this.options.labelledby[0]),
-                    isLabelledbyArray && this.options.labelledby[1] && sliderMaxHandle.setAttribute("aria-labelledby", this.options.labelledby[1]),
-                    !isLabelledbyArray && this.options.labelledby && (sliderMinHandle.setAttribute("aria-labelledby", this.options.labelledby),
-                    sliderMaxHandle.setAttribute("aria-labelledby", this.options.labelledby)), this.ticks = [],
-                    Array.isArray(this.options.ticks) && this.options.ticks.length > 0) {
-                        for (this.ticksContainer = document.createElement("div"), this.ticksContainer.className = "slider-tick-container",
-                        i = 0; i < this.options.ticks.length; i++) {
-                            var tick = document.createElement("div");
-                            if (tick.className = "slider-tick", this.options.ticks_tooltip) {
-                                var tickListenerReference = this._addTickListener(), enterCallback = tickListenerReference.addMouseEnter(this, tick, i), leaveCallback = tickListenerReference.addMouseLeave(this, tick);
-                                this.ticksCallbackMap[i] = {
-                                    mouseEnter: enterCallback,
-                                    mouseLeave: leaveCallback
-                                };
-                            }
-                            this.ticks.push(tick), this.ticksContainer.appendChild(tick);
-                        }
-                        sliderTrackSelection.className += " tick-slider-selection";
-                    }
-                    if (this.tickLabels = [], Array.isArray(this.options.ticks_labels) && this.options.ticks_labels.length > 0) for (this.tickLabelContainer = document.createElement("div"),
-                    this.tickLabelContainer.className = "slider-tick-label-container", i = 0; i < this.options.ticks_labels.length; i++) {
-                        var label = document.createElement("div"), noTickPositionsSpecified = 0 === this.options.ticks_positions.length, tickLabelsIndex = this.options.reversed && noTickPositionsSpecified ? this.options.ticks_labels.length - (i + 1) : i;
-                        label.className = "slider-tick-label", label.innerHTML = this.options.ticks_labels[tickLabelsIndex],
-                        this.tickLabels.push(label), this.tickLabelContainer.appendChild(label);
-                    }
-                    var createAndAppendTooltipSubElements = function(tooltipElem) {
-                        var arrow = document.createElement("div");
-                        arrow.className = "tooltip-arrow";
-                        var inner = document.createElement("div");
-                        inner.className = "tooltip-inner", tooltipElem.appendChild(arrow), tooltipElem.appendChild(inner);
-                    }, sliderTooltip = document.createElement("div");
-                    sliderTooltip.className = "tooltip tooltip-main", sliderTooltip.setAttribute("role", "presentation"),
-                    createAndAppendTooltipSubElements(sliderTooltip);
-                    var sliderTooltipMin = document.createElement("div");
-                    sliderTooltipMin.className = "tooltip tooltip-min", sliderTooltipMin.setAttribute("role", "presentation"),
-                    createAndAppendTooltipSubElements(sliderTooltipMin);
-                    var sliderTooltipMax = document.createElement("div");
-                    sliderTooltipMax.className = "tooltip tooltip-max", sliderTooltipMax.setAttribute("role", "presentation"),
-                    createAndAppendTooltipSubElements(sliderTooltipMax), this.sliderElem.appendChild(sliderTrack),
-                    this.sliderElem.appendChild(sliderTooltip), this.sliderElem.appendChild(sliderTooltipMin),
-                    this.sliderElem.appendChild(sliderTooltipMax), this.tickLabelContainer && this.sliderElem.appendChild(this.tickLabelContainer),
-                    this.ticksContainer && this.sliderElem.appendChild(this.ticksContainer), this.sliderElem.appendChild(sliderMinHandle),
-                    this.sliderElem.appendChild(sliderMaxHandle), parent.insertBefore(this.sliderElem, this.element),
-                    this.element.style.display = "none";
-                }
-                if ($ && (this.$element = $(this.element), this.$sliderElem = $(this.sliderElem)),
-                this.eventToCallbackMap = {}, this.sliderElem.id = this.options.id, this.touchCapable = "ontouchstart" in window || window.DocumentTouch && document instanceof window.DocumentTouch,
-                this.touchX = 0, this.touchY = 0, this.tooltip = this.sliderElem.querySelector(".tooltip-main"),
-                this.tooltipInner = this.tooltip.querySelector(".tooltip-inner"), this.tooltip_min = this.sliderElem.querySelector(".tooltip-min"),
-                this.tooltipInner_min = this.tooltip_min.querySelector(".tooltip-inner"), this.tooltip_max = this.sliderElem.querySelector(".tooltip-max"),
-                this.tooltipInner_max = this.tooltip_max.querySelector(".tooltip-inner"), SliderScale[this.options.scale] && (this.options.scale = SliderScale[this.options.scale]),
-                !0 === updateSlider && (this._removeClass(this.sliderElem, "slider-horizontal"),
-                this._removeClass(this.sliderElem, "slider-vertical"), this._removeClass(this.sliderElem, "slider-rtl"),
-                this._removeClass(this.tooltip, "hide"), this._removeClass(this.tooltip_min, "hide"),
-                this._removeClass(this.tooltip_max, "hide"), [ "left", "right", "top", "width", "height" ].forEach(function(prop) {
-                    this._removeProperty(this.trackLow, prop), this._removeProperty(this.trackSelection, prop),
-                    this._removeProperty(this.trackHigh, prop);
-                }, this), [ this.handle1, this.handle2 ].forEach(function(handle) {
-                    this._removeProperty(handle, "left"), this._removeProperty(handle, "right"), this._removeProperty(handle, "top");
-                }, this), [ this.tooltip, this.tooltip_min, this.tooltip_max ].forEach(function(tooltip) {
-                    this._removeProperty(tooltip, "left"), this._removeProperty(tooltip, "right"), this._removeProperty(tooltip, "top"),
-                    this._removeClass(tooltip, "right"), this._removeClass(tooltip, "left"), this._removeClass(tooltip, "top");
-                }, this)), "vertical" === this.options.orientation ? (this._addClass(this.sliderElem, "slider-vertical"),
-                this.stylePos = "top", this.mousePos = "pageY", this.sizePos = "offsetHeight") : (this._addClass(this.sliderElem, "slider-horizontal"),
-                this.sliderElem.style.width = origWidth, this.options.orientation = "horizontal",
-                this.options.rtl ? this.stylePos = "right" : this.stylePos = "left", this.mousePos = "clientX",
-                this.sizePos = "offsetWidth"), this.options.rtl && this._addClass(this.sliderElem, "slider-rtl"),
-                this._setTooltipPosition(), Array.isArray(this.options.ticks) && this.options.ticks.length > 0 && (isMaxSet || (this.options.max = Math.max.apply(Math, this.options.ticks)),
-                isMinSet || (this.options.min = Math.min.apply(Math, this.options.ticks))), Array.isArray(this.options.value) ? (this.options.range = !0,
-                this._state.value = this.options.value) : this.options.range ? this._state.value = [ this.options.value, this.options.max ] : this._state.value = this.options.value,
-                this.trackLow = sliderTrackLow || this.trackLow, this.trackSelection = sliderTrackSelection || this.trackSelection,
-                this.trackHigh = sliderTrackHigh || this.trackHigh, "none" === this.options.selection ? (this._addClass(this.trackLow, "hide"),
-                this._addClass(this.trackSelection, "hide"), this._addClass(this.trackHigh, "hide")) : "after" !== this.options.selection && "before" !== this.options.selection || (this._removeClass(this.trackLow, "hide"),
-                this._removeClass(this.trackSelection, "hide"), this._removeClass(this.trackHigh, "hide")),
-                this.handle1 = sliderMinHandle || this.handle1, this.handle2 = sliderMaxHandle || this.handle2,
-                !0 === updateSlider) for (this._removeClass(this.handle1, "round triangle"), this._removeClass(this.handle2, "round triangle hide"),
-                i = 0; i < this.ticks.length; i++) this._removeClass(this.ticks[i], "round triangle hide");
-                if (-1 !== [ "round", "triangle", "custom" ].indexOf(this.options.handle)) for (this._addClass(this.handle1, this.options.handle),
-                this._addClass(this.handle2, this.options.handle), i = 0; i < this.ticks.length; i++) this._addClass(this.ticks[i], this.options.handle);
-                if (this._state.offset = this._offset(this.sliderElem), this._state.size = this.sliderElem[this.sizePos],
-                this.setValue(this._state.value), this.handle1Keydown = this._keydown.bind(this, 0),
-                this.handle1.addEventListener("keydown", this.handle1Keydown, !1), this.handle2Keydown = this._keydown.bind(this, 1),
-                this.handle2.addEventListener("keydown", this.handle2Keydown, !1), this.mousedown = this._mousedown.bind(this),
-                this.touchstart = this._touchstart.bind(this), this.touchmove = this._touchmove.bind(this),
-                this.touchCapable && (this.sliderElem.addEventListener("touchstart", this.touchstart, !1),
-                this.sliderElem.addEventListener("touchmove", this.touchmove, !1)), this.sliderElem.addEventListener("mousedown", this.mousedown, !1),
-                this.resize = this._resize.bind(this), window.addEventListener("resize", this.resize, !1),
-                "hide" === this.options.tooltip) this._addClass(this.tooltip, "hide"), this._addClass(this.tooltip_min, "hide"),
-                this._addClass(this.tooltip_max, "hide"); else if ("always" === this.options.tooltip) this._showTooltip(),
-                this._alwaysShowTooltip = !0; else {
-                    if (this.showTooltip = this._showTooltip.bind(this), this.hideTooltip = this._hideTooltip.bind(this),
-                    this.options.ticks_tooltip) {
-                        var callbackHandle = this._addTickListener(), mouseEnter = callbackHandle.addMouseEnter(this, this.handle1), mouseLeave = callbackHandle.addMouseLeave(this, this.handle1);
-                        this.handleCallbackMap.handle1 = {
-                            mouseEnter: mouseEnter,
-                            mouseLeave: mouseLeave
-                        }, mouseEnter = callbackHandle.addMouseEnter(this, this.handle2), mouseLeave = callbackHandle.addMouseLeave(this, this.handle2),
-                        this.handleCallbackMap.handle2 = {
-                            mouseEnter: mouseEnter,
-                            mouseLeave: mouseLeave
-                        };
-                    } else this.sliderElem.addEventListener("mouseenter", this.showTooltip, !1), this.sliderElem.addEventListener("mouseleave", this.hideTooltip, !1),
-                    this.touchCapable && (this.sliderElem.addEventListener("touchstart", this.showTooltip, !1),
-                    this.sliderElem.addEventListener("touchmove", this.showTooltip, !1), this.sliderElem.addEventListener("touchend", this.hideTooltip, !1));
-                    this.handle1.addEventListener("focus", this.showTooltip, !1), this.handle1.addEventListener("blur", this.hideTooltip, !1),
-                    this.handle2.addEventListener("focus", this.showTooltip, !1), this.handle2.addEventListener("blur", this.hideTooltip, !1),
-                    this.touchCapable && (this.handle1.addEventListener("touchstart", this.showTooltip, !1),
-                    this.handle1.addEventListener("touchmove", this.showTooltip, !1), this.handle1.addEventListener("touchend", this.hideTooltip, !1),
-                    this.handle2.addEventListener("touchstart", this.showTooltip, !1), this.handle2.addEventListener("touchmove", this.showTooltip, !1),
-                    this.handle2.addEventListener("touchend", this.hideTooltip, !1));
-                }
-                this.options.enabled ? this.enable() : this.disable();
-            }
-            var autoRegisterNamespace = void 0, ErrorMsgs = {
-                formatInvalidInputErrorMsg: function(input) {
-                    return "Invalid input value '" + input + "' passed in";
-                },
-                callingContextNotSliderInstance: "Calling context element does not have instance of Slider bound to it. Check your code to make sure the JQuery object returned from the call to the slider() initializer is calling the method"
-            }, SliderScale = {
-                linear: {
-                    getValue: function(value, options) {
-                        return value < options.min ? options.min : value > options.max ? options.max : value;
-                    },
-                    toValue: function(percentage) {
-                        var rawValue = percentage / 100 * (this.options.max - this.options.min), shouldAdjustWithBase = !0;
-                        if (this.options.ticks_positions.length > 0) {
-                            for (var minv, maxv, minp, maxp = 0, i = 1; i < this.options.ticks_positions.length; i++) if (percentage <= this.options.ticks_positions[i]) {
-                                minv = this.options.ticks[i - 1], minp = this.options.ticks_positions[i - 1], maxv = this.options.ticks[i],
-                                maxp = this.options.ticks_positions[i];
-                                break;
-                            }
-                            rawValue = minv + (percentage - minp) / (maxp - minp) * (maxv - minv), shouldAdjustWithBase = !1;
-                        }
-                        var adjustment = shouldAdjustWithBase ? this.options.min : 0, value = adjustment + Math.round(rawValue / this.options.step) * this.options.step;
-                        return SliderScale.linear.getValue(value, this.options);
-                    },
-                    toPercentage: function(value) {
-                        if (this.options.max === this.options.min) return 0;
-                        if (this.options.ticks_positions.length > 0) {
-                            for (var minv, maxv, minp, maxp = 0, i = 0; i < this.options.ticks.length; i++) if (value <= this.options.ticks[i]) {
-                                minv = i > 0 ? this.options.ticks[i - 1] : 0, minp = i > 0 ? this.options.ticks_positions[i - 1] : 0,
-                                maxv = this.options.ticks[i], maxp = this.options.ticks_positions[i];
-                                break;
-                            }
-                            if (i > 0) {
-                                return minp + (value - minv) / (maxv - minv) * (maxp - minp);
-                            }
-                        }
-                        return 100 * (value - this.options.min) / (this.options.max - this.options.min);
-                    }
-                },
-                logarithmic: {
-                    toValue: function(percentage) {
-                        var offset = 1 - this.options.min, min = Math.log(this.options.min + offset), max = Math.log(this.options.max + offset), value = Math.exp(min + (max - min) * percentage / 100) - offset;
-                        return Math.round(value) === max ? max : (value = this.options.min + Math.round((value - this.options.min) / this.options.step) * this.options.step,
-                        SliderScale.linear.getValue(value, this.options));
-                    },
-                    toPercentage: function(value) {
-                        if (this.options.max === this.options.min) return 0;
-                        var offset = 1 - this.options.min, max = Math.log(this.options.max + offset), min = Math.log(this.options.min + offset);
-                        return 100 * (Math.log(value + offset) - min) / (max - min);
-                    }
-                }
-            };
-            Slider = function(element, options) {
-                return createNewSlider.call(this, element, options), this;
-            }, Slider.prototype = {
-                _init: function() {},
-                constructor: Slider,
-                defaultOptions: {
-                    id: "",
-                    min: 0,
-                    max: 10,
-                    step: 1,
-                    precision: 0,
-                    orientation: "horizontal",
-                    value: 5,
-                    range: !1,
-                    selection: "before",
-                    tooltip: "show",
-                    tooltip_split: !1,
-                    lock_to_ticks: !1,
-                    handle: "round",
-                    reversed: !1,
-                    rtl: "auto",
-                    enabled: !0,
-                    formatter: function(val) {
-                        return Array.isArray(val) ? val[0] + " : " + val[1] : val;
-                    },
-                    natural_arrow_keys: !1,
-                    ticks: [],
-                    ticks_positions: [],
-                    ticks_labels: [],
-                    ticks_snap_bounds: 0,
-                    ticks_tooltip: !1,
-                    scale: "linear",
-                    focus: !1,
-                    tooltip_position: null,
-                    labelledby: null,
-                    rangeHighlights: []
-                },
-                getElement: function() {
-                    return this.sliderElem;
-                },
-                getValue: function() {
-                    return this.options.range ? this._state.value : this._state.value[0];
-                },
-                setValue: function(val, triggerSlideEvent, triggerChangeEvent) {
-                    val || (val = 0);
-                    var oldValue = this.getValue();
-                    this._state.value = this._validateInputValue(val);
-                    var applyPrecision = this._applyPrecision.bind(this);
-                    this.options.range ? (this._state.value[0] = applyPrecision(this._state.value[0]),
-                    this._state.value[1] = applyPrecision(this._state.value[1]), this.ticksAreValid && this.options.lock_to_ticks && (this._state.value[0] = this.options.ticks[this._getClosestTickIndex(this._state.value[0])],
-                    this._state.value[1] = this.options.ticks[this._getClosestTickIndex(this._state.value[1])]),
-                    this._state.value[0] = Math.max(this.options.min, Math.min(this.options.max, this._state.value[0])),
-                    this._state.value[1] = Math.max(this.options.min, Math.min(this.options.max, this._state.value[1]))) : (this._state.value = applyPrecision(this._state.value),
-                    this.ticksAreValid && this.options.lock_to_ticks && (this._state.value = this.options.ticks[this._getClosestTickIndex(this._state.value)]),
-                    this._state.value = [ Math.max(this.options.min, Math.min(this.options.max, this._state.value)) ],
-                    this._addClass(this.handle2, "hide"), "after" === this.options.selection ? this._state.value[1] = this.options.max : this._state.value[1] = this.options.min),
-                    this._setTickIndex(), this.options.max > this.options.min ? this._state.percentage = [ this._toPercentage(this._state.value[0]), this._toPercentage(this._state.value[1]), 100 * this.options.step / (this.options.max - this.options.min) ] : this._state.percentage = [ 0, 0, 100 ],
-                    this._layout();
-                    var newValue = this.options.range ? this._state.value : this._state.value[0];
-                    this._setDataVal(newValue), !0 === triggerSlideEvent && this._trigger("slide", newValue);
-                    var hasChanged = !1;
-                    return hasChanged = Array.isArray(newValue) ? oldValue[0] !== newValue[0] || oldValue[1] !== newValue[1] : oldValue !== newValue,
-                    hasChanged && !0 === triggerChangeEvent && this._trigger("change", {
-                        oldValue: oldValue,
-                        newValue: newValue
-                    }), this;
-                },
-                destroy: function() {
-                    this._removeSliderEventHandlers(), this.sliderElem.parentNode.removeChild(this.sliderElem),
-                    this.element.style.display = "", this._cleanUpEventCallbacksMap(), this.element.removeAttribute("data"),
-                    $ && (this._unbindJQueryEventHandlers(), "slider" === autoRegisterNamespace && this.$element.removeData(autoRegisterNamespace),
-                    this.$element.removeData("bootstrapSlider"));
-                },
-                disable: function() {
-                    return this._state.enabled = !1, this.handle1.removeAttribute("tabindex"), this.handle2.removeAttribute("tabindex"),
-                    this._addClass(this.sliderElem, "slider-disabled"), this._trigger("slideDisabled"),
-                    this;
-                },
-                enable: function() {
-                    return this._state.enabled = !0, this.handle1.setAttribute("tabindex", 0), this.handle2.setAttribute("tabindex", 0),
-                    this._removeClass(this.sliderElem, "slider-disabled"), this._trigger("slideEnabled"),
-                    this;
-                },
-                toggle: function() {
-                    return this._state.enabled ? this.disable() : this.enable(), this;
-                },
-                isEnabled: function() {
-                    return this._state.enabled;
-                },
-                on: function(evt, callback) {
-                    return this._bindNonQueryEventHandler(evt, callback), this;
-                },
-                off: function(evt, callback) {
-                    $ ? (this.$element.off(evt, callback), this.$sliderElem.off(evt, callback)) : this._unbindNonQueryEventHandler(evt, callback);
-                },
-                getAttribute: function(attribute) {
-                    return attribute ? this.options[attribute] : this.options;
-                },
-                setAttribute: function(attribute, value) {
-                    return this.options[attribute] = value, this;
-                },
-                refresh: function(options) {
-                    var currentValue = this.getValue();
-                    return this._removeSliderEventHandlers(), createNewSlider.call(this, this.element, this.options),
-                    options && !0 === options.useCurrentValue && this.setValue(currentValue), $ && ("slider" === autoRegisterNamespace ? ($.data(this.element, "slider", this),
-                    $.data(this.element, "bootstrapSlider", this)) : $.data(this.element, "bootstrapSlider", this)),
-                    this;
-                },
-                relayout: function() {
-                    return this._resize(), this;
-                },
-                _removeTooltipListener: function(event, handler) {
-                    this.handle1.removeEventListener(event, handler, !1), this.handle2.removeEventListener(event, handler, !1);
-                },
-                _removeSliderEventHandlers: function() {
-                    if (this.handle1.removeEventListener("keydown", this.handle1Keydown, !1), this.handle2.removeEventListener("keydown", this.handle2Keydown, !1),
-                    this.options.ticks_tooltip) {
-                        for (var ticks = this.ticksContainer.getElementsByClassName("slider-tick"), i = 0; i < ticks.length; i++) ticks[i].removeEventListener("mouseenter", this.ticksCallbackMap[i].mouseEnter, !1),
-                        ticks[i].removeEventListener("mouseleave", this.ticksCallbackMap[i].mouseLeave, !1);
-                        this.handleCallbackMap.handle1 && this.handleCallbackMap.handle2 && (this.handle1.removeEventListener("mouseenter", this.handleCallbackMap.handle1.mouseEnter, !1),
-                        this.handle2.removeEventListener("mouseenter", this.handleCallbackMap.handle2.mouseEnter, !1),
-                        this.handle1.removeEventListener("mouseleave", this.handleCallbackMap.handle1.mouseLeave, !1),
-                        this.handle2.removeEventListener("mouseleave", this.handleCallbackMap.handle2.mouseLeave, !1));
-                    }
-                    this.handleCallbackMap = null, this.ticksCallbackMap = null, this.showTooltip && this._removeTooltipListener("focus", this.showTooltip),
-                    this.hideTooltip && this._removeTooltipListener("blur", this.hideTooltip), this.showTooltip && this.sliderElem.removeEventListener("mouseenter", this.showTooltip, !1),
-                    this.hideTooltip && this.sliderElem.removeEventListener("mouseleave", this.hideTooltip, !1),
-                    this.sliderElem.removeEventListener("mousedown", this.mousedown, !1), this.touchCapable && (this.showTooltip && (this.handle1.removeEventListener("touchstart", this.showTooltip, !1),
-                    this.handle1.removeEventListener("touchmove", this.showTooltip, !1), this.handle2.removeEventListener("touchstart", this.showTooltip, !1),
-                    this.handle2.removeEventListener("touchmove", this.showTooltip, !1)), this.hideTooltip && (this.handle1.removeEventListener("touchend", this.hideTooltip, !1),
-                    this.handle2.removeEventListener("touchend", this.hideTooltip, !1)), this.showTooltip && (this.sliderElem.removeEventListener("touchstart", this.showTooltip, !1),
-                    this.sliderElem.removeEventListener("touchmove", this.showTooltip, !1)), this.hideTooltip && this.sliderElem.removeEventListener("touchend", this.hideTooltip, !1),
-                    this.sliderElem.removeEventListener("touchstart", this.touchstart, !1), this.sliderElem.removeEventListener("touchmove", this.touchmove, !1)),
-                    window.removeEventListener("resize", this.resize, !1);
-                },
-                _bindNonQueryEventHandler: function(evt, callback) {
-                    void 0 === this.eventToCallbackMap[evt] && (this.eventToCallbackMap[evt] = []),
-                    this.eventToCallbackMap[evt].push(callback);
-                },
-                _unbindNonQueryEventHandler: function(evt, callback) {
-                    var callbacks = this.eventToCallbackMap[evt];
-                    if (void 0 !== callbacks) for (var i = 0; i < callbacks.length; i++) if (callbacks[i] === callback) {
-                        callbacks.splice(i, 1);
-                        break;
-                    }
-                },
-                _cleanUpEventCallbacksMap: function() {
-                    for (var eventNames = Object.keys(this.eventToCallbackMap), i = 0; i < eventNames.length; i++) {
-                        var eventName = eventNames[i];
-                        delete this.eventToCallbackMap[eventName];
-                    }
-                },
-                _showTooltip: function() {
-                    !1 === this.options.tooltip_split ? (this._addClass(this.tooltip, "in"), this.tooltip_min.style.display = "none",
-                    this.tooltip_max.style.display = "none") : (this._addClass(this.tooltip_min, "in"),
-                    this._addClass(this.tooltip_max, "in"), this.tooltip.style.display = "none"), this._state.over = !0;
-                },
-                _hideTooltip: function() {
-                    !1 === this._state.inDrag && !0 !== this._alwaysShowTooltip && (this._removeClass(this.tooltip, "in"),
-                    this._removeClass(this.tooltip_min, "in"), this._removeClass(this.tooltip_max, "in")),
-                    this._state.over = !1;
-                },
-                _setToolTipOnMouseOver: function(tempState) {
-                    function getPositionPercentages(state, reversed) {
-                        return reversed ? [ 100 - state.percentage[0], self.options.range ? 100 - state.percentage[1] : state.percentage[1] ] : [ state.percentage[0], state.percentage[1] ];
-                    }
-                    var self = this, formattedTooltipVal = this.options.formatter(tempState ? tempState.value[0] : this._state.value[0]), positionPercentages = tempState ? getPositionPercentages(tempState, this.options.reversed) : getPositionPercentages(this._state, this.options.reversed);
-                    this._setText(this.tooltipInner, formattedTooltipVal), this.tooltip.style[this.stylePos] = positionPercentages[0] + "%";
-                },
-                _copyState: function() {
-                    return {
-                        value: [ this._state.value[0], this._state.value[1] ],
-                        enabled: this._state.enabled,
-                        offset: this._state.offset,
-                        size: this._state.size,
-                        percentage: [ this._state.percentage[0], this._state.percentage[1], this._state.percentage[2] ],
-                        inDrag: this._state.inDrag,
-                        over: this._state.over,
-                        dragged: this._state.dragged,
-                        keyCtrl: this._state.keyCtrl
-                    };
-                },
-                _addTickListener: function() {
-                    return {
-                        addMouseEnter: function(reference, element, index) {
-                            var enter = function() {
-                                var tempState = reference._copyState(), val = element === reference.handle1 ? tempState.value[0] : tempState.value[1], per = void 0;
-                                void 0 !== index ? (val = reference.options.ticks[index], per = reference.options.ticks_positions.length > 0 && reference.options.ticks_positions[index] || reference._toPercentage(reference.options.ticks[index])) : per = reference._toPercentage(val),
-                                tempState.value[0] = val, tempState.percentage[0] = per, reference._setToolTipOnMouseOver(tempState),
-                                reference._showTooltip();
-                            };
-                            return element.addEventListener("mouseenter", enter, !1), enter;
-                        },
-                        addMouseLeave: function(reference, element) {
-                            var leave = function() {
-                                reference._hideTooltip();
-                            };
-                            return element.addEventListener("mouseleave", leave, !1), leave;
-                        }
-                    };
-                },
-                _layout: function() {
-                    var positionPercentages, formattedValue;
-                    if (positionPercentages = this.options.reversed ? [ 100 - this._state.percentage[0], this.options.range ? 100 - this._state.percentage[1] : this._state.percentage[1] ] : [ this._state.percentage[0], this._state.percentage[1] ],
-                    this.handle1.style[this.stylePos] = positionPercentages[0] + "%", this.handle1.setAttribute("aria-valuenow", this._state.value[0]),
-                    formattedValue = this.options.formatter(this._state.value[0]), isNaN(formattedValue) ? this.handle1.setAttribute("aria-valuetext", formattedValue) : this.handle1.removeAttribute("aria-valuetext"),
-                    this.handle2.style[this.stylePos] = positionPercentages[1] + "%", this.handle2.setAttribute("aria-valuenow", this._state.value[1]),
-                    formattedValue = this.options.formatter(this._state.value[1]), isNaN(formattedValue) ? this.handle2.setAttribute("aria-valuetext", formattedValue) : this.handle2.removeAttribute("aria-valuetext"),
-                    this.rangeHighlightElements.length > 0 && Array.isArray(this.options.rangeHighlights) && this.options.rangeHighlights.length > 0) for (var _i = 0; _i < this.options.rangeHighlights.length; _i++) {
-                        var startPercent = this._toPercentage(this.options.rangeHighlights[_i].start), endPercent = this._toPercentage(this.options.rangeHighlights[_i].end);
-                        if (this.options.reversed) {
-                            var sp = 100 - endPercent;
-                            endPercent = 100 - startPercent, startPercent = sp;
-                        }
-                        var currentRange = this._createHighlightRange(startPercent, endPercent);
-                        currentRange ? "vertical" === this.options.orientation ? (this.rangeHighlightElements[_i].style.top = currentRange.start + "%",
-                        this.rangeHighlightElements[_i].style.height = currentRange.size + "%") : (this.options.rtl ? this.rangeHighlightElements[_i].style.right = currentRange.start + "%" : this.rangeHighlightElements[_i].style.left = currentRange.start + "%",
-                        this.rangeHighlightElements[_i].style.width = currentRange.size + "%") : this.rangeHighlightElements[_i].style.display = "none";
-                    }
-                    if (Array.isArray(this.options.ticks) && this.options.ticks.length > 0) {
-                        var styleMargin, styleSize = "vertical" === this.options.orientation ? "height" : "width";
-                        styleMargin = "vertical" === this.options.orientation ? "marginTop" : this.options.rtl ? "marginRight" : "marginLeft";
-                        var labelSize = this._state.size / (this.options.ticks.length - 1);
-                        if (this.tickLabelContainer) {
-                            var extraMargin = 0;
-                            if (0 === this.options.ticks_positions.length) "vertical" !== this.options.orientation && (this.tickLabelContainer.style[styleMargin] = -labelSize / 2 + "px"),
-                            extraMargin = this.tickLabelContainer.offsetHeight; else for (i = 0; i < this.tickLabelContainer.childNodes.length; i++) this.tickLabelContainer.childNodes[i].offsetHeight > extraMargin && (extraMargin = this.tickLabelContainer.childNodes[i].offsetHeight);
-                            "horizontal" === this.options.orientation && (this.sliderElem.style.marginBottom = extraMargin + "px");
-                        }
-                        for (var i = 0; i < this.options.ticks.length; i++) {
-                            var percentage = this.options.ticks_positions[i] || this._toPercentage(this.options.ticks[i]);
-                            this.options.reversed && (percentage = 100 - percentage), this.ticks[i].style[this.stylePos] = percentage + "%",
-                            this._removeClass(this.ticks[i], "in-selection"), this.options.range ? percentage >= positionPercentages[0] && percentage <= positionPercentages[1] && this._addClass(this.ticks[i], "in-selection") : "after" === this.options.selection && percentage >= positionPercentages[0] ? this._addClass(this.ticks[i], "in-selection") : "before" === this.options.selection && percentage <= positionPercentages[0] && this._addClass(this.ticks[i], "in-selection"),
-                            this.tickLabels[i] && (this.tickLabels[i].style[styleSize] = labelSize + "px", "vertical" !== this.options.orientation && void 0 !== this.options.ticks_positions[i] ? (this.tickLabels[i].style.position = "absolute",
-                            this.tickLabels[i].style[this.stylePos] = percentage + "%", this.tickLabels[i].style[styleMargin] = -labelSize / 2 + "px") : "vertical" === this.options.orientation && (this.options.rtl ? this.tickLabels[i].style.marginRight = this.sliderElem.offsetWidth + "px" : this.tickLabels[i].style.marginLeft = this.sliderElem.offsetWidth + "px",
-                            this.tickLabelContainer.style[styleMargin] = this.sliderElem.offsetWidth / 2 * -1 + "px"),
-                            this._removeClass(this.tickLabels[i], "label-in-selection label-is-selection"),
-                            this.options.range ? percentage >= positionPercentages[0] && percentage <= positionPercentages[1] && (this._addClass(this.tickLabels[i], "label-in-selection"),
-                            (percentage === positionPercentages[0] || positionPercentages[1]) && this._addClass(this.tickLabels[i], "label-is-selection")) : ("after" === this.options.selection && percentage >= positionPercentages[0] ? this._addClass(this.tickLabels[i], "label-in-selection") : "before" === this.options.selection && percentage <= positionPercentages[0] && this._addClass(this.tickLabels[i], "label-in-selection"),
-                            percentage === positionPercentages[0] && this._addClass(this.tickLabels[i], "label-is-selection")));
-                        }
-                    }
-                    var formattedTooltipVal;
-                    if (this.options.range) {
-                        formattedTooltipVal = this.options.formatter(this._state.value), this._setText(this.tooltipInner, formattedTooltipVal),
-                        this.tooltip.style[this.stylePos] = (positionPercentages[1] + positionPercentages[0]) / 2 + "%";
-                        var innerTooltipMinText = this.options.formatter(this._state.value[0]);
-                        this._setText(this.tooltipInner_min, innerTooltipMinText);
-                        var innerTooltipMaxText = this.options.formatter(this._state.value[1]);
-                        this._setText(this.tooltipInner_max, innerTooltipMaxText), this.tooltip_min.style[this.stylePos] = positionPercentages[0] + "%",
-                        this.tooltip_max.style[this.stylePos] = positionPercentages[1] + "%";
-                    } else formattedTooltipVal = this.options.formatter(this._state.value[0]), this._setText(this.tooltipInner, formattedTooltipVal),
-                    this.tooltip.style[this.stylePos] = positionPercentages[0] + "%";
-                    if ("vertical" === this.options.orientation) this.trackLow.style.top = "0", this.trackLow.style.height = Math.min(positionPercentages[0], positionPercentages[1]) + "%",
-                    this.trackSelection.style.top = Math.min(positionPercentages[0], positionPercentages[1]) + "%",
-                    this.trackSelection.style.height = Math.abs(positionPercentages[0] - positionPercentages[1]) + "%",
-                    this.trackHigh.style.bottom = "0", this.trackHigh.style.height = 100 - Math.min(positionPercentages[0], positionPercentages[1]) - Math.abs(positionPercentages[0] - positionPercentages[1]) + "%"; else {
-                        "right" === this.stylePos ? this.trackLow.style.right = "0" : this.trackLow.style.left = "0",
-                        this.trackLow.style.width = Math.min(positionPercentages[0], positionPercentages[1]) + "%",
-                        "right" === this.stylePos ? this.trackSelection.style.right = Math.min(positionPercentages[0], positionPercentages[1]) + "%" : this.trackSelection.style.left = Math.min(positionPercentages[0], positionPercentages[1]) + "%",
-                        this.trackSelection.style.width = Math.abs(positionPercentages[0] - positionPercentages[1]) + "%",
-                        "right" === this.stylePos ? this.trackHigh.style.left = "0" : this.trackHigh.style.right = "0",
-                        this.trackHigh.style.width = 100 - Math.min(positionPercentages[0], positionPercentages[1]) - Math.abs(positionPercentages[0] - positionPercentages[1]) + "%";
-                        var offset_min = this.tooltip_min.getBoundingClientRect(), offset_max = this.tooltip_max.getBoundingClientRect();
-                        "bottom" === this.options.tooltip_position ? offset_min.right > offset_max.left ? (this._removeClass(this.tooltip_max, "bottom"),
-                        this._addClass(this.tooltip_max, "top"), this.tooltip_max.style.top = "", this.tooltip_max.style.bottom = "22px") : (this._removeClass(this.tooltip_max, "top"),
-                        this._addClass(this.tooltip_max, "bottom"), this.tooltip_max.style.top = this.tooltip_min.style.top,
-                        this.tooltip_max.style.bottom = "") : offset_min.right > offset_max.left ? (this._removeClass(this.tooltip_max, "top"),
-                        this._addClass(this.tooltip_max, "bottom"), this.tooltip_max.style.top = "18px") : (this._removeClass(this.tooltip_max, "bottom"),
-                        this._addClass(this.tooltip_max, "top"), this.tooltip_max.style.top = this.tooltip_min.style.top);
-                    }
-                },
-                _createHighlightRange: function(start, end) {
-                    return this._isHighlightRange(start, end) ? start > end ? {
-                        start: end,
-                        size: start - end
-                    } : {
-                        start: start,
-                        size: end - start
-                    } : null;
-                },
-                _isHighlightRange: function(start, end) {
-                    return 0 <= start && start <= 100 && 0 <= end && end <= 100;
-                },
-                _resize: function(ev) {
-                    this._state.offset = this._offset(this.sliderElem), this._state.size = this.sliderElem[this.sizePos],
-                    this._layout();
-                },
-                _removeProperty: function(element, prop) {
-                    element.style.removeProperty ? element.style.removeProperty(prop) : element.style.removeAttribute(prop);
-                },
-                _mousedown: function(ev) {
-                    if (!this._state.enabled) return !1;
-                    ev.preventDefault && ev.preventDefault(), this._state.offset = this._offset(this.sliderElem),
-                    this._state.size = this.sliderElem[this.sizePos];
-                    var percentage = this._getPercentage(ev);
-                    if (this.options.range) {
-                        var diff1 = Math.abs(this._state.percentage[0] - percentage), diff2 = Math.abs(this._state.percentage[1] - percentage);
-                        this._state.dragged = diff1 < diff2 ? 0 : 1, this._adjustPercentageForRangeSliders(percentage);
-                    } else this._state.dragged = 0;
-                    this._state.percentage[this._state.dragged] = percentage, this.touchCapable && (document.removeEventListener("touchmove", this.mousemove, !1),
-                    document.removeEventListener("touchend", this.mouseup, !1)), this.mousemove && document.removeEventListener("mousemove", this.mousemove, !1),
-                    this.mouseup && document.removeEventListener("mouseup", this.mouseup, !1), this.mousemove = this._mousemove.bind(this),
-                    this.mouseup = this._mouseup.bind(this), this.touchCapable && (document.addEventListener("touchmove", this.mousemove, !1),
-                    document.addEventListener("touchend", this.mouseup, !1)), document.addEventListener("mousemove", this.mousemove, !1),
-                    document.addEventListener("mouseup", this.mouseup, !1), this._state.inDrag = !0;
-                    var newValue = this._calculateValue();
-                    return this._trigger("slideStart", newValue), this.setValue(newValue, !1, !0), ev.returnValue = !1,
-                    this.options.focus && this._triggerFocusOnHandle(this._state.dragged), !0;
-                },
-                _touchstart: function(ev) {
-                    this._mousedown(ev);
-                },
-                _triggerFocusOnHandle: function(handleIdx) {
-                    0 === handleIdx && this.handle1.focus(), 1 === handleIdx && this.handle2.focus();
-                },
-                _keydown: function(handleIdx, ev) {
-                    if (!this._state.enabled) return !1;
-                    var dir;
-                    switch (ev.keyCode) {
-                      case 37:
-                      case 40:
-                        dir = -1;
-                        break;
-
-                      case 39:
-                      case 38:
-                        dir = 1;
-                    }
-                    if (dir) {
-                        if (this.options.natural_arrow_keys) {
-                            var isHorizontal = "horizontal" === this.options.orientation, isVertical = "vertical" === this.options.orientation, isRTL = this.options.rtl, isReversed = this.options.reversed;
-                            isHorizontal ? isRTL ? isReversed || (dir = -dir) : isReversed && (dir = -dir) : isVertical && (isReversed || (dir = -dir));
-                        }
-                        var val;
-                        if (this.ticksAreValid && this.options.lock_to_ticks) {
-                            var index = void 0;
-                            index = this.options.ticks.indexOf(this._state.value[handleIdx]), -1 === index && (index = 0,
-                            window.console.warn("(lock_to_ticks) _keydown: index should not be -1")), index += dir,
-                            index = Math.max(0, Math.min(this.options.ticks.length - 1, index)), val = this.options.ticks[index];
-                        } else val = this._state.value[handleIdx] + dir * this.options.step;
-                        var percentage = this._toPercentage(val);
-                        if (this._state.keyCtrl = handleIdx, this.options.range) {
-                            this._adjustPercentageForRangeSliders(percentage);
-                            var val1 = this._state.keyCtrl ? this._state.value[0] : val, val2 = this._state.keyCtrl ? val : this._state.value[1];
-                            val = [ Math.max(this.options.min, Math.min(this.options.max, val1)), Math.max(this.options.min, Math.min(this.options.max, val2)) ];
-                        } else val = Math.max(this.options.min, Math.min(this.options.max, val));
-                        return this._trigger("slideStart", val), this.setValue(val, !0, !0), this._trigger("slideStop", val),
-                        this._pauseEvent(ev), delete this._state.keyCtrl, !1;
-                    }
-                },
-                _pauseEvent: function(ev) {
-                    ev.stopPropagation && ev.stopPropagation(), ev.preventDefault && ev.preventDefault(),
-                    ev.cancelBubble = !0, ev.returnValue = !1;
-                },
-                _mousemove: function(ev) {
-                    if (!this._state.enabled) return !1;
-                    var percentage = this._getPercentage(ev);
-                    this._adjustPercentageForRangeSliders(percentage), this._state.percentage[this._state.dragged] = percentage;
-                    var val = this._calculateValue(!0);
-                    return this.setValue(val, !0, !0), !1;
-                },
-                _touchmove: function(ev) {
-                    void 0 !== ev.changedTouches && ev.preventDefault && ev.preventDefault();
-                },
-                _adjustPercentageForRangeSliders: function(percentage) {
-                    if (this.options.range) {
-                        var precision = this._getNumDigitsAfterDecimalPlace(percentage);
-                        precision = precision ? precision - 1 : 0;
-                        var percentageWithAdjustedPrecision = this._applyToFixedAndParseFloat(percentage, precision);
-                        0 === this._state.dragged && this._applyToFixedAndParseFloat(this._state.percentage[1], precision) < percentageWithAdjustedPrecision ? (this._state.percentage[0] = this._state.percentage[1],
-                        this._state.dragged = 1) : 1 === this._state.dragged && this._applyToFixedAndParseFloat(this._state.percentage[0], precision) > percentageWithAdjustedPrecision ? (this._state.percentage[1] = this._state.percentage[0],
-                        this._state.dragged = 0) : 0 === this._state.keyCtrl && this._toPercentage(this._state.value[1]) < percentage ? (this._state.percentage[0] = this._state.percentage[1],
-                        this._state.keyCtrl = 1, this.handle2.focus()) : 1 === this._state.keyCtrl && this._toPercentage(this._state.value[0]) > percentage && (this._state.percentage[1] = this._state.percentage[0],
-                        this._state.keyCtrl = 0, this.handle1.focus());
-                    }
-                },
-                _mouseup: function(ev) {
-                    if (!this._state.enabled) return !1;
-                    var percentage = this._getPercentage(ev);
-                    this._adjustPercentageForRangeSliders(percentage), this._state.percentage[this._state.dragged] = percentage,
-                    this.touchCapable && (document.removeEventListener("touchmove", this.mousemove, !1),
-                    document.removeEventListener("touchend", this.mouseup, !1)), document.removeEventListener("mousemove", this.mousemove, !1),
-                    document.removeEventListener("mouseup", this.mouseup, !1), this._state.inDrag = !1,
-                    !1 === this._state.over && this._hideTooltip();
-                    var val = this._calculateValue(!0);
-                    return this.setValue(val, !1, !0), this._trigger("slideStop", val), this._state.dragged = null,
-                    !1;
-                },
-                _setValues: function(index, val) {
-                    var comp = 0 === index ? 0 : 100;
-                    this._state.percentage[index] !== comp && (val.data[index] = this._toValue(this._state.percentage[index]),
-                    val.data[index] = this._applyPrecision(val.data[index]));
-                },
-                _calculateValue: function(snapToClosestTick) {
-                    var val = {};
-                    return this.options.range ? (val.data = [ this.options.min, this.options.max ],
-                    this._setValues(0, val), this._setValues(1, val), snapToClosestTick && (val.data[0] = this._snapToClosestTick(val.data[0]),
-                    val.data[1] = this._snapToClosestTick(val.data[1]))) : (val.data = this._toValue(this._state.percentage[0]),
-                    val.data = parseFloat(val.data), val.data = this._applyPrecision(val.data), snapToClosestTick && (val.data = this._snapToClosestTick(val.data))),
-                    val.data;
-                },
-                _snapToClosestTick: function(val) {
-                    for (var min = [ val, 1 / 0 ], i = 0; i < this.options.ticks.length; i++) {
-                        var diff = Math.abs(this.options.ticks[i] - val);
-                        diff <= min[1] && (min = [ this.options.ticks[i], diff ]);
-                    }
-                    return min[1] <= this.options.ticks_snap_bounds ? min[0] : val;
-                },
-                _applyPrecision: function(val) {
-                    var precision = this.options.precision || this._getNumDigitsAfterDecimalPlace(this.options.step);
-                    return this._applyToFixedAndParseFloat(val, precision);
-                },
-                _getNumDigitsAfterDecimalPlace: function(num) {
-                    var match = ("" + num).match(/(?:\.(\d+))?(?:[eE]([+-]?\d+))?$/);
-                    return match ? Math.max(0, (match[1] ? match[1].length : 0) - (match[2] ? +match[2] : 0)) : 0;
-                },
-                _applyToFixedAndParseFloat: function(num, toFixedInput) {
-                    var truncatedNum = num.toFixed(toFixedInput);
-                    return parseFloat(truncatedNum);
-                },
-                _getPercentage: function(ev) {
-                    !this.touchCapable || "touchstart" !== ev.type && "touchmove" !== ev.type && "touchend" !== ev.type || (ev = ev.changedTouches[0]);
-                    var eventPosition = ev[this.mousePos], sliderOffset = this._state.offset[this.stylePos], distanceToSlide = eventPosition - sliderOffset;
-                    "right" === this.stylePos && (distanceToSlide = -distanceToSlide);
-                    var percentage = distanceToSlide / this._state.size * 100;
-                    return percentage = Math.round(percentage / this._state.percentage[2]) * this._state.percentage[2],
-                    this.options.reversed && (percentage = 100 - percentage), Math.max(0, Math.min(100, percentage));
-                },
-                _validateInputValue: function(val) {
-                    if (isNaN(+val)) {
-                        if (Array.isArray(val)) return this._validateArray(val), val;
-                        throw new Error(ErrorMsgs.formatInvalidInputErrorMsg(val));
-                    }
-                    return +val;
-                },
-                _validateArray: function(val) {
-                    for (var i = 0; i < val.length; i++) {
-                        var input = val[i];
-                        if ("number" != typeof input) throw new Error(ErrorMsgs.formatInvalidInputErrorMsg(input));
-                    }
-                },
-                _setDataVal: function(val) {
-                    this.element.setAttribute("data-value", val), this.element.setAttribute("value", val),
-                    this.element.value = val;
-                },
-                _trigger: function(evt, val) {
-                    val = val || 0 === val ? val : void 0;
-                    var callbackFnArray = this.eventToCallbackMap[evt];
-                    if (callbackFnArray && callbackFnArray.length) for (var i = 0; i < callbackFnArray.length; i++) {
-                        var callbackFn = callbackFnArray[i];
-                        callbackFn(val);
-                    }
-                    $ && this._triggerJQueryEvent(evt, val);
-                },
-                _triggerJQueryEvent: function(evt, val) {
-                    var eventData = {
-                        type: evt,
-                        value: val
-                    };
-                    this.$element.trigger(eventData), this.$sliderElem.trigger(eventData);
-                },
-                _unbindJQueryEventHandlers: function() {
-                    this.$element.off(), this.$sliderElem.off();
-                },
-                _setText: function(element, text) {
-                    void 0 !== element.textContent ? element.textContent = text : void 0 !== element.innerText && (element.innerText = text);
-                },
-                _removeClass: function(element, classString) {
-                    for (var classes = classString.split(" "), newClasses = element.className, i = 0; i < classes.length; i++) {
-                        var classTag = classes[i], regex = new RegExp("(?:\\s|^)" + classTag + "(?:\\s|$)");
-                        newClasses = newClasses.replace(regex, " ");
-                    }
-                    element.className = newClasses.trim();
-                },
-                _addClass: function(element, classString) {
-                    for (var classes = classString.split(" "), newClasses = element.className, i = 0; i < classes.length; i++) {
-                        var classTag = classes[i];
-                        new RegExp("(?:\\s|^)" + classTag + "(?:\\s|$)").test(newClasses) || (newClasses += " " + classTag);
-                    }
-                    element.className = newClasses.trim();
-                },
-                _offsetLeft: function(obj) {
-                    return obj.getBoundingClientRect().left;
-                },
-                _offsetRight: function(obj) {
-                    return obj.getBoundingClientRect().right;
-                },
-                _offsetTop: function(obj) {
-                    for (var offsetTop = obj.offsetTop; (obj = obj.offsetParent) && !isNaN(obj.offsetTop); ) offsetTop += obj.offsetTop,
-                    "BODY" !== obj.tagName && (offsetTop -= obj.scrollTop);
-                    return offsetTop;
-                },
-                _offset: function(obj) {
-                    return {
-                        left: this._offsetLeft(obj),
-                        right: this._offsetRight(obj),
-                        top: this._offsetTop(obj)
-                    };
-                },
-                _css: function(elementRef, styleName, value) {
-                    if ($) $.style(elementRef, styleName, value); else {
-                        var style = styleName.replace(/^-ms-/, "ms-").replace(/-([\da-z])/gi, function(all, letter) {
-                            return letter.toUpperCase();
-                        });
-                        elementRef.style[style] = value;
-                    }
-                },
-                _toValue: function(percentage) {
-                    return this.options.scale.toValue.apply(this, [ percentage ]);
-                },
-                _toPercentage: function(value) {
-                    return this.options.scale.toPercentage.apply(this, [ value ]);
-                },
-                _setTooltipPosition: function() {
-                    var tooltips = [ this.tooltip, this.tooltip_min, this.tooltip_max ];
-                    if ("vertical" === this.options.orientation) {
-                        var tooltipPos;
-                        tooltipPos = this.options.tooltip_position ? this.options.tooltip_position : this.options.rtl ? "left" : "right";
-                        var oppositeSide = "left" === tooltipPos ? "right" : "left";
-                        tooltips.forEach(function(tooltip) {
-                            this._addClass(tooltip, tooltipPos), tooltip.style[oppositeSide] = "100%";
-                        }.bind(this));
-                    } else "bottom" === this.options.tooltip_position ? tooltips.forEach(function(tooltip) {
-                        this._addClass(tooltip, "bottom"), tooltip.style.top = "22px";
-                    }.bind(this)) : tooltips.forEach(function(tooltip) {
-                        this._addClass(tooltip, "top"), tooltip.style.top = -this.tooltip.outerHeight - 14 + "px";
-                    }.bind(this));
-                },
-                _getClosestTickIndex: function(val) {
-                    for (var difference = Math.abs(val - this.options.ticks[0]), index = 0, i = 0; i < this.options.ticks.length; ++i) {
-                        var d = Math.abs(val - this.options.ticks[i]);
-                        d < difference && (difference = d, index = i);
-                    }
-                    return index;
-                },
-                _setTickIndex: function() {
-                    this.ticksAreValid && (this._state.tickIndex = [ this.options.ticks.indexOf(this._state.value[0]), this.options.ticks.indexOf(this._state.value[1]) ]);
-                }
-            }, $ && $.fn && ($.fn.slider ? (windowIsDefined && window.console.warn("bootstrap-slider.js - WARNING: $.fn.slider namespace is already bound. Use the $.fn.bootstrapSlider namespace instead."),
-            autoRegisterNamespace = "bootstrapSlider") : ($.bridget("slider", Slider), autoRegisterNamespace = "slider"),
-            $.bridget("bootstrapSlider", Slider), $(function() {
-                $("input[data-provide=slider]")[autoRegisterNamespace]();
-            }));
-        }($), Slider;
-    });
 }, function(module, exports, __webpack_require__) {
     (function(angular) {
         angular.module("ngDraggable", []).service("ngDraggable", [ function() {
@@ -30266,7 +29322,7 @@ object-assign
         } ]);
     }).call(exports, __webpack_require__(0));
 }, function(module, exports, __webpack_require__) {
-    var jQuery = __webpack_require__(13);
+    var jQuery = __webpack_require__(18);
     +function($) {
         "use strict";
         function Plugin(option) {
@@ -30324,7 +29380,7 @@ object-assign
 }, function(module, exports, __webpack_require__) {
     "use strict";
     (function(angular) {
-        angular.module("EdGuiApp", [ "angularCircularNavigation", "ui.bootstrap-slider", "ngDraggable" ]).filter("makeNice", function() {
+        angular.module("EdGuiApp", [ "angularCircularNavigation", "ngDraggable" ]).filter("makeNice", function() {
             return function(item) {
                 return item = item.charAt(0).toUpperCase() + item.slice(1), item.replace(/_/g, " ");
             };
@@ -30733,7 +29789,7 @@ object-assign
 }, function(module, __webpack_exports__, __webpack_require__) {
     "use strict";
     (function(angular) {
-        var __WEBPACK_IMPORTED_MODULE_0__scenerenderer__ = __webpack_require__(69);
+        var __WEBPACK_IMPORTED_MODULE_0__scenerenderer__ = __webpack_require__(66);
         angular.module("EdGuiApp").directive("ngWebgl", function(robot) {
             return {
                 restrict: "E",
@@ -31351,7 +30407,7 @@ object-assign
         angular.module("EdGuiApp").run(function() {
             FastClick.attach(document.body);
         });
-    }).call(exports, __webpack_require__(0), __webpack_require__(72));
+    }).call(exports, __webpack_require__(0), __webpack_require__(69));
 }, function(module, exports, __webpack_require__) {
     var __WEBPACK_AMD_DEFINE_RESULT__;
     !function() {
@@ -31560,13 +30616,13 @@ object-assign
                 return robot.connect(), robot;
             };
         });
-    }).call(exports, __webpack_require__(0), __webpack_require__(74));
+    }).call(exports, __webpack_require__(0), __webpack_require__(71));
 }, function(module, __webpack_exports__, __webpack_require__) {
     "use strict";
     Object.defineProperty(__webpack_exports__, "__esModule", {
         value: !0
     });
-    var __WEBPACK_IMPORTED_MODULE_0__action_server__ = __webpack_require__(20), __WEBPACK_IMPORTED_MODULE_1__base__ = __webpack_require__(33), __WEBPACK_IMPORTED_MODULE_2__ed__ = __webpack_require__(34), __WEBPACK_IMPORTED_MODULE_3__hardware__ = __webpack_require__(35), __WEBPACK_IMPORTED_MODULE_4__head__ = __webpack_require__(39), __WEBPACK_IMPORTED_MODULE_5__robot__ = __webpack_require__(107);
+    var __WEBPACK_IMPORTED_MODULE_0__action_server__ = __webpack_require__(20), __WEBPACK_IMPORTED_MODULE_1__base__ = __webpack_require__(33), __WEBPACK_IMPORTED_MODULE_2__ed__ = __webpack_require__(34), __WEBPACK_IMPORTED_MODULE_3__hardware__ = __webpack_require__(35), __WEBPACK_IMPORTED_MODULE_4__head__ = __webpack_require__(39), __WEBPACK_IMPORTED_MODULE_5__robot__ = __webpack_require__(104);
     __webpack_require__.d(__webpack_exports__, "ActionServer", function() {
         return __WEBPACK_IMPORTED_MODULE_0__action_server__.a;
     }), __webpack_require__.d(__webpack_exports__, "Base", function() {
@@ -31604,7 +30660,7 @@ object-assign
             msecs >= 0 && (item._idleTimeoutId = setTimeout(function() {
                 item._onTimeout && item._onTimeout();
             }, msecs));
-        }, __webpack_require__(76), exports.setImmediate = "undefined" != typeof self && self.setImmediate || void 0 !== global && global.setImmediate || this && this.setImmediate,
+        }, __webpack_require__(73), exports.setImmediate = "undefined" != typeof self && self.setImmediate || void 0 !== global && global.setImmediate || this && this.setImmediate,
         exports.clearImmediate = "undefined" != typeof self && self.clearImmediate || void 0 !== global && global.clearImmediate || this && this.clearImmediate;
     }).call(exports, __webpack_require__(11));
 }, function(module, exports, __webpack_require__) {
@@ -31705,13 +30761,13 @@ object-assign
                 }(), attachTo.setImmediate = setImmediate, attachTo.clearImmediate = clearImmediate;
             }
         }("undefined" == typeof self ? void 0 === global ? this : global : self);
-    }).call(exports, __webpack_require__(11), __webpack_require__(14));
+    }).call(exports, __webpack_require__(11), __webpack_require__(13));
 }, function(module, exports, __webpack_require__) {
-    var mixin = __webpack_require__(15), core = module.exports = {
-        Ros: __webpack_require__(16),
+    var mixin = __webpack_require__(14), core = module.exports = {
+        Ros: __webpack_require__(15),
         Topic: __webpack_require__(8),
         Message: __webpack_require__(6),
-        Param: __webpack_require__(86),
+        Param: __webpack_require__(83),
         Service: __webpack_require__(12),
         ServiceRequest: __webpack_require__(7),
         ServiceResponse: __webpack_require__(22)
@@ -31724,7 +30780,7 @@ object-assign
             uri: uri
         });
     }
-    var work = __webpack_require__(79), workerSocketImpl = __webpack_require__(80);
+    var work = __webpack_require__(76), workerSocketImpl = __webpack_require__(77);
     WorkerSocket.prototype.handleWorkerMessage_ = function(ev) {
         var data = ev.data;
         if (data instanceof ArrayBuffer || "string" == typeof data) this.onmessage(ev); else {
@@ -31843,7 +30899,7 @@ object-assign
             }
         };
     }
-    var decompressPng = __webpack_require__(82), CBOR = __webpack_require__(84), typedArrayTagger = __webpack_require__(85), BSON = null;
+    var decompressPng = __webpack_require__(79), CBOR = __webpack_require__(81), typedArrayTagger = __webpack_require__(82), BSON = null;
     "undefined" != typeof bson && (BSON = bson().BSON), module.exports = SocketAdapter;
 }, function(module, exports, __webpack_require__) {
     "use strict";
@@ -31858,7 +30914,7 @@ object-assign
             callback(JSON.parse(jsonData));
         }, image.src = "data:image/png;base64," + data;
     }
-    var Canvas = __webpack_require__(83), Image = Canvas.Image || window.Image;
+    var Canvas = __webpack_require__(80), Image = Canvas.Image || window.Image;
     module.exports = decompressPng;
 }, function(module, exports) {
     module.exports = function() {
@@ -32180,12 +31236,12 @@ object-assign
         paramClient.callService(request, callback);
     }, module.exports = Param;
 }, function(module, exports, __webpack_require__) {
-    var Ros = __webpack_require__(16);
-    __webpack_require__(15)(Ros, [ "ActionClient", "SimpleActionServer" ], module.exports = {
+    var Ros = __webpack_require__(15);
+    __webpack_require__(14)(Ros, [ "ActionClient", "SimpleActionServer" ], module.exports = {
         ActionClient: __webpack_require__(23),
-        ActionListener: __webpack_require__(88),
+        ActionListener: __webpack_require__(85),
         Goal: __webpack_require__(24),
-        SimpleActionServer: __webpack_require__(89)
+        SimpleActionServer: __webpack_require__(86)
     });
 }, function(module, exports, __webpack_require__) {
     function ActionListener(options) {
@@ -32315,15 +31371,15 @@ object-assign
     }, module.exports = SimpleActionServer;
 }, function(module, exports, __webpack_require__) {
     module.exports = {
-        Pose: __webpack_require__(17),
+        Pose: __webpack_require__(16),
         Quaternion: __webpack_require__(9),
         Transform: __webpack_require__(25),
         Vector3: __webpack_require__(4)
     };
 }, function(module, exports, __webpack_require__) {
-    var Ros = __webpack_require__(16);
-    __webpack_require__(15)(Ros, [ "TFClient" ], module.exports = {
-        TFClient: __webpack_require__(92)
+    var Ros = __webpack_require__(15);
+    __webpack_require__(14)(Ros, [ "TFClient" ], module.exports = {
+        TFClient: __webpack_require__(89)
     });
 }, function(module, exports, __webpack_require__) {
     function TFClient(options) {
@@ -32403,9 +31459,9 @@ object-assign
         UrdfColor: __webpack_require__(27),
         UrdfCylinder: __webpack_require__(28),
         UrdfLink: __webpack_require__(29),
-        UrdfMaterial: __webpack_require__(18),
+        UrdfMaterial: __webpack_require__(17),
         UrdfMesh: __webpack_require__(31),
-        UrdfModel: __webpack_require__(94),
+        UrdfModel: __webpack_require__(91),
         UrdfSphere: __webpack_require__(32),
         UrdfVisual: __webpack_require__(30)
     }, __webpack_require__(10));
@@ -32444,7 +31500,7 @@ object-assign
             }
         }
     }
-    var UrdfMaterial = __webpack_require__(18), UrdfLink = __webpack_require__(29), UrdfJoint = __webpack_require__(95), DOMParser = __webpack_require__(96).DOMParser;
+    var UrdfMaterial = __webpack_require__(17), UrdfLink = __webpack_require__(29), UrdfJoint = __webpack_require__(92), DOMParser = __webpack_require__(93).DOMParser;
     module.exports = UrdfModel;
 }, function(module, exports, __webpack_require__) {
     function UrdfJoint(options) {
@@ -32481,7 +31537,7 @@ object-assign
             });
         }
     }
-    var Pose = __webpack_require__(17), Vector3 = __webpack_require__(4), Quaternion = __webpack_require__(9);
+    var Pose = __webpack_require__(16), Vector3 = __webpack_require__(4), Quaternion = __webpack_require__(9);
     module.exports = UrdfJoint;
 }, function(module, exports) {
     exports.DOMImplementation = window.DOMImplementation, exports.XMLSerializer = window.XMLSerializer,
@@ -32534,7 +31590,7 @@ object-assign
         trailing = "trailing" in options ? !!options.trailing : trailing), debounced.cancel = cancel,
         debounced.flush = flush, debounced;
     }
-    var isObject = __webpack_require__(36), now = __webpack_require__(98), toNumber = __webpack_require__(100), FUNC_ERROR_TEXT = "Expected a function", nativeMax = Math.max, nativeMin = Math.min;
+    var isObject = __webpack_require__(36), now = __webpack_require__(95), toNumber = __webpack_require__(97), FUNC_ERROR_TEXT = "Expected a function", nativeMax = Math.max, nativeMin = Math.min;
     module.exports = debounce;
 }, function(module, exports, __webpack_require__) {
     var root = __webpack_require__(37), now = function() {
@@ -32559,19 +31615,19 @@ object-assign
         var isBinary = reIsBinary.test(value);
         return isBinary || reIsOctal.test(value) ? freeParseInt(value.slice(2), isBinary ? 2 : 8) : reIsBadHex.test(value) ? NAN : +value;
     }
-    var isObject = __webpack_require__(36), isSymbol = __webpack_require__(101), NAN = NaN, reTrim = /^\s+|\s+$/g, reIsBadHex = /^[-+]0x[0-9a-f]+$/i, reIsBinary = /^0b[01]+$/i, reIsOctal = /^0o[0-7]+$/i, freeParseInt = parseInt;
+    var isObject = __webpack_require__(36), isSymbol = __webpack_require__(98), NAN = NaN, reTrim = /^\s+|\s+$/g, reIsBadHex = /^[-+]0x[0-9a-f]+$/i, reIsBinary = /^0b[01]+$/i, reIsOctal = /^0o[0-7]+$/i, freeParseInt = parseInt;
     module.exports = toNumber;
 }, function(module, exports, __webpack_require__) {
     function isSymbol(value) {
         return "symbol" == typeof value || isObjectLike(value) && baseGetTag(value) == symbolTag;
     }
-    var baseGetTag = __webpack_require__(102), isObjectLike = __webpack_require__(105), symbolTag = "[object Symbol]";
+    var baseGetTag = __webpack_require__(99), isObjectLike = __webpack_require__(102), symbolTag = "[object Symbol]";
     module.exports = isSymbol;
 }, function(module, exports, __webpack_require__) {
     function baseGetTag(value) {
         return null == value ? void 0 === value ? undefinedTag : nullTag : symToStringTag && symToStringTag in Object(value) ? getRawTag(value) : objectToString(value);
     }
-    var Symbol = __webpack_require__(38), getRawTag = __webpack_require__(103), objectToString = __webpack_require__(104), nullTag = "[object Null]", undefinedTag = "[object Undefined]", symToStringTag = Symbol ? Symbol.toStringTag : void 0;
+    var Symbol = __webpack_require__(38), getRawTag = __webpack_require__(100), objectToString = __webpack_require__(101), nullTag = "[object Null]", undefinedTag = "[object Undefined]", symToStringTag = Symbol ? Symbol.toStringTag : void 0;
     module.exports = baseGetTag;
 }, function(module, exports, __webpack_require__) {
     function getRawTag(value) {
@@ -32688,10 +31744,10 @@ object-assign
             return o.__proto__ || Object.getPrototypeOf(o);
         })(o);
     }
-    var __WEBPACK_IMPORTED_MODULE_0_os__ = __webpack_require__(108), __WEBPACK_IMPORTED_MODULE_1_eventemitter2__ = (__webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_os__),
+    var __WEBPACK_IMPORTED_MODULE_0_os__ = __webpack_require__(105), __WEBPACK_IMPORTED_MODULE_1_eventemitter2__ = (__webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_os__),
     __webpack_require__(5)), __WEBPACK_IMPORTED_MODULE_2_roslib__ = (__webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_eventemitter2__),
     __webpack_require__(1)), __WEBPACK_IMPORTED_MODULE_3__ed_robocup__ = (__webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_roslib__),
-    __webpack_require__(109)), __WEBPACK_IMPORTED_MODULE_4__hardware__ = __webpack_require__(35), __WEBPACK_IMPORTED_MODULE_5__head__ = __webpack_require__(39), __WEBPACK_IMPORTED_MODULE_6__base__ = __webpack_require__(33), __WEBPACK_IMPORTED_MODULE_7__body__ = __webpack_require__(112), __WEBPACK_IMPORTED_MODULE_8__speech__ = __webpack_require__(113), __WEBPACK_IMPORTED_MODULE_9__action_server__ = __webpack_require__(20), host = Object(__WEBPACK_IMPORTED_MODULE_0_os__.hostname)() || "localhost", defaultUrl = "ws://".concat(host, ":9090"), RECONNECT_TIMEOUT = 5e3, Robot = function(_EventEmitter) {
+    __webpack_require__(106)), __WEBPACK_IMPORTED_MODULE_4__hardware__ = __webpack_require__(35), __WEBPACK_IMPORTED_MODULE_5__head__ = __webpack_require__(39), __WEBPACK_IMPORTED_MODULE_6__base__ = __webpack_require__(33), __WEBPACK_IMPORTED_MODULE_7__body__ = __webpack_require__(109), __WEBPACK_IMPORTED_MODULE_8__speech__ = __webpack_require__(110), __WEBPACK_IMPORTED_MODULE_9__action_server__ = __webpack_require__(20), host = Object(__WEBPACK_IMPORTED_MODULE_0_os__.hostname)() || "localhost", defaultUrl = "ws://".concat(host, ":9090"), RECONNECT_TIMEOUT = 5e3, Robot = function(_EventEmitter) {
         function Robot() {
             var _this, modules = arguments.length > 0 && void 0 !== arguments[0] ? arguments[0] : {};
             return _classCallCheck(this, Robot), _this = _super.call(this), _this.ros = new __WEBPACK_IMPORTED_MODULE_2_roslib__.Ros({
@@ -32917,7 +31973,7 @@ object-assign
     __webpack_require__.d(__webpack_exports__, "a", function() {
         return EdRobocup;
     });
-    var __WEBPACK_IMPORTED_MODULE_0_lodash__ = __webpack_require__(110), __WEBPACK_IMPORTED_MODULE_0_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_lodash__), __WEBPACK_IMPORTED_MODULE_1__ed__ = __webpack_require__(34), NAVIGATE_TYPES = {
+    var __WEBPACK_IMPORTED_MODULE_0_lodash__ = __webpack_require__(107), __WEBPACK_IMPORTED_MODULE_0_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_lodash__), __WEBPACK_IMPORTED_MODULE_1__ed__ = __webpack_require__(34), NAVIGATE_TYPES = {
         NAVIGATE_TO_PIXEL: 1,
         TURN_LEFT: 2,
         TURN_RIGHT: 3
@@ -36420,7 +35476,7 @@ object-assign
                 return _;
             }.call(exports, __webpack_require__, exports, module)) !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__);
         }).call(this);
-    }).call(exports, __webpack_require__(11), __webpack_require__(111)(module));
+    }).call(exports, __webpack_require__(11), __webpack_require__(108)(module));
 }, function(module, exports) {
     module.exports = function(module) {
         return module.webpackPolyfill || (module.deprecate = function() {}, module.paths = [],
