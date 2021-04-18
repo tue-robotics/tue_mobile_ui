@@ -29937,7 +29937,7 @@ object-assign
                     geometry.computeFaceNormals(), geometry.computeVertexNormals(!0);
                     var material = new THREE.MeshPhongMaterial({
                         color: stringToColor(obj.id),
-                        shading: THREE.FlatShading,
+                        flatShading: THREE.FlatShading,
                         shininess: 0,
                         emissive: 131586
                     }), mesh = new THREE.Mesh(geometry, material);
