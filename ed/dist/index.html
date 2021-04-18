@@ -123,7 +123,7 @@
                           ng-drag="true" ng-center-anchor="true" ng-drag-data="id"
                           ng-drag-success="onDragComplete($data,$event)">
                         <div class="model-name">{{model.name}}</div>
-                        <img class="img-responsive" src="{{model.src}}" draggable="false"/>
+                        <img class="img-responsive" ng-src="{{model.src}}" draggable="false"/>
                       </button>
                     </div>
 
