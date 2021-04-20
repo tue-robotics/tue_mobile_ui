@@ -6,13 +6,18 @@ angular.module('EdGuiApp')
     $scope.actionList = [
       {name: 'inspect', entityDescription: 'entity', icon: 'camera', color: 'red'},
       {name: 'pick-up', entityDescription: 'object', icon: 'hand-grab-o', color: 'blue'},
-      {name: 'navigate-to', entityDescription: 'object', icon: 'arrows-alt', color: 'green'},
+      {name: 'navigate-to', entityDescription: 'target-location', icon: 'arrows-alt', color: 'green'},
       {name: 'place', entityDescription: 'object', icon: 'hand-lizard-o', color: 'red'}
     ];
 
     $scope.options = { items: [] };
 
     $scope.$watch('selectedEntityEvent', function (entityEvent) {
+
+      // Ignore null/empty objects
+      if (!entityEvent) {
+        return;
+      }
 
       var menuElement = document.getElementById('action-menu');
 

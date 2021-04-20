@@ -7,12 +7,12 @@
     <meta name="viewport" content="width=device-width, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
 
-    <link rel="shortcut icon" href="favicon-b25e58c4b8459e3f1fb064c15093b08d.ico">
-    <link rel="apple-touch-icon" href="apple-touch-icon-9727d3c28dd4c771ad00419b749a9f75.png">
+    <link rel="shortcut icon" href="favicon.ico">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
     <script
-    src="https://code.jquery.com/jquery-3.2.1.min.js"
-    integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
-    crossorigin="anonymous"></script>
+      src="https://code.jquery.com/jquery-3.6.0.min.js"
+      integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
+      crossorigin="anonymous"></script>
     <script>
       $( document ).ready(function() {
         $(document).on("click","a[data-toggle='tab']", function (e) {
@@ -22,10 +22,16 @@
         });
       });
     </script>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-  <link href="entry-26548df2fd1a96c13e94a0a96ab454c4.css" rel="stylesheet"></head>
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css"
+      integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu"
+      crossorigin="anonymous">
+    <script
+      src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"
+      integrity="sha384-aJ21OjlMXNL5UyIl/XNwTMqvzeRMZH2w8c5cRVpzpU8Y5bApTppSuUkhZXN0VxHd"
+      crossorigin="anonymous"></script>
+  <link href="entry.css" rel="stylesheet"></head>
   <body ng-app="EdGuiApp" class="noselect">
 
     <div class="header">
@@ -123,7 +129,7 @@
                           ng-drag="true" ng-center-anchor="true" ng-drag-data="id"
                           ng-drag-success="onDragComplete($data,$event)">
                         <div class="model-name">{{model.name}}</div>
-                        <img class="img-responsive" src="{{model.src}}" draggable="false"/>
+                        <img class="img-responsive" ng-src="{{model.src}}" draggable="false"/>
                       </button>
                     </div>
 
@@ -146,5 +152,5 @@
       </div>
     </div>
 
-  <script type="text/javascript" src="entry-fd4df27fc68f300edc12.js"></script></body>
+  <script src="entry-185a744861ceee81a6c8.js"></script></body>
 </html>

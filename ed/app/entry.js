@@ -1,6 +1,5 @@
 // import css
 import 'bootstrap/dist/css/bootstrap.min.css';
-import "bootstrap-slider/dist/css/bootstrap-slider.css";
 import "bootstrap/dist/css/bootstrap.css";
 import "angular-circular-navigation/angular-circular-navigation.css";
 import "font-awesome/css/font-awesome.min.css";
@@ -9,7 +8,6 @@ import './styles/main.css';
 // import js
 
 import 'angular-circular-navigation/angular-circular-navigation'
-import 'angular-bootstrap-slider';
 import 'ngdraggable';
 import 'bootstrap/js/tab';
 
