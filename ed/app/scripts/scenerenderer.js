@@ -1,4 +1,4 @@
-import * as THREE from 'three';
+/*global Float32Array, Uint32Array, THREE, console */
 const SceneRenderer = (function (THREE) {
 
   function SceneRenderer(options) {
@@ -97,18 +97,22 @@ const SceneRenderer = (function (THREE) {
 
     var texture = new THREE.Texture();
 
-    var geometry = new THREE.Geometry();
+    var geometry = new THREE.BufferGeometry();
     var width = 640, height = 480;
     var nearClipping = 850/*850*/, farClipping = 4000/*4000*/;
+    var vertices = [];
     for ( var i = 0, l = width * height; i < l; i ++ ) {
 
-      var position = new THREE.Vector3();
-      position.x = ( i % width );
-      position.y = Math.floor( i / width );
+      var x = ( i % width );
+      var y = Math.floor( i / width );
 
-      geometry.vertices.push( new THREE.Vector3( position ) );
-
+      vertices.push(x);
+      vertices.push(y);
+      vertices.push(0);
     }
+
+    vertices = new Float32Array(vertices);
+    geometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
 
     var material = new THREE.ShaderMaterial( {
 
@@ -127,7 +131,7 @@ const SceneRenderer = (function (THREE) {
 
     } );
 
-    var mesh = new THREE.Points( geometry, material );
+    var mesh = new THREE.Mesh( geometry, material );
     mesh.position.x = 0;
     mesh.position.y = 0;
     mesh.position.z = 10;
@@ -138,13 +142,20 @@ const SceneRenderer = (function (THREE) {
     robot.ed.watch({
       add: function (obj) {
         //console.log('add', obj);
-        var geometry = new THREE.Geometry();
+        var geometry = new THREE.BufferGeometry();
 
-        convertVertices(obj.vertices, geometry.vertices);
-        convertFaces(obj.faces, geometry.faces);
+        var vertices = [];
+        flattenArray(obj.vertices, vertices);
+        vertices = new Float32Array(vertices);
+        geometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
+
+        var faces = [];
+        flattenArray(obj.faces, faces);
+        faces = new Uint32Array(faces);
+        geometry.setIndex(new THREE.BufferAttribute(faces, 1));
 
         geometry.computeFaceNormals();
-        geometry.computeVertexNormals(true);
+        geometry.computeVertexNormals();
 
         var material = new THREE.MeshPhongMaterial({
           color: stringToColor(obj.id),
@@ -184,18 +195,22 @@ const SceneRenderer = (function (THREE) {
 
         if (vupdate) {
           // console.log('update vertices', newObj, oldObj);
-          geometry.vertices = [];
-          convertVertices(newObj.vertices, geometry.vertices);
+          var vertices = [];
+          flattenArray(newObj.vertices, vertices);
+          vertices = new Float32Array(vertices);
+          geometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
         }
         if (fupdate) {
           // console.log('update faces', newObj, oldObj);
-          geometry.faces = [];
-          convertFaces(newObj.faces, geometry.faces);
+          var faces = [];
+          flattenArray(newObj.faces, faces);
+          faces = new Uint32Array(faces);
+          geometry.setIndex(new THREE.BufferAttribute(faces, 1));
         }
 
         if (vupdate || fupdate) {
           geometry.computeFaceNormals(); // modifies .faces
-          geometry.computeVertexNormals(true); // modifies .normals
+          geometry.computeVertexNormals(); // modifies .normals
 
           geometry.verticesNeedUpdate = true;
           geometry.elementsNeedUpdate = true;
@@ -246,18 +261,9 @@ const SceneRenderer = (function (THREE) {
     return COLORS[i];
   }
 
-  function convertVertices(vertices, threeVertices) {
-    for (var i = 0; i < vertices.length; i++) {
-      threeVertices.push(
-        (new THREE.Vector3()).fromArray(vertices[i])
-      );
-    }
-  }
-
-  function convertFaces(faces, threeFaces) {
-    for (var j = 0; j < faces.length; j++) {
-      var face = faces[j];
-      threeFaces.push(new THREE.Face3(face[0], face[1], face[2]));
+  function flattenArray(array, flatArray) {
+    for (var i = 0; i < array.length; i++) {
+      flatArray.push(...array[i]);
     }
   }
 
