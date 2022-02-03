@@ -3,7 +3,8 @@
   "scripts": {
     "start": "cross-env NODE_ENV=development webpack-dev-server --mode=development --open",
     "build": "cross-env NODE_ENV=production webpack --mode=production --progress",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "test": "true"
   },
   "dependencies": {
     "angular": "^1.8.0",
