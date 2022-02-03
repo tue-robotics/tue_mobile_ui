@@ -37,6 +37,9 @@ jobs:
       - name: Build
         run: |
           npm run build --prefix ${{ matrix.package }}
+      - name: Test
+        run: |
+          npm test --prefix ${{ matrix.package }}
       - name: Success
         run: |
           echo -e "\e[35m\e[1mThe build of '${{ matrix.package }}' has succeeded, please make sure that the 'build'/'dist' folder is up-to-date\e[0m"
