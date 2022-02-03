@@ -2,7 +2,8 @@
   "private": true,
   "scripts": {
     "start": "webpack-dev-server --open",
-    "build": "cross-env NODE_ENV=production webpack -p --progress"
+    "build": "cross-env NODE_ENV=production webpack -p --progress",
+    "test": "true"
   },
   "keywords": [],
   "author": "",
