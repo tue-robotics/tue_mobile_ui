@@ -47,8 +47,11 @@ jobs:
           if [ -n "$changed_build_files" ]
           then
               echo -e "\e[1m\e[31mBuild folder is out-of-sync with library. Build library, npm run build, and (ammend) commit\e[0m"
-              echo -e "\e[1m\e[31mChanged files: $changed_build_files"
+              echo -e "\e[1m\e[31mChanged files: $changed_build_files\e[0m"
+              echo -e "\e[1m\e[31mDiff of current files:\e[0m"
               git diff HEAD -- ${{ matrix.package }}/dist
+              echo -e "\e[1m\e[31mNew files:\e[0m"
+              git ls-files -o --exclude-standard -- ${{ matrix.package }}/dist/* | xargs git add; git diff --staged -- ${{ matrix.package }}/dist
               exit 1
           else
               echo -e "\e[1m\e[32mBuild folder is up-to-date with library\e[0m"
