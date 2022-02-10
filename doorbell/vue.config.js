@@ -1,8 +1,5 @@
 const { defineConfig } = require('@vue/cli-service')
 module.exports = defineConfig({
-  chainWebpack: config => {
-    config.optimization.set('realContentHash', true)
-  },
   transpileDependencies: [
     'auto-ros',
     'os'
@@ -14,5 +11,6 @@ module.exports = defineConfig({
       }
     }
   },
+  filenameHashing: false,
   publicPath: './'
 })
