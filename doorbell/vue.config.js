@@ -12,5 +12,6 @@ module.exports = defineConfig({
     }
   },
   filenameHashing: false,
+  productionSourceMap: false,
   publicPath: './'
 })
