@@ -1,0 +1,59 @@
+name: NPM
+
+on: [push, pull_request]
+
+jobs:
+  matrix:
+    name: Determine modified packages
+    runs-on: ubuntu-latest
+    outputs:
+      packages: ${{ steps.modified-packages.outputs.packages }}
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 300
+      - name: Commit Range
+        id: commit-range
+        uses: tue-robotics/tue-env/ci/commit-range@master
+      - name: Modified packages
+        id: modified-packages
+        uses: tue-robotics/tue-env/ci/modified-packages@master
+        with:
+          commit-range: ${{ steps.commit-range.outputs.commit-range }}
+          ignored-packages: launch old challenge_open
+  npm:
+    name: NPM - ${{ matrix.package }}
+    runs-on: ubuntu-latest
+    needs: matrix
+    strategy:
+      fail-fast: false
+      matrix:
+        package: ${{ fromJson(needs.matrix.outputs.packages) }}
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install
+        run: |
+          npm ci --prefix ${{ matrix.package }}
+      - name: Build
+        run: |
+          npm run build --prefix ${{ matrix.package }}
+      - name: Test
+        run: |
+          npm test --prefix ${{ matrix.package }}
+      - name: Build is up-to-date
+        run: |
+          echo -e "\e[1m\e[35mChecking the build folder(dist) is up-to-date with the library\e[0m"
+          changed_build_files=$(git diff --name-only HEAD -- ${{ matrix.package }}/dist)
+          if [ -n "$changed_build_files" ]
+          then
+              echo -e "\e[1m\e[31mBuild folder is out-of-sync with library. Build library, npm run build, and (ammend) commit\e[0m"
+              echo -e "\e[1m\e[31mChanged files: $changed_build_files\e[0m"
+              echo -e "\e[1m\e[31mDiff of current files:\e[0m"
+              git diff HEAD -- ${{ matrix.package }}/dist
+              echo -e "\e[1m\e[31mNew files:\e[0m"
+              git ls-files -o --exclude-standard -- ${{ matrix.package }}/dist/* | xargs git add; git diff --staged -- ${{ matrix.package }}/dist
+              exit 1
+          else
+              echo -e "\e[1m\e[32mBuild folder is up-to-date with library\e[0m"
+          fi
+
