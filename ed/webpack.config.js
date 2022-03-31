@@ -6,6 +6,8 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
 const WebpackShellPlugin = require('webpack-shell-plugin');
 
+const devMode = process.env.NODE_ENV !== "production";
+
 module.exports = {
   optimization: {
     minimize: false,
@@ -57,15 +59,7 @@ module.exports = {
       {
         test: /\.css$/i,
         use: [
-          {
-            loader: MiniCssExtractPlugin.loader,
-            options: {
-              filename: "[name]-[contenthash].css",
-              chunkFilename: '[id]-[contenthash].css',
-              hmr: process.env.NODE_ENV !== 'production',
-              reloadAll: true,
-            }
-          },
+          MiniCssExtractPlugin.loader,
           'css-loader',
         ],
       },
@@ -97,7 +91,7 @@ module.exports = {
   },
   plugins: getPlugins(),
   output: {
-    filename: "[name]-[chunkhash].js",
+    filename: devMode ? '[name]-[hash].js' : '[name]-[chunkhash].js',
     path: path.resolve(__dirname, 'dist')
   }
 };
@@ -109,7 +103,10 @@ function getPlugins() {
       template: 'app/index.html',
       minify: false,
     }),
-    new MiniCssExtractPlugin(),
+    new MiniCssExtractPlugin({
+      filename: "[name]-[chunkhash].css",
+      chunkFilename: "[id]-[chunkhash].css"
+    }),
     new webpack.ProvidePlugin({
       'window.jQuery': 'jquery',
       angular: 'angular',
@@ -127,6 +124,12 @@ function getPlugins() {
     plugins.push(new WebpackShellPlugin({
       onBuildEnd: ['./strip_trailing_spaces.bash']
     }));
+  }
+
+  // development specific
+  if (devMode) {
+    // Only enable hot in development
+    plugins.push(new webpack.HotModuleReplacementPlugin());
   }
 
   return plugins;
