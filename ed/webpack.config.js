@@ -85,8 +85,23 @@ module.exports = {
         test: require.resolve('angular'),
         loader: 'exports-loader?window.angular'
       },
-      { test: /angular-[^.]+\.js$/, loader: "imports-loader?angular" },
-      { test: /bootstrap\/[^.]+\.js$/, loader: "imports-loader?jQuery=jquery" },
+      { test: /angular-[^.]+\.js$/,
+        loader: "imports-loader",
+        options: {
+          imports: [
+            {
+              moduleName: 'angular',
+            },
+          ]
+        }
+      },
+      { test: /bootstrap\/[^.]+\.js$/,
+        loader: "imports-loader",
+        options: {
+          type: 'commonjs',
+          imports: 'single jquery jQuery',
+        },
+      },
     ]
   },
   plugins: getPlugins(),
@@ -104,8 +119,8 @@ function getPlugins() {
       minify: false,
     }),
     new MiniCssExtractPlugin({
-      filename: "[name]-[chunkhash].css",
-      chunkFilename: "[id]-[chunkhash].css"
+      filename: "[name]-[contenthash].css",
+      chunkFilename: "[id]-[contenthash].css"
     }),
     new webpack.ProvidePlugin({
       'window.jQuery': 'jquery',
