@@ -83,7 +83,11 @@ module.exports = {
       */
       {
         test: require.resolve('angular'),
-        loader: 'exports-loader?window.angular'
+        loader: 'exports-loader',
+        options: {
+          type: 'commonjs',
+          exports: 'single window.angular',
+        },
       },
       { test: /angular-[^.]+\.js$/,
         loader: "imports-loader",
