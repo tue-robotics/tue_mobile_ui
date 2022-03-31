@@ -59,13 +59,7 @@ module.exports = {
       {
         test: /\.css$/i,
         use: [
-          {
-            loader: MiniCssExtractPlugin.loader,
-            options: {
-              filename: "[name]-[contenthash].css",
-              chunkFilename: '[id]-[contenthash].css',
-            }
-          },
+          MiniCssExtractPlugin.loader,
           'css-loader',
         ],
       },
@@ -109,7 +103,10 @@ function getPlugins() {
       template: 'app/index.html',
       minify: false,
     }),
-    new MiniCssExtractPlugin(),
+    new MiniCssExtractPlugin({
+      filename: "[name]-[contenthash].css",
+      chunkFilename: "[id]-[contenthash].css"
+    }),
     new webpack.ProvidePlugin({
       'window.jQuery': 'jquery',
       angular: 'angular',
