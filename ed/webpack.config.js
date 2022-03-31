@@ -119,8 +119,8 @@ function getPlugins() {
       minify: false,
     }),
     new MiniCssExtractPlugin({
-      filename: "[name]-[chunkhash].css",
-      chunkFilename: "[id]-[chunkhash].css"
+      filename: "[name]-[contenthash].css",
+      chunkFilename: "[id]-[contenthash].css"
     }),
     new webpack.ProvidePlugin({
       'window.jQuery': 'jquery',
