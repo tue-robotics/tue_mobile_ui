@@ -85,8 +85,23 @@ module.exports = {
         test: require.resolve('angular'),
         loader: 'exports-loader?window.angular'
       },
-      { test: /angular-[^.]+\.js$/, loader: "imports-loader?angular" },
-      { test: /bootstrap\/[^.]+\.js$/, loader: "imports-loader?jQuery=jquery" },
+      { test: /angular-[^.]+\.js$/,
+        loader: "imports-loader",
+        options: {
+          imports: [
+            {
+              moduleName: 'angular',
+            },
+          ]
+        }
+      },
+      { test: /bootstrap\/[^.]+\.js$/,
+        loader: "imports-loader",
+        options: {
+          type: 'commonjs',
+          imports: 'single jquery jQuery',
+        },
+      },
     ]
   },
   plugins: getPlugins(),
