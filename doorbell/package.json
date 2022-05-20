@@ -5,7 +5,7 @@
   "scripts": {
     "clean": "rimraf dist/",
     "serve": "vue-cli-service serve",
-    "prebuild": "npm run clean",
+    "prebuild": "npm run clean && npm run lint",
     "build": "vue-cli-service build",
     "test": "npm run test:unit",
     "test:unit": "vue-cli-service test:unit",
