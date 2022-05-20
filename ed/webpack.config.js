@@ -43,7 +43,9 @@ module.exports = {
   },
   devtool: 'source-map',
   devServer: {
-    contentBase: './dist'
+    static: {
+      directory: './dist'
+    }
   },
   module: {
     rules: [
