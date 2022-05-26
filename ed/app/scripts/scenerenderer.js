@@ -1,3 +1,4 @@
+/*eslint no-redeclare: ["error", { "builtinGlobals": false }]*/
 /*global Float32Array, Uint32Array, THREE, console */
 const SceneRenderer = (function (THREE) {
 
