@@ -155,7 +155,6 @@ const SceneRenderer = (function (THREE) {
         faces = new Uint32Array(faces);
         geometry.setIndex(new THREE.BufferAttribute(faces, 1));
 
-        geometry.computeFaceNormals();
         geometry.computeVertexNormals();
 
         var material = new THREE.MeshPhongMaterial({
@@ -195,14 +194,14 @@ const SceneRenderer = (function (THREE) {
         var fupdate = newObj.faces !== oldObj.faces
 
         if (vupdate) {
-          // console.log('update vertices', newObj, oldObj);
+          console.log('update vertices', newObj, oldObj);
           var vertices = [];
           flattenArray(newObj.vertices, vertices);
           vertices = new Float32Array(vertices);
           geometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
         }
         if (fupdate) {
-          // console.log('update faces', newObj, oldObj);
+          console.log('update faces', newObj, oldObj);
           var faces = [];
           flattenArray(newObj.faces, faces);
           faces = new Uint32Array(faces);
@@ -210,7 +209,6 @@ const SceneRenderer = (function (THREE) {
         }
 
         if (vupdate || fupdate) {
-          geometry.computeFaceNormals(); // modifies .faces
           geometry.computeVertexNormals(); // modifies .normals
 
           geometry.verticesNeedUpdate = true;
