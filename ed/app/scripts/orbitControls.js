@@ -5,6 +5,7 @@
  * @author WestLangley / http://github.com/WestLangley
  * @author erich666 / http://erichaines.com
  */
+/*eslint no-redeclare: ["error", { "builtinGlobals": false }]*/
 /*global THREE, console */
 
 (function () {
