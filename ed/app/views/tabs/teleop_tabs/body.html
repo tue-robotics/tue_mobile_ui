@@ -2,30 +2,32 @@
     <button class="btn btn-primary" ng-click="loadConfiguration()" ng-show="joint_names === undefined">Load configuration</button>
     <div ng-show="joint_names !== undefined">
       <div class="panel-group" id="accordion">
-        <div class="panel panel-primary">
+        <!-- body parts -->
+        <div class="panel panel-primary" ng-repeat="(part_name, joints) in default_configurations">
           <div class="panel-heading">
             <h4 class="panel-title">
-              <a data-toggle="collapse" data-parent="#accordion" href="#collapseArm">Arm</a>
+              <a data-toggle="collapse" data-parent="#accordion" href="#collapse{{part_name}}">{{part_name}}</a>
             </h4>
           </div>
-          <div id="collapseArm" class="panel-collapse collapse">
+          <div id="collapse{{part_name}}" class="panel-collapse collapse">
             <ul class="list-group">
-                <a href="#" class="list-group-item" ng-repeat="(key, value) in default_configurations['leftArm']"
-                type="button"  ng-click="sendJointCommand({body_part: 'leftArm', configuration: key});">
-                {{key | makeNice}}</a>
+                <a href="#" class="list-group-item" ng-repeat="(config_name, value) in default_configurations[part_name]"
+                type="button"  ng-click="sendJointCommand({body_part: part_name, configuration: config_name});">
+                {{config_name | makeNice}}</a>
             </ul>
           </div>
         </div>
-        <div class="panel panel-primary">
+        <!-- grippers -->
+        <div class="panel panel-primary" ng-repeat="(gripper_name, gripper) in grippers">
           <div class="panel-heading">
             <h4 class="panel-title">
-              <a data-toggle="collapse" data-parent="#accordion" href="#collapseGripper">Gripper</a>
+              <a data-toggle="collapse" data-parent="#accordion" href="#collapse{{gripper_name}}">{{gripper_name}}</a>
             </h4>
           </div>
-          <div id="collapseGripper" class="panel-collapse collapse">
+          <div id="collapse{{gripper_name}}" class="panel-collapse collapse">
             <ul class="list-group">
-              <a href="#" class="list-group-item" ng-click="sendGripperCommand({side: 'left', direction: 'open'});">Open left</a>
-              <a href="#" class="list-group-item" ng-click="sendGripperCommand({side: 'left', direction: 'close'});">Close left</a>
+              <a href="#" class="list-group-item" ng-click="sendGripperCommand({side: gripper_name, direction: 'open'});">Open</a>
+              <a href="#" class="list-group-item" ng-click="sendGripperCommand({side: gripper_name, direction: 'close'});">Close</a>
             </ul>
           </div>
         </div>
