@@ -6,8 +6,6 @@ angular.module('EdGuiApp')
 
     $scope.sendJointCommand = function(cmd) {
       console.log('Joint command: ', cmd)
-      robot.body.jointNames['leftArm'] = ["arm_lift_joint", "arm_flex_joint", "arm_roll_joint", "wrist_flex_joint", "wrist_roll_joint"]
-      robot.body.jointNames['rightArm'] = ["arm_lift_joint", "arm_flex_joint", "arm_roll_joint", "wrist_flex_joint", "wrist_roll_joint"]
       robot.body.sendGoal(cmd)
     }
 
@@ -19,9 +17,11 @@ angular.module('EdGuiApp')
     $scope.loadConfiguration = function() {
       $scope.joint_names = robot.body.jointNames
       $scope.default_configurations = robot.body.defaultConfigurations
+      $scope.grippers = robot.body.grippers
     }
 
     $scope.joint_names = robot.body.jointNames
     $scope.default_configurations = robot.body.defaultConfigurations
+    $scope.grippers = robot.body.grippers
 
   });
