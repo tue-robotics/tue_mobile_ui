@@ -54,6 +54,27 @@ module.exports = {
         use: {
           loader: 'html-loader',
           options: {
+            attributes: {
+              list: [
+                // All default supported tags and attributes
+                "...",
+                {
+                  tag: "img",
+                  attribute: "src",
+                  type: "src",
+                },
+                {
+                  tag: "link",
+                  attribute: "href",
+                  type: "src",
+                },
+                {
+                  tag: "source",
+                  attribute: "src",
+                  type: "src",
+                },
+              ],
+            },
             minimize: false,
           },
         }
