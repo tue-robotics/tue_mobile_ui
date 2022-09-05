@@ -31,6 +31,9 @@ jobs:
         package: ${{ fromJson(needs.matrix.outputs.packages) }}
     steps:
       - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
       - name: Install
         run: |
           npm ci --prefix ${{ matrix.package }}
