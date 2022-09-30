@@ -159,7 +159,7 @@ const SceneRenderer = (function (THREE) {
 
         var material = new THREE.MeshPhongMaterial({
           color: stringToColor(obj.id),
-          flatShading: THREE.FlatShading,
+          flatShading: true,
           shininess: 0,
           emissive: 0x020202
         });
