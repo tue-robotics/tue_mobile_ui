@@ -1,8 +1,8 @@
 {
   "private": true,
   "scripts": {
-    "start": "webpack-dev-server --open",
-    "build": "cross-env NODE_ENV=production webpack -p --progress",
+    "start": "cross-env NODE_ENV=development NODE_OPTIONS=--openssl-legacy-provider webpack-dev-server --open",
+    "build": "cross-env NODE_ENV=production NODE_OPTIONS=--openssl-legacy-provider webpack -p --progress",
     "test": "true"
   },
   "keywords": [],
