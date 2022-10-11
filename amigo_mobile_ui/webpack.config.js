@@ -2,7 +2,9 @@ const path = require('path');
 const webpack = require('webpack'); //to access built-in plugins
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
-const ExtractTextPlugin = require('extract-text-webpack-plugin');
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+
+const devMode = process.env.NODE_ENV !== "production";
 
 module.exports = {
   entry: {
@@ -10,7 +12,9 @@ module.exports = {
   },
   devtool: 'source-map',
   devServer: {
-    contentBase: './dist'
+    static: {
+      directory: './dist'
+    }
   },
   module: {
     rules: [
@@ -19,16 +23,33 @@ module.exports = {
         use: {
           loader: 'html-loader',
           options: {
-            attrs: ['img:src', 'link:href', 'source:src']
+            attributes: {
+              list: [
+                // All default supported tags and attributes
+                "...",
+                {
+                  tag: "img",
+                  attribute: "src",
+                  type: "src",
+                },
+                {
+                  tag: "link",
+                  attribute: "href",
+                  type: "src",
+                },
+                {
+                  tag: "source",
+                  attribute: "src",
+                  type: "src",
+                },
+              ],
+            },
           }
         }
       },
       {
         test: /\.css$/,
-        use: ExtractTextPlugin.extract({
-          fallback: "style-loader",
-          use: "css-loader"
-        })
+        use: [MiniCssExtractPlugin.loader, "css-loader"],
       },
       {
         test: /\.woff($|\?)|\.woff2($|\?)|\.ttf($|\?)|\.eot($|\?)|\.svg($|\?)/,
@@ -47,7 +68,15 @@ module.exports = {
       }
     ]
   },
-  plugins: [
+  plugins: getPlugins(),
+  output: {
+    filename: devMode ? '[name]-[hash].js' : '[name]-[chunkhash].js',
+    path: path.resolve(__dirname, 'dist')
+  }
+};
+
+function getPlugins() {
+  var plugins = [
     new CleanWebpackPlugin(),
     new HtmlWebpackPlugin({
       template: 'app/index.html'
@@ -56,13 +85,11 @@ module.exports = {
       // $: 'jquery',
       jQuery: 'jquery'
     }),
-    new ExtractTextPlugin({
-      filename: "[name]-[contenthash].css",
-      disable: process.env.NODE_ENV !== 'production'
+    new MiniCssExtractPlugin({
+      filename: "[name]-[chunkhash].css",
+      chunkFilename: "[id]-[chunkhash].css"
     }),
-  ],
-  output: {
-    filename: "[name]-[chunkhash].js",
-    path: path.resolve(__dirname, 'dist')
-  }
-};
+  ];
+
+  return plugins;
+}
