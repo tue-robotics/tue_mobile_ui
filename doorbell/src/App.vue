@@ -2,7 +2,7 @@
   <div className="App">
     <div :className="'App-status ' + this.status" />
     <p className="App-intro">
-      <DoorBell :ros="AutoRos.ros"/>
+      <DoorBell :ros="autoRos.ros"/>
     </p>
   </div>
 </template>
@@ -23,17 +23,17 @@ export default {
   },
   data () {
     return {
-      AutoRos: AutoRos,
+      autoRos: new AutoRos(),
       status: 'connecting'
     }
   },
   mounted () {
-    this.AutoRos.on('status', this.onStatus.bind(this))
-    this.AutoRos.connect(defaultUrl)
+    this.autoRos.on('status', this.onStatus.bind(this))
+    this.autoRos.connect(defaultUrl)
   },
   methods: {
     onStatus () {
-      this.status = this.AutoRos.status
+      this.status = this.autoRos.status
     }
   }
 }
