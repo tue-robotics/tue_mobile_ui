@@ -27,6 +27,7 @@
   <exec_depend>geometry_msgs</exec_depend>
   <exec_depend>head_ref_msgs</exec_depend>
   <exec_depend>rgbd_msgs</exec_depend>
+  <exec_depend>rosapi</exec_depend>
   <exec_depend>rosbridge_server</exec_depend>
   <exec_depend>sensor_msgs</exec_depend>
   <exec_depend>std_msgs</exec_depend>
