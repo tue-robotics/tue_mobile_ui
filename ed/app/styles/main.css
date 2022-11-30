@@ -3,15 +3,14 @@ body {
   overflow: hidden;
   background: black;
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 14px;
   color: #333;
 }
 
 html, body {
   margin: 0;
-  padding: 0;
   height: 100%;
   overflow: hidden;
-  /*position: fixed;*/
 }
 
 /*
@@ -22,8 +21,28 @@ html, body {
  * Top navigation
  * Hide default border to remove 1px line.
  */
-.navbar-fixed-top {
+.navbar {
+  padding: 0;
+}
+.navbar-dark {
+  background-color: #222;
+}
+.fixed-top {
   border: 0;
+}
+.navbar-brand {
+  font-size: 16px;
+  padding: 13px;
+}
+.container-fluid {
+  padding-left: 0px;
+  padding-right: 0px;
+}
+
+.nav-link {
+  font-size: 14px;
+  line-height: 20px;
+  color: #337ab7;
 }
 
 /*
@@ -99,9 +118,11 @@ html, body {
 }
 
 .progress span {
-    position: absolute;
-    display: block;
-    width: 100%;
+  position: absolute;
+  display: block;
+  width: 100%;
+  color: #fff;
+  text-align: center;
  }
 
 /* Table buttons */
@@ -146,6 +167,7 @@ table.buttons .btn {
   background-color: white;
   border-right: 1px solid #222;
   height: 100%;
+  font-size: 14px;
 }
 
 #teleop-tabs-content a {
@@ -202,9 +224,28 @@ table.buttons .btn {
   height: 100%;
 }
 
-.panel {
+.card-header {
+  background-color: #337ab7;
+  border-color: #337ab7;
+}
+
+.card {
   margin-bottom: 5px;
 }
+
+#sidebar h4.card-title {
+  font-size: 16px;
+}
+
+.card-title {
+  margin-bottom: 0px;
+}
+
+.card-title a {
+  color: #fff;
+}
+
+/* list-group-item */
 
 .nav-tabs li a {
   padding: 10px;
@@ -212,15 +253,18 @@ table.buttons .btn {
 
 /* TELEOP TAB */
 
-#teleop .panel-body {
+#teleop .card-body {
   padding: 5px;
 }
 
-#teleop-speech button {
-  margin-top: 5px;
+#teleop-body .card-body {
+  padding: 0px;
+}
+#teleop-body .list-group-item {
+  color: #555;
 }
 
-#teleop-body button {
+#teleop-speech button, #teleop-body button {
   margin-top: 5px;
 }
 
@@ -230,6 +274,11 @@ table.buttons .btn {
   background-repeat: no-repeat;
   background-position: center center;
   background-size: 80%;
+}
+
+.btn-primary {
+  background-color: #337ab7;
+  border-color: #337ab7;
 }
 
 .models {

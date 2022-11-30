@@ -1,14 +1,14 @@
-<div class="panel panel-default" ng-controller="ActionsCtrl" ng-init="active=false;idle=false">
-  <div class="panel-body">
+<div class="card" ng-controller="ActionsCtrl" ng-init="active=false;idle=false">
+  <div class="card-body">
     <h5>Generic</h5>
     <div>
       <button type="button" class="btn btn-primary" ng-click="trigger('gpsr');" ng-disabled="active">Trigger</button>
       <button type="button" class="btn btn-primary" ng-click="cancel();">Cancel</button>
     </div>
 
-    <!-- <div class="panel panel-primary" style="margin-top: 10px;margin-bottom: 10px;">
-        <div class="panel-heading">Current action</div>
-        <div class="panel-body" ng-model="ActionsCtrl">{{current_subtask}}</div>
+    <!-- <div class="card" style="margin-top: 10px;margin-bottom: 10px;">
+        <div class="card-header">Current action</div>
+        <div class="card-body" ng-model="ActionsCtrl">{{current_subtask}}</div>
     </div> -->
     <h5>Shortcuts</h5>
     <div>

@@ -5,9 +5,9 @@ angular.module('EdGuiApp')
 
     $scope.actionList = [
       {name: 'inspect', entityDescription: 'entity', icon: 'camera', color: 'red'},
-      {name: 'pick-up', entityDescription: 'object', icon: 'hand-grab-o', color: 'blue'},
+      {name: 'pick-up', entityDescription: 'object', icon: 'hand-back-fist', color: 'blue'},
       {name: 'navigate-to', entityDescription: 'target-location', icon: 'arrows-alt', color: 'green'},
-      {name: 'place', entityDescription: 'object', icon: 'hand-lizard-o', color: 'red'}
+      {name: 'place', entityDescription: 'object', icon: 'hand-lizard', color: 'red'}
     ];
 
     $scope.options = { items: [] };
@@ -38,7 +38,7 @@ angular.module('EdGuiApp')
 
       $scope.options.items = $scope.actionList.map(function(action) {
         return {
-          cssClass: 'fa fa-' + action.icon,
+          cssClass: 'fa-solid fa-' + action.icon,
           background: action.color,
           onclick: function(event) {
             // build the recipe
