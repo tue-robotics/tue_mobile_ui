@@ -7,7 +7,7 @@ import './styles/main.css';
 
 // import js
 
-import 'angular-circular-navigation/angular-circular-navigation'
+import 'angular-circular-navigation/angular-circular-navigation';
 import 'ngdraggable';
 import 'bootstrap/js/tab';
 
