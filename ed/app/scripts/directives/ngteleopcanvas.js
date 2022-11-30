@@ -30,6 +30,7 @@ angular.module('EdGuiApp')
         window.addEventListener('resize', resizeCanvas, false);
 
         function resizeCanvas() {
+          console.debug("resizeCanvas: width:", parent.width(), "height: ", parent.height());
           canvas.width = parent.width(); //parent.prop('offsetWidth');
           canvas.height = parent.height(); //parent.prop('offsetHeight');
         }
