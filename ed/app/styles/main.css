@@ -170,9 +170,17 @@ table.buttons .btn {
   font-size: 14px;
 }
 
+#teleop-tabs-content {
+  display: block;
+}
+
 #teleop-tabs-content a {
   padding-left: 15px;
   padding-right: 15px;
+}
+
+#teleop-tabs-content ul {
+  padding: 0px;
 }
 
 .models {
@@ -224,7 +232,7 @@ table.buttons .btn {
   height: 100%;
 }
 
-.card-header {
+#accordion .card-header {
   background-color: #337ab7;
   border-color: #337ab7;
 }
