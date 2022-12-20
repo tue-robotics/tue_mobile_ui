@@ -20,7 +20,7 @@ angular.module('EdGuiApp')
         // The state where the buttons will go on start and on timeout
         var DEFAULT_STATE = [
           {
-            icon: 'glyphicon glyphicon-question-sign',
+            icon: 'fa-solid fa-question',
             class: levelColorMap[3],
           }
         ];
@@ -53,7 +53,7 @@ angular.module('EdGuiApp')
             {
               name: "ebuttonToScope",
               color: levelToClass(value ? 1 : 0),
-              icon: 'glyphicon glyphicon-ban-circle'
+              icon: 'fa-solid fa-ban'
             }
           ]
         }

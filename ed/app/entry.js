@@ -1,15 +1,16 @@
 // import css
 import 'bootstrap/dist/css/bootstrap.min.css';
-import "bootstrap/dist/css/bootstrap.css";
 import "angular-circular-navigation/angular-circular-navigation.css";
-import "font-awesome/css/font-awesome.min.css";
+import "@fortawesome/fontawesome-free/css/fontawesome.min.css";
+import "@fortawesome/fontawesome-free/css/regular.min.css";
+import "@fortawesome/fontawesome-free/css/solid.min.css";
 import './styles/main.css';
 
 // import js
 
-import 'angular-circular-navigation/angular-circular-navigation'
+import 'angular-circular-navigation/angular-circular-navigation';
 import 'ngdraggable';
-import 'bootstrap/js/tab';
+import 'bootstrap/js/dist/tab';
 
 import './scripts/app'
 

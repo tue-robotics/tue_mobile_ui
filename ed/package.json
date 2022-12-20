@@ -8,12 +8,11 @@
     "test": "true"
   },
   "dependencies": {
+    "@fortawesome/fontawesome-free": "^6.2.1",
     "angular": "^1.8.0",
     "angular-circular-navigation": "git+https://github.com/tue-robotics/angular-circular-navigation.git",
-    "angular-ui-bootstrap": "^2.5.0",
-    "bootstrap": "^3.4.1",
+    "bootstrap": "^4.0.0",
     "fastclick": "^1.0.6",
-    "font-awesome": "^4.7.0",
     "jquery": "^3.6.0",
     "ngdraggable": "^0.1.10",
     "robot-api": "^1.0.0",
