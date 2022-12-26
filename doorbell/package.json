@@ -13,7 +13,7 @@
   },
   "dependencies": {
     "auto-ros": "^1.0.0",
-    "core-js": "^3.26.0",
+    "core-js": "^3.27.0",
     "os-browserify": "^0.3.0",
     "roslib": "^1.3.0",
     "vue": "^3.2.13"
