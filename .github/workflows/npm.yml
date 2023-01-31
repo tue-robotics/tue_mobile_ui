@@ -20,7 +20,7 @@ jobs:
         uses: tue-robotics/tue-env/ci/modified-packages@master
         with:
           commit-range: ${{ steps.commit-range.outputs.commit-range }}
-          ignored-packages: launch old challenge_open
+          ignored-packages: launch old
   npm:
     name: NPM - ${{ matrix.package }}
     runs-on: ubuntu-latest
