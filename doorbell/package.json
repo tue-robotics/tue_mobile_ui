@@ -29,7 +29,7 @@
     "chai": "^4.2.0",
     "eslint": "^8.35.0",
     "eslint-plugin-vue": "^9.9.0",
-    "rimraf": "^4.1.0"
+    "rimraf": "^4.2.0"
   },
   "eslintConfig": {
     "root": true,
