@@ -27,7 +27,7 @@
     "@vue/cli-service": "^5.0.8",
     "@vue/test-utils": "^2.3.0",
     "chai": "^4.2.0",
-    "eslint": "^8.39.0",
+    "eslint": "^8.40.0",
     "eslint-plugin-vue": "^9.11.0",
     "rimraf": "^5.0.0"
   },
