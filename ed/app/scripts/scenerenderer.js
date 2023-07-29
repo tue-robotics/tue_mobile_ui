@@ -33,8 +33,8 @@ const SceneRenderer = (function (THREE) {
     var scene = this.scene = new THREE.Scene();
 
     // Lights
-    scene.add(new THREE.AmbientLight(0x404040));
-    var light = new THREE.DirectionalLight(0xffffff);
+    scene.add(new THREE.AmbientLight(0x404040, Math.PI));
+    var light = new THREE.DirectionalLight(0xffffff, Math.PI);
     light.position.set(3, 12, 8);
     scene.add(light);
 
