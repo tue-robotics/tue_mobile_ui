@@ -25,7 +25,7 @@
     "bootstrap": "^3.3.7",
     "hammerjs": "^2.0.8",
     "jquery": "^3.7.0",
-    "roslib": "^1.3.0",
+    "roslib": "^1.4.1",
     "snapjs": "^1.2.1"
   }
 }
