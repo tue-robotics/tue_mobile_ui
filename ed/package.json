@@ -16,7 +16,7 @@
     "jquery": "^3.7.0",
     "ngdraggable": "^0.1.10",
     "robot-api": "^1.0.0",
-    "roslib": "^1.3.0",
+    "roslib": "^1.4.1",
     "three": "^0.157.0"
   },
   "devDependencies": {
