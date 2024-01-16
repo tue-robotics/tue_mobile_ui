@@ -17,7 +17,7 @@
     "ngdraggable": "^0.1.10",
     "robot-api": "^1.0.0",
     "roslib": "^1.4.1",
-    "three": "^0.157.0"
+    "three": "^0.159.0"
   },
   "devDependencies": {
     "clean-webpack-plugin": "^4.0.0",
