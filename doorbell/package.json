@@ -26,7 +26,7 @@
     "@vue/cli-plugin-unit-mocha": "^5.0.8",
     "@vue/cli-service": "^5.0.8",
     "@vue/test-utils": "^2.4.0",
-    "chai": "^5.0.0",
+    "chai": "^5.1.0",
     "eslint": "^8.56.0",
     "eslint-plugin-vue": "^9.21.0",
     "rimraf": "^5.0.0"
