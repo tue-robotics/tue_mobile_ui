@@ -15,7 +15,7 @@
     "auto-ros": "^1.1.0",
     "core-js": "^3.47.0",
     "os-browserify": "^0.3.0",
-    "roslib": "^1.4.1",
+    "roslib": "^2.0.1",
     "vue": "^3.5.0"
   },
   "devDependencies": {
